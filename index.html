@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRO Formulario — Dogfy Diet</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F2ED;
+  --bg2: #EDEAE3;
+  --bg3: #E3DFD6;
+  --surface: #FAFAF7;
+  --border: #D6D1C4;
+  --border2: #C4BFB0;
+  --text: #1A1916;
+  --text2: #6B6760;
+  --text3: #9E9A93;
+  --orange: #E8541A;
+  --orange-light: #FBE9E1;
+  --orange-border: #F0A882;
+  --green: #2D7A45;
+  --green-light: #E3F2E9;
+  --green-border: #8EC9A0;
+  --amber: #B85C0A;
+  --amber-light: #FEF0E0;
+  --amber-border: #F5C07A;
+  --blue: #1B5FA8;
+  --blue-light: #E3EEF9;
+  --blue-border: #8DBDE8;
+  --red: #C0281E;
+  --red-light: #FDECEA;
+  --red-border: #F0A09C;
+  --gray: #5F5C57;
+  --gray-light: #EDEAE3;
+  --gray-border: #C4BFB0;
+  --purple: #5B3FA8;
+  --purple-light: #EDEBF9;
+  --font-mono: 'DM Mono', monospace;
+  --font-sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* HEADER */
+.header {
+  background: var(--text);
+  color: var(--bg);
+  padding: 28px 40px 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.header-left {}
+.header-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+.header-title {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--bg);
+}
+.header-title span { color: var(--orange); }
+.header-meta {
+  font-size: 11px;
+  color: #9E9A93;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+}
+.header-stats {
+  display: flex;
+  gap: 24px;
+}
+.hstat {
+  text-align: right;
+}
+.hstat-val {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--bg);
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+.hstat-val.pos { color: #6BD994; }
+.hstat-val.warn { color: var(--orange); }
+.hstat-lbl {
+  font-size: 10px;
+  color: #9E9A93;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: 3px;
+}
+
+/* FUNNEL BAR */
+.funnel-bar {
+  background: var(--text);
+  border-top: 1px solid #2A2926;
+  padding: 0 40px 20px;
+  overflow-x: auto;
+}
+.funnel-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6B6760;
+  margin-bottom: 10px;
+  padding-top: 16px;
+}
+.funnel-steps {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 60px;
+}
+.funnel-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 52px;
+}
+.funnel-bar-inner {
+  width: 100%;
+  background: #2A2926;
+  border-radius: 3px 3px 0 0;
+  position: relative;
+  transition: background .2s;
+  cursor: default;
+}
+.funnel-bar-inner:hover { background: #383531; }
+.funnel-bar-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 3px 3px 0 0;
+  transition: height .6s cubic-bezier(.4,0,.2,1);
+}
+.funnel-step-name {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: #6B6760;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60px;
+}
+.funnel-step-pct {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* NAV */
+.nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+.nav-tab {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+  font-weight: 500;
+}
+.nav-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--bg2);
+  padding: 1px 6px;
+  border-radius: 10px;
+  color: var(--text3);
+}
+.nav-tab.active .nav-count {
+  background: var(--orange-light);
+  color: var(--orange);
+}
+
+/* MAIN */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: center;
+}
+.filter-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text3);
+  margin-right: 4px;
+}
+.filter-btn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  transition: all .15s;
+}
+.filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.filter-btn.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+/* VIEW */
+.view { display: none; }
+.view.active { display: block; }
+
+/* SECTION */
+.section-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  margin: 28px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* CARDS */
+.cards { display: flex; flex-direction: column; gap: 10px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: border-color .15s, box-shadow .15s;
+  cursor: default;
+}
+.card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+}
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.card-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text3);
+  background: var(--bg2);
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 2px;
+  letter-spacing: .04em;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.3;
+}
+.card-desc {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  padding-left: 42px;
+}
+.card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding-left: 42px;
+}
+
+/* RESULT HIGHLIGHT */
+.card.has-result {
+  border-left: 3px solid var(--green-border);
+}
+.card.has-result-warn {
+  border-left: 3px solid var(--amber-border);
+}
+.card.deprecated {
+  opacity: .6;
+  border-left: 3px solid var(--border);
+}
+.card.in-progress {
+  border-left: 3px solid var(--orange-border);
+}
+.card.new-hypothesis {
+  border-left: 3px solid var(--blue-border);
+}
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.b-done { background: var(--green-light); color: var(--green); border: 1px solid var(--green-border); }
+.b-done .badge-dot { background: var(--green); }
+.b-inprog { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
+.b-inprog .badge-dot { background: var(--amber); }
+.b-qa { background: var(--orange-light); color: var(--orange); border: 1px solid var(--orange-border); }
+.b-qa .badge-dot { background: var(--orange); }
+.b-idea { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-border); }
+.b-idea .badge-dot { background: var(--blue); }
+.b-depr { background: var(--gray-light); color: var(--gray); border: 1px solid var(--gray-border); }
+.b-depr .badge-dot { background: var(--gray); }
+.b-ready { background: var(--purple-light); color: var(--purple); border: 1px solid #C4B8F0; }
+.b-ready .badge-dot { background: var(--purple); }
+
+/* RESULT PILLS */
+.result {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+}
+.result-pos { background: var(--green-light); color: var(--green); }
+.result-neg { background: var(--red-light); color: var(--red); }
+.result-neutral { background: var(--gray-light); color: var(--gray); }
+
+/* MARKET PILLS */
+.market {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+}
+.m-es { background: #FBE9E1; color: #A83A14; }
+.m-it { background: #E3EEF9; color: #1B5FA8; }
+.m-fr { background: #E3F2E9; color: #2D7A45; }
+.m-de { background: var(--purple-light); color: var(--purple); }
+.m-all { background: var(--bg2); color: var(--gray); }
+
+/* STEP TAG */
+.step {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text2);
+}
+
+/* DATE */
+.date { font-family: var(--font-mono); font-size: 10px; color: var(--text3); }
+
+/* LINK */
+.lnk {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--orange);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .15s;
+}
+.lnk:hover { border-bottom-color: var(--orange); }
+
+/* IMPACT/EFFORT */
+.impact-hi { font-family: var(--font-mono); font-size: 10px; color: var(--green); font-weight: 500; }
+.impact-mid { font-family: var(--font-mono); font-size: 10px; color: var(--amber); font-weight: 500; }
+.effort-lo { font-family: var(--font-mono); font-size: 10px; color: var(--blue); font-weight: 500; }
+.effort-mid { font-family: var(--font-mono); font-size: 10px; color: var(--amber); font-weight: 500; }
+.effort-hi { font-family: var(--font-mono); font-size: 10px; color: var(--red); font-weight: 500; }
+.new-tag { font-family: var(--font-mono); font-size: 9px; background: var(--blue-light); color: var(--blue); padding: 1px 5px; border-radius: 3px; letter-spacing: .04em; }
+
+/* ROADMAP TABLE */
+.roadmap-wrap { overflow-x: auto; }
+.roadmap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.roadmap-table th {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.roadmap-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--bg2);
+  vertical-align: top;
+}
+.roadmap-table tr:hover td { background: var(--bg2); }
+.roadmap-table tr:last-child td { border-bottom: none; }
+.roadmap-quarter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+.roadmap-action { font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.roadmap-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+/* SUMMARY STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.stat-val {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-val.pos { color: var(--green); }
+.stat-val.warn { color: var(--orange); }
+.stat-lbl { font-size: 12px; color: var(--text2); }
+.stat-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+/* FUNNEL MINI */
+.funnel-mini {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 28px;
+}
+.funnel-mini-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  margin-bottom: 16px;
+}
+.funnel-mini-steps {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 8px;
+  align-items: end;
+}
+.fms {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.fms-bar-wrap {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: flex-end;
+}
+.fms-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  transition: all .4s;
+}
+.fms-pct {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+}
+.fms-name {
+  font-size: 9px;
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.3;
+  max-width: 64px;
+}
+.abandon-marker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--red);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+/* HIDDEN */
+.hidden { display: none !important; }
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .header { padding: 20px; flex-direction: column; align-items: flex-start; }
+  .header-stats { flex-wrap: wrap; gap: 12px; }
+  .hstat { text-align: left; }
+  .nav { padding: 0 20px; }
+  .main { padding: 20px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .funnel-mini-steps { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-tag">Dogfy Diet · CRO · Documento vivo</div>
+    <div class="header-title">Formulario de <span>conversión</span><br>Mapa global de tests</div>
+    <div class="header-meta">Actualizado 17/03/2026 · ES · IT · FR · DE</div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val pos">+16%</div>
+      <div class="hstat-lbl">CR global</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val warn">84%</div>
+      <div class="hstat-lbl">Abandono checkout</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val warn">35–91%</div>
+      <div class="hstat-lbl">Abandono lead gate</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val">+670</div>
+      <div class="hstat-lbl">Pedidos extra/mes</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-tab active" onclick="showView('resumen')">Resumen <span class="nav-count">4</span></div>
+  <div class="nav-tab" onclick="showView('ejecutados')">Ejecutados <span class="nav-count">7</span></div>
+  <div class="nav-tab" onclick="showView('en-curso')">En curso <span class="nav-count">5</span></div>
+  <div class="nav-tab" onclick="showView('backlog')">Backlog <span class="nav-count">9</span></div>
+  <div class="nav-tab" onclick="showView('roadmap')">Roadmap Q2–Q3</div>
+</div>
+
+<div class="main">
+
+<!-- ===================== RESUMEN ===================== -->
+<div class="view active" id="view-resumen">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-val pos">7</div>
+      <div class="stat-lbl">Tests ejecutados</div>
+      <div class="stat-sub">4 ganadores · 3 deprecated</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val warn">5</div>
+      <div class="stat-lbl">En curso ahora</div>
+      <div class="stat-sub">A1 en QA · A3 Ready for Dev</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">9</div>
+      <div class="stat-lbl">En backlog</div>
+      <div class="stat-sub">5 sin ticket · 4 con base técnica</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val pos">4.25%</div>
+      <div class="stat-lbl">CR global actual</div>
+      <div class="stat-sub">Era 3.66% antes del nuevo form</div>
+    </div>
+  </div>
+
+  <!-- FUNNEL MINI -->
+  <div class="funnel-mini">
+    <div class="funnel-mini-title">Puntos de fuga — funnel completo (GA4 · todos los mercados · mar 2026)</div>
+    <div class="funnel-mini-steps">
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:80px;background:#1A1916;"></div></div>
+        <div class="fms-pct" style="color:var(--text)">100%</div>
+        <div class="fms-name">Raza</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:55px;background:#C0281E;"></div></div>
+        <div class="fms-pct" style="color:var(--red)">69%</div>
+        <div class="fms-name">Nombre</div>
+        <div class="abandon-marker">▼ 31%</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:51px;background:#2D6F8F;"></div></div>
+        <div class="fms-pct" style="color:var(--text2)">64%</div>
+        <div class="fms-name">Género</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:50px;background:#2D6F8F;"></div></div>
+        <div class="fms-pct" style="color:var(--text2)">63%</div>
+        <div class="fms-name">Edad</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:39px;background:#C0281E;"></div></div>
+        <div class="fms-pct" style="color:var(--red)">49%</div>
+        <div class="fms-name">Silueta</div>
+        <div class="abandon-marker">▼ 23%</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:38px;background:#2D6F8F;"></div></div>
+        <div class="fms-pct" style="color:var(--text2)">47%</div>
+        <div class="fms-name">Actividad</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:37px;background:#2D6F8F;"></div></div>
+        <div class="fms-pct" style="color:var(--text2)">46%</div>
+        <div class="fms-name">Patologías</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:24px;background:#C0281E;"></div></div>
+        <div class="fms-pct" style="color:var(--red)">30%</div>
+        <div class="fms-name">Lead gate</div>
+        <div class="abandon-marker">▼ 35–91%</div>
+      </div>
+      <div class="fms">
+        <div class="fms-bar-wrap"><div class="fms-bar" style="height:4px;background:#C0281E;"></div></div>
+        <div class="fms-pct" style="color:var(--red)">4%</div>
+        <div class="fms-name">Compra</div>
+        <div class="abandon-marker">▼ 84%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP OPORTUNIDADES -->
+  <div class="section-title">Las 3 mayores oportunidades sin explotar</div>
+  <div class="cards">
+    <div class="card new-hypothesis">
+      <div class="card-top">
+        <span class="card-id">B1</span>
+        <span class="card-title">Teléfono opcional en lead gate — mayor potencial del backlog</span>
+      </div>
+      <div class="card-desc">El teléfono obligatorio bloquea el 35–91% de usuarios según mercado y posición. Sin ningún test lanzado. Cambio de configuración, sin rediseño. Potencial de recuperar decenas de miles de leads/mes.</div>
+      <div class="card-footer">
+        <span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span>
+        <span class="result result-neutral">Abandono: 35–91%</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Lead gate</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-lo">↓ Esfuerzo bajo</span>
+      </div>
+    </div>
+    <div class="card in-progress">
+      <div class="card-top">
+        <span class="card-id">A1</span>
+        <span class="card-title">Checkout compactado PDP+Checkout — en QA ahora mismo</span>
+      </div>
+      <div class="card-desc">El mayor punto de abandono del funnel (84%) con un test ya en QA. Unifica producto y pago en un solo scroll. Resultados inminentes.</div>
+      <div class="card-footer">
+        <span class="badge b-qa"><span class="badge-dot"></span>En QA</span>
+        <span class="result result-neutral">Abandono actual: 84%</span>
+        <span class="market m-all">Todos</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2881" target="_blank">SW-2881</a>
+      </div>
+    </div>
+    <div class="card in-progress">
+      <div class="card-top">
+        <span class="card-id">A5</span>
+        <span class="card-title">Apple Pay / Google Pay — técnicamente listo, sin decisión</span>
+      </div>
+      <div class="card-desc">Stripe Express Checkout Element ya integrado. Apple Pay + Google Pay + PayPal disponibles. Solo falta decidir si se lanza como test A/B o implementación directa. 88% del tráfico es mobile.</div>
+      <div class="card-footer">
+        <span class="badge b-ready"><span class="badge-dot"></span>Técnicamente listo</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Checkout</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/wiki/spaces/Technology/pages/42074113" target="_blank">Confluence: Stripe Express</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCION URGENTE -->
+  <div class="section-title">Acción urgente — resultado ganador sin implementar</div>
+  <div class="cards">
+    <div class="card has-result-warn">
+      <div class="card-top">
+        <span class="card-id">A3</span>
+        <span class="card-title">Eliminar CP Francia del lead gate — test ganador +7% CR esperando deploy</span>
+      </div>
+      <div class="card-desc">El test ya se ejecutó y ganó. El mismo cambio en Italia (+8% CR) ya está en producción desde enero. Francia sigue esperando. Cada día sin implementar es conversión perdida.</div>
+      <div class="card-footer">
+        <span class="badge b-inprog"><span class="badge-dot"></span>Ready for Development</span>
+        <span class="result result-pos">+7% CR confirmado</span>
+        <span class="market m-fr">FR</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2923" target="_blank">SW-2923</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EJECUTADOS ===================== -->
+<div class="view" id="view-ejecutados">
+  <div class="section-title">Ganadores — implementados en producción</div>
+  <div class="cards">
+
+    <div class="card has-result">
+      <div class="card-top"><span class="card-id">T1</span><span class="card-title">Nuevo formulario completo — old vs new form</span></div>
+      <div class="card-desc">Rediseño total del funnel: de 5 pasos a ~11–16 pasos con storytelling, personalización dinámica por nombre/raza, microcopy contextual y animaciones. A pesar de ser más largo, el CR mejora porque el usuario se siente co-creador del plan (Endowed Progress + IKEA Effect).</div>
+      <div class="card-footer">
+        <span class="badge b-done"><span class="badge-dot"></span>Implementado</span>
+        <span class="result result-pos">+16% CR global · +670 pedidos/mes</span>
+        <span class="result result-pos">ES +10.47% · FR +136%</span>
+        <span class="market m-es">ES</span><span class="market m-it">IT</span><span class="market m-fr">FR</span>
+        <span class="date">2023–2024</span>
+        <span class="step">Todo el funnel</span>
+      </div>
+    </div>
+
+    <div class="card has-result">
+      <div class="card-top"><span class="card-id">T2</span><span class="card-title">Eliminación código postal lead gate — Italia</span></div>
+      <div class="card-desc">El campo CP en el paso 9 filtraba regiones sin entrega, pero ese número ha disminuido. Test A/B: variante B elimina el campo y mueve la validación al checkout. Resultado positivo, ya implementado definitivamente.</div>
+      <div class="card-footer">
+        <span class="badge b-done"><span class="badge-dot"></span>Implementado</span>
+        <span class="result result-pos">+8% CR</span>
+        <span class="market m-it">IT</span>
+        <span class="date">Ene 2026</span>
+        <span class="step">Lead gate paso 9</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: zipTest:B</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-1548" target="_blank">SW-1548 (test)</a>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2271" target="_blank">SW-2271 (impl.)</a>
+      </div>
+    </div>
+
+    <div class="card has-result">
+      <div class="card-top"><span class="card-id">T3</span><span class="card-title">Eliminación código postal lead gate — Francia</span></div>
+      <div class="card-desc">Mismo test que Italia en Francia. Resultado también positivo. La implementación definitiva está en Ready for Development — aún no desplegada en producción.</div>
+      <div class="card-footer">
+        <span class="badge b-inprog"><span class="badge-dot"></span>Ready for Dev</span>
+        <span class="result result-pos">+7% CR</span>
+        <span class="market m-fr">FR</span>
+        <span class="date">Mar 2026</span>
+        <span class="step">Lead gate paso 9</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2923" target="_blank">SW-2923</a>
+      </div>
+    </div>
+
+    <div class="card has-result">
+      <div class="card-top"><span class="card-id">T4</span><span class="card-title">Eliminación paso Apetito / Glototonería (Sprint CRO 1)</span></div>
+      <div class="card-desc">El campo "apetito" no era vinculante para el algoritmo nutricional ni en la versión actual ni en la nueva. Eliminarlo reduce la longitud del formulario sin pérdida de calidad del plan.</div>
+      <div class="card-footer">
+        <span class="badge b-done"><span class="badge-dot"></span>Implementado</span>
+        <span class="result result-pos">Reducción fricción</span>
+        <span class="market m-all">Todos</span>
+        <span class="date">2024</span>
+        <span class="step">Paso apetito</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Deprecated — sin resultado documentado</div>
+  <div class="cards">
+    <div class="card deprecated">
+      <div class="card-top"><span class="card-id">T5</span><span class="card-title">Reviews Senja en paso lead gate</span></div>
+      <div class="card-desc">Test de añadir testimoniales de Senja antes del email+teléfono para aumentar confianza. Descartado.</div>
+      <div class="card-footer">
+        <span class="badge b-depr"><span class="badge-dot"></span>Deprecated</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Lead gate</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: formStepLeadReviews:B</span>
+      </div>
+    </div>
+    <div class="card deprecated">
+      <div class="card-top"><span class="card-id">T6</span><span class="card-title">Bot Intercom — Francia</span></div>
+      <div class="card-desc">Test con asistente conversacional en el funnel francés. Descartado.</div>
+      <div class="card-footer">
+        <span class="badge b-depr"><span class="badge-dot"></span>Deprecated</span>
+        <span class="market m-fr">FR</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: intercomTest:B/C</span>
+      </div>
+    </div>
+    <div class="card deprecated">
+      <div class="card-top"><span class="card-id">T7</span><span class="card-title">Rueda de la fortuna → componente estático</span></div>
+      <div class="card-desc">Elemento ya no existe en el funnel actual.</div>
+      <div class="card-footer">
+        <span class="badge b-depr"><span class="badge-dot"></span>Deprecated</span>
+        <span class="market m-all">Todos</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: benefitsTesting:B</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EN CURSO ===================== -->
+<div class="view" id="view-en-curso">
+  <div class="section-title">Tests activos y en desarrollo</div>
+  <div class="cards">
+
+    <div class="card in-progress">
+      <div class="card-top"><span class="card-id">A1</span><span class="card-title">Checkout compactado — PDP + Checkout en un solo scroll (CRO 6)</span></div>
+      <div class="card-desc">La página de producto y el checkout se unifican en una experiencia de scroll único. Elimina una pantalla completa de fricción. Actualmente en QA con Natalia. Asignado por Laura Romero.</div>
+      <div class="card-footer">
+        <span class="badge b-qa"><span class="badge-dot"></span>En Pruebas / QA</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Producto + Checkout</span>
+        <span class="date">Creado 02/03/2026</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: checkoutPage:B + hasSummaryPage:false</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2881" target="_blank">SW-2881</a>
+        <a class="lnk" href="https://www.figma.com/design/r2rJqS34lFArpUOjuHDJbQ/Formulario---Tests-A-B?node-id=6-57102" target="_blank">Figma</a>
+      </div>
+    </div>
+
+    <div class="card in-progress">
+      <div class="card-top"><span class="card-id">A2</span><span class="card-title">Test A/B/C campo dirección en checkout — autocomplete Google</span></div>
+      <div class="card-desc">4 variantes: control (formulario actual) · A: 1 input autocomplete · B: autocomplete + campo extra (piso/puerta) · C: autocomplete + campos estructurados. Subtask de diseño finalizada por Alba Larrosa. Reportado por Catalina D'Amato.</div>
+      <div class="card-footer">
+        <span class="badge b-done"><span class="badge-dot"></span>Diseño finalizado</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Checkout · dirección</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-3018" target="_blank">SW-3018</a>
+        <a class="lnk" href="https://www.figma.com/design/r2rJqS34lFArpUOjuHDJbQ/Formulario---Tests-A-B?node-id=879-26703" target="_blank">Figma</a>
+      </div>
+    </div>
+
+    <div class="card has-result-warn">
+      <div class="card-top"><span class="card-id">A3</span><span class="card-title">Implementación definitiva: eliminar CP Francia — test ganador sin deploy</span></div>
+      <div class="card-desc">El test ya se ejecutó y dio +7% CR. Solo falta hacer el deploy en producción. Cada día sin implementar es conversión perdida.</div>
+      <div class="card-footer">
+        <span class="badge b-inprog"><span class="badge-dot"></span>Ready for Development</span>
+        <span class="result result-pos">+7% CR confirmado</span>
+        <span class="market m-fr">FR</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2923" target="_blank">SW-2923</a>
+      </div>
+    </div>
+
+    <div class="card in-progress">
+      <div class="card-top"><span class="card-id">A4</span><span class="card-title">Nuevos flujos para patologías no compatibles</span></div>
+      <div class="card-desc">Actualización del listado de patologías y flujos específicos cuando el perro tiene una patología incompatible. Pendiente revisión I+D y aprobación Laura.</div>
+      <div class="card-footer">
+        <span class="badge b-inprog"><span class="badge-dot"></span>WIP</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Paso patologías</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-3103" target="_blank">SW-3103</a>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-3112" target="_blank">SW-3112 UX</a>
+      </div>
+    </div>
+
+    <div class="card in-progress">
+      <div class="card-top"><span class="card-id">A5</span><span class="card-title">Express Checkout — Apple Pay / Google Pay / PayPal</span></div>
+      <div class="card-desc">Stripe Express Checkout Element ya integrado técnicamente. Soporta Apple Pay (Safari + iOS), Google Pay (Chrome/Edge/Safari), PayPal. Falta decidir si se lanza como test o implementación directa.</div>
+      <div class="card-footer">
+        <span class="badge b-ready"><span class="badge-dot"></span>Técnicamente listo</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Checkout · pago</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: expressCheckout:B/C</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/wiki/spaces/Technology/pages/42074113" target="_blank">Confluence: Stripe Express</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== BACKLOG ===================== -->
+<div class="view" id="view-backlog">
+
+  <div class="filters">
+    <span class="filter-label">Filtrar:</span>
+    <button class="filter-btn active" onclick="filterBacklog('all',this)">Todas</button>
+    <button class="filter-btn" onclick="filterBacklog('lead-gate',this)">Lead gate</button>
+    <button class="filter-btn" onclick="filterBacklog('checkout',this)">Checkout</button>
+    <button class="filter-btn" onclick="filterBacklog('formulario',this)">Formulario</button>
+    <button class="filter-btn" onclick="filterBacklog('alto',this)">Impacto alto</button>
+    <button class="filter-btn" onclick="filterBacklog('bajo',this)">Esfuerzo bajo</button>
+    <button class="filter-btn" onclick="filterBacklog('de',this)">Alemania</button>
+  </div>
+
+  <div class="cards" id="backlog-cards">
+
+    <div class="card new-hypothesis" data-tags="lead-gate alto bajo">
+      <div class="card-top">
+        <span class="card-id">B1</span>
+        <span class="card-title">Teléfono opcional en lead gate <span class="new-tag">NUEVO</span></span>
+      </div>
+      <div class="card-desc">El teléfono obligatorio bloquea el 35–91% de usuarios. Hacerlo opcional con microcopy "para coordinar tu entrega" mantiene la captura sin bloquear. Cambio de configuración puro, sin rediseño necesario. Mayor potencial de todo el backlog.</div>
+      <div class="card-footer">
+        <span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-lo">↓ Esfuerzo bajo</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Lead gate</span>
+        <span class="result result-neutral">Abandono actual: 35–91%</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="lead-gate alto medio">
+      <div class="card-top">
+        <span class="card-id">B2</span>
+        <span class="card-title">Email primero, teléfono en paso separado <span class="new-tag">NUEVO</span></span>
+      </div>
+      <div class="card-desc">2 micro-pasos: primero solo email → luego teléfono. Captura el lead aunque el usuario abandone al pedir el teléfono. Con email ya guardado se puede hacer retargeting de todos los abandonos de teléfono.</div>
+      <div class="card-footer">
+        <span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-mid">→ Esfuerzo medio</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Lead gate</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="lead-gate alto medio">
+      <div class="card-top">
+        <span class="card-id">B3</span>
+        <span class="card-title">Mover lead gate a posición 6 del formulario</span>
+      </div>
+      <div class="card-desc">GA4 lo confirma: lead gate en pos. 7 → 35% abandono; en pos. 9 → 91% abandono. Moverlo antes de la silueta (pos. 6) con encuadre "guardamos tu progreso" convierte el muro en un servicio. Cookie formLeadStep:B ya existe como base técnica.</div>
+      <div class="card-footer">
+        <span class="badge b-ready"><span class="badge-dot"></span>Cookie disponible · sin ticket</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-mid">→ Esfuerzo medio</span>
+        <span class="market m-es">ES</span><span class="market m-it">IT</span><span class="market m-fr">FR</span>
+        <span class="step">Lead gate · posición</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: formLeadStep:B</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="formulario alto medio">
+      <div class="card-top">
+        <span class="card-id">B4</span>
+        <span class="card-title">Edad: etapa vital (Cachorro/Adulto/Senior) vs fecha nacimiento · CRO 2</span>
+      </div>
+      <div class="card-desc">Dos dropdowns (año + mes) generan fricción innecesaria. El algoritmo solo necesita la etapa vital, no la fecha exacta. Slider Cachorro/Adulto/Senior reduce fricción. Diseño alternativo ya existe en Figma. Sprint CRO 2 planificado.</div>
+      <div class="card-footer">
+        <span class="badge b-ready"><span class="badge-dot"></span>Diseño en Figma · sin ticket</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-mid">→ Esfuerzo medio</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Paso 4 · edad</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="formulario medio bajo">
+      <div class="card-top">
+        <span class="card-id">B5</span>
+        <span class="card-title">Animaciones del formulario — con vs sin · CRO 3 y 4</span>
+      </div>
+      <div class="card-desc">Las animaciones entre pasos pueden ralentizar la fluidez percibida en mobile (88% del tráfico). Cookies listas para desactivarlas paso a paso. Test pendiente de lanzar desde el Sprint CRO 3/4 planificado.</div>
+      <div class="card-footer">
+        <span class="badge b-ready"><span class="badge-dot"></span>Cookies listas · sin ticket</span>
+        <span class="impact-mid">→ Impacto medio</span>
+        <span class="effort-lo">↓ Esfuerzo bajo</span>
+        <span class="market m-all">Todos</span>
+        <span class="badge b-depr" style="font-size:10px">Cookie: formAnimations:{stepX:B}</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="formulario medio medio">
+      <div class="card-top">
+        <span class="card-id">B6</span>
+        <span class="card-title">Sexo: solo esterilización vs sexo+esterilización separados</span>
+      </div>
+      <div class="card-desc">Simplificar el paso de género eliminando la pregunta de sexo biológico (solo esterilización) reduce friccón. Alternativa: separar en dos pasos. Dos diseños ya existen en Figma (slides 18–19 del deck "Métricas form").</div>
+      <div class="card-footer">
+        <span class="badge b-ready"><span class="badge-dot"></span>Diseño en Figma · sin ticket</span>
+        <span class="impact-mid">→ Impacto medio</span>
+        <span class="effort-mid">→ Esfuerzo medio</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Paso 3 · género</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="formulario alto medio">
+      <div class="card-top">
+        <span class="card-id">B7</span>
+        <span class="card-title">Formularios reducidos — investigación en curso</span>
+      </div>
+      <div class="card-desc">Versiones más cortas del formulario con distinto nivel de campos. Existe ticket de investigación previa y diseño pero sin test lanzado. Potencial de mejorar el CTR homepage→formulario.</div>
+      <div class="card-footer">
+        <span class="badge b-inprog"><span class="badge-dot"></span>En investigación</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-mid">→ Esfuerzo medio</span>
+        <span class="market m-all">Todos</span>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-1547" target="_blank">SW-1547</a>
+        <a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-1662" target="_blank">SW-1662 research</a>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="lead-gate medio bajo">
+      <div class="card-top">
+        <span class="card-id">B8</span>
+        <span class="card-title">Copy del lead gate adaptado por mercado <span class="new-tag">NUEVO</span></span>
+      </div>
+      <div class="card-desc">El copy actual es idéntico en todos los mercados. ES/IT → tono emocional y exclamativo. FR → informativo y frío, sin exclamaciones. DE → directo, sin emojis, DSGVO prominente. Esfuerzo bajo, solo copy.</div>
+      <div class="card-footer">
+        <span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span>
+        <span class="impact-mid">→ Impacto medio</span>
+        <span class="effort-lo">↓ Esfuerzo bajo</span>
+        <span class="market m-all">Todos</span>
+        <span class="step">Lead gate · copy</span>
+      </div>
+    </div>
+
+    <div class="card new-hypothesis" data-tags="lead-gate alto bajo de">
+      <div class="card-top">
+        <span class="card-id">B9</span>
+        <span class="card-title">Alemania: eliminar teléfono completamente del lead gate <span class="new-tag">NUEVO</span></span>
+      </div>
+      <div class="card-desc">Mercado nuevo (44 usuarios activos vs 996 en ES). La cultura de privacidad alemana (DSGVO) hace que pedir el teléfono en el primer contacto sea especialmente perjudicial para la confianza. Solo email + sellos de privacidad prominentes.</div>
+      <div class="card-footer">
+        <span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span>
+        <span class="impact-hi">↑ Impacto alto</span>
+        <span class="effort-lo">↓ Esfuerzo bajo</span>
+        <span class="market m-de">DE</span>
+        <span class="step">Lead gate</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== ROADMAP ===================== -->
+<div class="view" id="view-roadmap">
+  <div class="roadmap-wrap">
+    <table class="roadmap-table">
+      <thead>
+        <tr>
+          <th style="width:110px">Periodo</th>
+          <th>Test / Acción</th>
+          <th style="width:130px">Estado</th>
+          <th style="width:120px">Mercado</th>
+          <th style="width:100px">Ticket</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="roadmap-quarter">Mar 2026</div></td>
+          <td>
+            <div class="roadmap-action">Deploy CP Francia (A3) — test ya ganador</div>
+            <div class="roadmap-desc">+7% CR confirmado · Solo falta hacer el deploy en producción</div>
+          </td>
+          <td><span class="badge b-inprog"><span class="badge-dot"></span>Ready for Dev</span></td>
+          <td><span class="market m-fr">FR</span></td>
+          <td><a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2923" target="_blank">SW-2923</a></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Mar 2026</div></td>
+          <td>
+            <div class="roadmap-action">Lanzar checkout compactado (A1)</div>
+            <div class="roadmap-desc">Ya en QA · Mayor oportunidad del funnel · 84% abandono checkout</div>
+          </td>
+          <td><span class="badge b-qa"><span class="badge-dot"></span>En QA</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><a class="lnk" href="https://dogfydiet.atlassian.net/browse/SW-2881" target="_blank">SW-2881</a></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Abr 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B1 — Teléfono opcional en lead gate</div>
+            <div class="roadmap-desc">Mayor potencial del backlog · Quick win técnico · Sin rediseño</div>
+          </td>
+          <td><span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Abr 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B4 — Edad: etapa vital vs fecha (CRO 2)</div>
+            <div class="roadmap-desc">Diseño en Figma listo · Sprint CRO 2 planificado</div>
+          </td>
+          <td><span class="badge b-ready"><span class="badge-dot"></span>Diseño listo</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">May 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B3 — Mover lead gate a posición 6</div>
+            <div class="roadmap-desc">Cookie formLeadStep:B ya disponible · Necesita copy nuevo</div>
+          </td>
+          <td><span class="badge b-ready"><span class="badge-dot"></span>Cookie lista</span></td>
+          <td><span class="market m-es">ES</span><span class="market m-it">IT</span><span class="market m-fr">FR</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">May 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B9 — Alemania sin teléfono en lead gate</div>
+            <div class="roadmap-desc">Mercado nuevo · Construir confianza DSGVO · Alta prioridad</div>
+          </td>
+          <td><span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span></td>
+          <td><span class="market m-de">DE</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Jun 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B2 — Email primero, teléfono en paso separado</div>
+            <div class="roadmap-desc">Captura lead aunque abandone el teléfono · Requiere rediseño lead gate</div>
+          </td>
+          <td><span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Jun 2026</div></td>
+          <td>
+            <div class="roadmap-action">Lanzar Apple Pay / Google Pay (A5)</div>
+            <div class="roadmap-desc">Stripe Express ya integrado · Decidir test A/B vs implementación directa</div>
+          </td>
+          <td><span class="badge b-ready"><span class="badge-dot"></span>Técnicamente listo</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><a class="lnk" href="https://dogfydiet.atlassian.net/wiki/spaces/Technology/pages/42074113" target="_blank">Confluence</a></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Q3 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B5 — Animaciones del formulario (CRO 3/4)</div>
+            <div class="roadmap-desc">Cookies listas para cada paso · Medir impacto real en CR</div>
+          </td>
+          <td><span class="badge b-ready"><span class="badge-dot"></span>Cookies listas</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Q3 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B6 — Sexo simplificado</div>
+            <div class="roadmap-desc">Diseño en Figma listo · Solo preguntar esterilización vs pasos separados</div>
+          </td>
+          <td><span class="badge b-ready"><span class="badge-dot"></span>Diseño listo</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+        <tr>
+          <td><div class="roadmap-quarter">Q3 2026</div></td>
+          <td>
+            <div class="roadmap-action">Test B8 — Copy lead gate por mercado</div>
+            <div class="roadmap-desc">ES/IT emocional · FR/DE informativo · Solo copywriting</div>
+          </td>
+          <td><span class="badge b-idea"><span class="badge-dot"></span>Sin ticket</span></td>
+          <td><span class="market m-all">Todos</span></td>
+          <td><span class="date">Crear ticket</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:28px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+    <div class="section-title" style="margin-top:0">Referencias y recursos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+      <a class="lnk" href="https://dogfydiet.atlassian.net/wiki/spaces/Technology/pages/10256409/Set-up+A+B+tests" target="_blank" style="font-size:13px;display:block;padding:8px 10px;background:var(--bg2);border-radius:6px;border:none;color:var(--text)">🍪 Set-up A/B tests — Confluence<br><span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">Todas las cookies disponibles</span></a>
+      <a class="lnk" href="https://dogfydiet.atlassian.net/wiki/spaces/Technology/pages/42074113" target="_blank" style="font-size:13px;display:block;padding:8px 10px;background:var(--bg2);border-radius:6px;border:none;color:var(--text)">💳 Stripe Express Checkout — Confluence<br><span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">Impl. Apple Pay / Google Pay</span></a>
+      <a class="lnk" href="https://www.figma.com/design/rdaM4VoFelw262Lb5WRlqH/Formulario---MASTER?node-id=9467-39896" target="_blank" style="font-size:13px;display:block;padding:8px 10px;background:var(--bg2);border-radius:6px;border:none;color:var(--text)">🎨 Figma Formulario MASTER<br><span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">Diseños en producción</span></a>
+      <a class="lnk" href="https://www.figma.com/design/r2rJqS34lFArpUOjuHDJbQ/Formulario---Tests-A-B" target="_blank" style="font-size:13px;display:block;padding:8px 10px;background:var(--bg2);border-radius:6px;border:none;color:var(--text)">🧪 Figma Formulario Tests A/B<br><span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">Diseños de variantes</span></a>
+      <a class="lnk" href="https://dogfydiet.atlassian.net/wiki/spaces/Producto/pages/277774338" target="_blank" style="font-size:13px;display:block;padding:8px 10px;background:var(--bg2);border-radius:6px;border:none;color:var(--text)">📄 Confluence: Mapa global tests<br><span style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">Versión texto en el space de Producto</span></a>
+      <div style="font-size:13px;padding:8px 10px;background:var(--bg2);border-radius:6px;color:var(--text)">🎯 Tickets activos<br><span style="font-size:10px;color:var(--orange);font-family:var(--font-mono)">SW-2881 · SW-3018 · SW-2923 · SW-3103 · SW-1547</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  const tabs = ['resumen','ejecutados','en-curso','backlog','roadmap'];
+  document.querySelectorAll('.nav-tab')[tabs.indexOf(id)].classList.add('active');
+}
+
+function filterBacklog(tag, btn) {
+  document.querySelectorAll('.filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#backlog-cards .card').forEach(card => {
+    if (tag === 'all') {
+      card.classList.remove('hidden');
+    } else {
+      const tags = card.dataset.tags || '';
+      card.classList.toggle('hidden', !tags.includes(tag));
+    }
+  });
+}
+</script>
+
+</body>
+</html>
