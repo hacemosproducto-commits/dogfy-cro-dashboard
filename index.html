@@ -207,7 +207,7 @@ body{
 .roadmap-desc{font-size:12px;color:var(--text2);line-height:1.5}
 
 /* ── PLAYGROUND ── */
-.pg-levels{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.pg-levels{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;width:100%}
 .pg-col{display:flex;flex-direction:column}
 .pg-col-head{border-radius:12px 12px 0 0;padding:14px 16px}
 .pg-col-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
@@ -1036,41 +1036,62 @@ function pgMkts(arr){return arr.map(m=>`<span style="display:inline-block;paddin
 function pgImp(v){return v==='hi'?'<span style="font-family:var(--font-mono);font-size:9px;color:#1A5C31;background:#E3F2E9;padding:1px 5px;border-radius:3px">↑ Impacto alto</span>':'<span style="font-family:var(--font-mono);font-size:9px;color:#7A3A0A;background:#FEF0E0;padding:1px 5px;border-radius:3px">→ Impacto medio</span>'}
 function pgEff(v){const m={low:['#1B5FA8','#E3EEF9','Esfuerzo bajo'],med:['#7A3A0A','#FEF0E0','Esfuerzo medio'],hi:['#7A1A14','#FDECEA','Esfuerzo alto']};const[c,b,t]=m[v]||['#888','#eee',v];return `<span style="font-family:var(--font-mono);font-size:9px;color:${c};background:${b};padding:1px 5px;border-radius:3px">${t}</span>`}
 
+function pgRender(){
+  const grid=document.getElementById('pg-levels');
+  if(!grid){return;}
+  const headCls=['lh1','lh2','lh3','lh4'];
+  grid.innerHTML=PG_LVL.map((lm,i)=>{
+    const lv=i+1;
+    const items=PG_HYP.filter(h=>h.lv===lv);
+    return `<div class="pg-col">
+      <div class="pg-col-head ${headCls[i]}">
+        <div class="pg-col-title">${lm.title}</div>
+        <div class="pg-col-sub">${lm.sub}</div>
+        <div class="pg-col-badge">${lm.badge}</div>
+      </div>
+      <div class="pg-cards">${items.map(pgCardHTML).join('')}</div>
+    </div>`;
+  }).join('');
+  pgUpdateTop();
+}
+
 function pgCardHTML(h){
   const vArr=pgVotes[h.id]||[], nArr=pgNotes[h.id]||[];
-  const avs=vArr.slice(0,4).map(v=>`<div style="width:18px;height:18px;border-radius:50%;background:#FBE9E1;border:1.5px solid var(--surface);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:600;color:#EF6948;font-family:var(--font-mono)" title="${v}">${v.slice(0,2).toUpperCase()}</div>`).join('');
-  const notesHTML=nArr.length?nArr.map(n=>`<div style="background:${n.ai?'#FBE9E1;border:0.5px solid #F0A882':'var(--bg2)'};border-radius:6px;padding:7px 9px;margin-bottom:5px"><div style="display:flex;gap:6px;align-items:center;margin-bottom:3px"><span style="font-size:10px;font-weight:500;color:${n.ai?'#EF6948':'var(--text)'};font-family:var(--font-mono)">${n.ai?'✦ IA':n.author}</span><span style="font-size:9px;color:var(--text3);font-family:var(--font-mono)">${n.date}</span></div><div style="font-size:11px;color:var(--text2);line-height:1.5">${n.text}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3);font-style:italic;font-family:var(--font-mono)">Sin notas todavía.</div>';
-  const voted=vArr.some(v=>v.startsWith('__me__'));
-  return `<div id="pgc-${h.id}" style="background:var(--surface);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:6px;transition:border-color .15s">
-    <div style="padding:10px 12px 8px;cursor:pointer" onclick="pgToggle('${h.id}')">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:5px">
-        <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);background:var(--bg2);padding:2px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0">${h.id}</span>
-        <span style="font-size:11px;font-weight:500;color:var(--text);flex:1;line-height:1.35">${h.title}${h.isNew?' <span style="font-size:8px;background:#E3EEF9;color:#1B5FA8;padding:1px 4px;border-radius:3px;font-family:var(--font-mono)">NUEVO</span>':''}</span>
-        <span id="chv-${h.id}" style="font-size:9px;color:var(--text3);transition:transform .2s;flex-shrink:0">▼</span>
+  const voted=vArr.length>0;
+  const avs=vArr.slice(0,4).map(v=>`<div class="vav" title="${v}">${v.slice(0,2).toUpperCase()}</div>`).join('');
+  const MKT_CLS={ES:'hm-es',IT:'hm-it',FR:'hm-fr',DE:'hm-de'};
+  const mkts=h.mkts.map(m=>`<span class="hmkt ${MKT_CLS[m]||''}">${m}</span>`).join('');
+  const imp=h.imp==='hi'?'<span class="htag ihi">↑ Impacto alto</span>':'<span class="htag imi">→ Impacto medio</span>';
+  const eff={low:'<span class="htag elow">Esfuerzo bajo</span>',med:'<span class="htag emid">Esfuerzo medio</span>',hi:'<span class="htag ehi">Esfuerzo alto</span>'}[h.eff]||'';
+  const notesHTML=nArr.length?nArr.map(n=>`<div class="note${n.ai?' ai-note':''}"><div class="note-head"><span class="note-author">${n.ai?'✦ IA':n.author}</span><span class="note-date">${n.date}</span></div><div class="note-text">${n.text}</div></div>`).join(''):'<div class="no-notes">Sin notas todavía.</div>';
+  const newTag=h.isNew?'<span class="new-tag">NUEVO</span>':'';
+  return `<div class="hcard" id="pgc-${h.id}">
+    <div class="hcard-hdr" onclick="pgToggle('${h.id}')">
+      <div class="hcard-top">
+        <span class="hcard-id">${h.id}</span>
+        <span class="hcard-title">${h.title} ${newTag}</span>
+        <span class="hcard-chev" id="pgchv-${h.id}">▼</span>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">
-        ${pgMkts(h.mkts)} ${pgImp(h.imp)} ${pgEff(h.eff)}
-        <span style="font-family:var(--font-mono);font-size:9px;background:var(--bg2);color:var(--text2);padding:1px 5px;border-radius:3px">Abandono: ${h.ab}</span>
+      <div class="hcard-meta">${mkts} ${imp} ${eff} <span class="htag" style="background:var(--bg2);color:var(--text2)">Abandono: ${h.ab}</span></div>
+    </div>
+    <div class="hcard-vote">
+      <button id="pgvb-${h.id}" onclick="pgVote('${h.id}',this)" class="vote-btn${voted?' voted':''}">${voted?'✓ Votado':'Quiero testear'}</button>
+      <div class="vote-info">
+        <div class="vote-avatars">${avs}</div>
+        <span class="vote-count" id="pgvc-${h.id}">${vArr.length} voto${vArr.length!==1?'s':''}</span>
       </div>
     </div>
-    <div style="padding:6px 12px;border-top:0.5px solid var(--bg2);display:flex;align-items:center;justify-content:space-between;gap:6px">
-      <button id="vb-${h.id}" onclick="pgVote('${h.id}',this)" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;border:0.5px solid ${voted?'#F0A882':'var(--border2)'};background:${voted?'#FBE9E1':'transparent'};font-size:11px;font-family:var(--font-sans);color:${voted?'#EF6948':'var(--text2)'};cursor:pointer;font-weight:${voted?'500':'400'}">${voted?'✓ Votado':'Quiero testear'}</button>
-      <div style="display:flex;align-items:center;gap:5px">
-        <div style="display:flex;gap:2px">${avs}</div>
-        <span id="vc-${h.id}" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">${vArr.length} voto${vArr.length!==1?'s':''}</span>
-      </div>
-    </div>
-    <div id="pgb-${h.id}" style="display:none;border-top:0.5px solid var(--bg2)">
-      <div style="padding:12px;font-size:11px;color:var(--text2);line-height:1.6;border-bottom:0.5px solid var(--bg2)">${h.detail}<br><br><strong style="color:var(--text)">Paso afectado:</strong> ${h.step}</div>
-      <div style="padding:10px 12px">
-        <div style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px">Notas del equipo</div>
-        <div id="pgnl-${h.id}" style="margin-bottom:8px">${notesHTML}</div>
-        <div style="display:flex;flex-direction:column;gap:5px">
-          <input type="text" id="pgna-${h.id}" placeholder="Tu nombre" style="width:100%;padding:5px 9px;border:0.5px solid var(--border2);border-radius:6px;font-size:11px;font-family:var(--font-sans);background:var(--surface);color:var(--text);height:30px" />
-          <textarea id="pgnt-${h.id}" placeholder="Añade contexto, ideas o dudas..." style="width:100%;padding:6px 9px;border:0.5px solid var(--border2);border-radius:6px;font-size:11px;font-family:var(--font-sans);background:var(--surface);color:var(--text);resize:vertical;min-height:52px;line-height:1.5"></textarea>
-          <div style="display:flex;gap:5px">
-            <button onclick="pgAddNote('${h.id}')" style="padding:5px 12px;background:#EF6948;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;font-family:var(--font-sans);cursor:pointer">Añadir nota</button>
-            <button id="pgai-${h.id}" onclick="pgAskAI('${h.id}')" style="padding:5px 10px;background:transparent;color:#EF6948;border:0.5px solid #F0A882;border-radius:6px;font-size:11px;font-family:var(--font-sans);cursor:pointer;display:flex;align-items:center;gap:4px">✦ Preguntar a la IA</button>
+    <div class="hcard-body" id="pgbd-${h.id}">
+      <div class="hcard-detail">${h.detail}<br><br><strong>Paso afectado:</strong> ${h.step}</div>
+      <div class="notes-section">
+        <div class="notes-label">Notas del equipo</div>
+        <div class="notes-list" id="pgnl-${h.id}">${notesHTML}</div>
+        <div class="note-input">
+          <input type="text" id="pgna-${h.id}" placeholder="Tu nombre" />
+          <textarea id="pgnt-${h.id}" placeholder="Añade contexto, ideas o dudas..."></textarea>
+          <div class="note-actions">
+            <button class="btn-note" onclick="pgAddNote('${h.id}')">Añadir nota</button>
+            <button class="btn-ai" id="pgai-${h.id}" onclick="pgAskAI('${h.id}')">✦ Preguntar a la IA</button>
           </div>
         </div>
       </div>
@@ -1078,28 +1099,9 @@ function pgCardHTML(h){
   </div>`;
 }
 
-function pgRender(){
-  const grid=document.getElementById('pg-levels');
-  if(!grid){return;}
-  grid.innerHTML=PG_LVL.map((lm,i)=>{
-    const lv=i+1, items=PG_HYP.filter(h=>h.lv===lv);
-    return `<div style="display:flex;flex-direction:column">
-      <div style="border-radius:10px 10px 0 0;padding:12px 14px;background:${lm.cls};color:${lm.col}">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">${lm.title}</div>
-        <div style="font-size:10px;opacity:.75;line-height:1.4">${lm.sub}</div>
-        <div style="display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;margin-top:5px;background:rgba(255,255,255,.5);font-family:var(--font-mono)">${lm.badge}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;background:var(--bg2);padding:8px;border-radius:0 0 10px 10px;border:0.5px solid var(--border);border-top:none;min-height:160px">
-        ${items.map(pgCardHTML).join('')}
-      </div>
-    </div>`;
-  }).join('');
-  pgUpdateTop();
-}
-
 function pgToggle(id){
-  const b=document.getElementById('pgb-'+id);
-  const c=document.getElementById('chv-'+id);
+  const b=document.getElementById('pgbd-'+id);
+  const c=document.getElementById('pgchv-'+id);
   if(!b) return;
   const open=b.style.display==='block';
   b.style.display=open?'none':'block';
