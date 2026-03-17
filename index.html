@@ -581,6 +581,411 @@ body {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .funnel-mini-steps { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* PLAYGROUND */
+.playground-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.playground-intro-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.playground-intro-text h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.playground-intro-text p {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.risk-levels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+@media (max-width: 900px) {
+  .risk-levels { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .risk-levels { grid-template-columns: 1fr; }
+}
+
+.risk-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.risk-header {
+  border-radius: 10px 10px 0 0;
+  padding: 14px 16px;
+  margin-bottom: 0;
+}
+.risk-header-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 3px;
+}
+.risk-header-sub {
+  font-size: 11px;
+  opacity: .75;
+  line-height: 1.4;
+}
+.risk-header-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-top: 6px;
+  opacity: .85;
+}
+
+.rh-1 { background: #E3F2E9; color: #1A5C31; }
+.rh-1 .risk-header-badge { background: rgba(255,255,255,.5); color: #1A5C31; }
+.rh-2 { background: #E3EEF9; color: #0F3D7A; }
+.rh-2 .risk-header-badge { background: rgba(255,255,255,.5); color: #0F3D7A; }
+.rh-3 { background: #FEF0E0; color: #7A3A0A; }
+.rh-3 .risk-header-badge { background: rgba(255,255,255,.5); color: #7A3A0A; }
+.rh-4 { background: #FDECEA; color: #7A1A14; }
+.rh-4 .risk-header-badge { background: rgba(255,255,255,.5); color: #7A1A14; }
+
+.risk-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg2);
+  padding: 10px;
+  border-radius: 0 0 10px 10px;
+  border: 1px solid var(--border);
+  border-top: none;
+  min-height: 200px;
+}
+
+.hyp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow .15s, border-color .15s;
+}
+.hyp-card:hover { border-color: var(--border2); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+
+.hyp-card-header {
+  padding: 12px 14px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hyp-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hyp-card-id {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text3);
+  background: var(--bg2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.hyp-card-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+  flex: 1;
+}
+.hyp-expand-btn {
+  font-size: 10px;
+  color: var(--text3);
+  flex-shrink: 0;
+  transition: transform .2s;
+  margin-top: 2px;
+}
+.hyp-card.expanded .hyp-expand-btn { transform: rotate(180deg); }
+
+.hyp-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+/* VOTE BAR */
+.hyp-vote-bar {
+  padding: 8px 14px;
+  border-top: 1px solid var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.vote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .15s;
+}
+.vote-btn:hover { border-color: var(--orange); color: var(--orange); }
+.vote-btn.voted { background: var(--orange-light); border-color: var(--orange-border); color: var(--orange); font-weight: 500; }
+.vote-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+.vote-avatars {
+  display: flex;
+  gap: 3px;
+}
+.vote-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--orange-light);
+  border: 1.5px solid var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--orange);
+  cursor: default;
+  font-family: var(--font-mono);
+}
+
+/* EXPANDED BODY */
+.hyp-body {
+  display: none;
+  border-top: 1px solid var(--bg2);
+}
+.hyp-card.expanded .hyp-body { display: block; }
+
+.hyp-detail {
+  padding: 14px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+  border-bottom: 1px solid var(--bg2);
+}
+.hyp-detail strong { color: var(--text); font-weight: 500; }
+
+.hyp-notes-section {
+  padding: 12px 14px;
+}
+.hyp-notes-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.note-item {
+  background: var(--bg2);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.note-author {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+.note-date {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+.note-text {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.note-loading {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+  padding: 6px 0;
+  font-family: var(--font-mono);
+}
+.ai-note {
+  background: var(--orange-light);
+  border: 1px solid var(--orange-border);
+}
+.ai-note .note-author { color: var(--orange); }
+.ai-note .note-text { color: var(--amber); }
+
+.note-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.note-author-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--text);
+  resize: none;
+}
+.note-author-input:focus { outline: none; border-color: var(--orange); }
+.note-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+  min-height: 64px;
+  line-height: 1.5;
+}
+.note-textarea:focus { outline: none; border-color: var(--orange); }
+.note-submit-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.note-submit-btn {
+  padding: 6px 14px;
+  background: var(--orange);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.note-submit-btn:hover { opacity: .88; }
+.note-submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+.note-ask-ai-btn {
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--orange);
+  border: 1px solid var(--orange-border);
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.note-ask-ai-btn:hover { background: var(--orange-light); }
+.note-ask-ai-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* SUMMARY ROW */
+.playground-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-top: 24px;
+}
+.playground-summary-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text3);
+  margin-bottom: 14px;
+}
+.top-voted {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.top-voted-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg2);
+  border-radius: 6px;
+}
+.top-voted-rank {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  width: 20px;
+  text-align: center;
+}
+.top-voted-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  flex: 1;
+}
+.top-voted-votes {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--orange);
+  font-weight: 500;
+}
+
+/* SPINNER */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--orange-border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
 </style>
 </head>
 <body>
@@ -618,6 +1023,7 @@ body {
   <div class="nav-tab" onclick="showView('en-curso')">En curso <span class="nav-count">5</span></div>
   <div class="nav-tab" onclick="showView('backlog')">Backlog <span class="nav-count">9</span></div>
   <div class="nav-tab" onclick="showView('roadmap')">Roadmap Q2–Q3</div>
+  <div class="nav-tab" onclick="showView('playground')">Playground <span class="nav-count">16</span></div>
 </div>
 
 <div class="main">
@@ -1228,6 +1634,23 @@ body {
   </div>
 </div>
 
+<div class="view" id="view-playground">
+<div style="padding:.25rem 0 1rem">
+<div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 20px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;">
+  <div style="font-size:22px;flex-shrink:0;margin-top:2px">🧪</div>
+  <div>
+    <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px">Playground de hipótesis — del cambio mínimo al cambio radical</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.5">16 hipótesis organizadas por nivel de riesgo. Vota las más prometedoras, añade notas y pregúntale a la IA.</div>
+  </div>
+</div>
+<div id="pg-levels" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px"></div>
+<div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 20px;">
+  <div style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:12px">Hipótesis más votadas por el equipo</div>
+  <div id="pg-top-voted"><div style="font-size:11px;color:var(--text3);font-family:var(--font-mono)">Aún no hay votos — sé el primero en votar arriba.</div></div>
+</div>
+</div>
+</div>
+
 </div><!-- /main -->
 
 <script>
@@ -1235,9 +1658,181 @@ function showView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
-  const tabs = ['resumen','ejecutados','en-curso','backlog','roadmap'];
+  if (id === 'playground') { pgRender(); }
+  const tabs = ['resumen','ejecutados','en-curso','backlog','roadmap','playground'];
   document.querySelectorAll('.nav-tab')[tabs.indexOf(id)].classList.add('active');
 }
+
+
+// ── PLAYGROUND ─────────────────────────────────────────────────────────────
+const PG_HYP = [
+  {id:'B8',lv:1,title:'Copy lead gate adaptado por mercado',isNew:true,mkts:['ES','IT','FR','DE'],step:'Lead gate',imp:'med',eff:'low',ab:'35–91%',detail:'Adaptar el tono al mercado aumenta la confianza. ES/IT → emocional y exclamativo. FR → informativo y frío, sin exclamaciones. DE → directo, sin emojis, DSGVO prominente. Solo copywriting, sin dev.'},
+  {id:'B9',lv:1,title:'Alemania: eliminar teléfono del lead gate',isNew:true,mkts:['DE'],step:'Lead gate',imp:'hi',eff:'low',ab:'—',detail:'Solo email + sellos DSGVO prominentes. Alemania es mercado nuevo (44 usuarios vs 996 ES). La cultura alemana de privacidad hace que el teléfono obligatorio sea especialmente perjudicial. Sin rediseño — solo configuración.'},
+  {id:'H5',lv:1,title:'Mostrar gramaje y precio sobre el lead gate',isNew:true,mkts:['ES','IT','FR','DE'],step:'Lead gate',imp:'med',eff:'low',ab:'35–91%',detail:'"[Nombre] necesita 320g/día · desde 1,57€/día" justo arriba del formulario de email. El usuario ha invertido 5–8 minutos — recordarle el valor específico que va a desbloquear reduce la resistencia.'},
+  {id:'B1',lv:2,title:'Teléfono opcional en lead gate',isNew:true,mkts:['ES','IT','FR','DE'],step:'Lead gate',imp:'hi',eff:'low',ab:'35–91%',detail:'Mayor potencial del backlog. Cambio de configuración puro, sin rediseño. El teléfono obligatorio bloquea el 35–91% según mercado. Microcopy: "para coordinar tu entrega". Potencial de recuperar decenas de miles de leads/mes.'},
+  {id:'H3',lv:2,title:'Botón lead gate activo desde primer carácter',isNew:true,mkts:['ES','IT','FR','DE'],step:'Lead gate',imp:'med',eff:'low',ab:'35–91%',detail:'Validación inline progresiva en vez de bloqueo total. El botón gris por defecto comunica bloqueo antes de que el usuario empiece. Activarlo con color desde el primer keystroke reduce la sensación de muro.'},
+  {id:'H10',lv:2,title:'CTA flotante sticky en página de producto',isNew:false,mkts:['ES','IT','FR','DE'],step:'Producto',imp:'med',eff:'low',ab:'15%',detail:'88% del tráfico es mobile. La página de producto es muy larga en scroll. Un "Continuar · 43,72€" flotante en la parte inferior elimina el problema de perder el botón de compra entre el contenido.'},
+  {id:'B5',lv:2,title:'Animaciones del formulario — con vs sin (CRO 3/4)',isNew:false,mkts:['ES','IT','FR','DE'],step:'Todo el form',imp:'med',eff:'low',ab:'varios pasos',detail:'Las animaciones pueden ralentizar la fluidez percibida en mobile. Sprint CRO 3/4 planificado. Cookies formAnimations:{stepX:B} ya disponibles — solo hace falta lanzar el test.'},
+  {id:'B4',lv:3,title:'Edad: etapa vital vs fecha de nacimiento (CRO 2)',isNew:false,mkts:['ES','IT','FR','DE'],step:'Paso 4 · edad',imp:'hi',eff:'med',ab:'23%',detail:'El algoritmo necesita la etapa vital, no la fecha exacta. Dos dropdowns año+mes en mobile generan fricción innecesaria. Slider Cachorro/Adulto/Senior. Diseño alternativo ya existe en Figma. Sprint CRO 2 planificado.'},
+  {id:'B6',lv:3,title:'Sexo: solo esterilización vs pasos separados',isNew:false,mkts:['ES','IT','FR','DE'],step:'Paso 3 · género',imp:'med',eff:'med',ab:'<3%',detail:'El paso actual mezcla macho/hembra + esterilizado + gestante/lactante. Dos variantes de diseño ya existen en Figma (slides 18–19 del deck Métricas form). Simplificar o separar en dos pasos.'},
+  {id:'B3',lv:3,title:'Mover lead gate a posición 6',isNew:false,mkts:['ES','IT','FR'],step:'Lead gate · posición',imp:'hi',eff:'med',ab:'pos.7→35% / pos.9→91%',detail:'GA4 confirma: lead gate en pos.7 → 35% abandono; en pos.9 → 91%. Moverlo antes de la silueta con encuadre "guardamos tu progreso" convierte el muro en un servicio. Cookie formLeadStep:B ya disponible.'},
+  {id:'B2',lv:3,title:'Email primero, teléfono en paso separado',isNew:true,mkts:['ES','IT','FR','DE'],step:'Lead gate',imp:'hi',eff:'med',ab:'35–91%',detail:'2 micro-pasos: primero solo email → luego teléfono. Con el email ya capturado, el abandono del teléfono no es pérdida total. Retargeting por email de todos los que abandonen el segundo paso.'},
+  {id:'H7',lv:3,title:'Silueta: descripción dinámica de condición corporal',isNew:true,mkts:['ES','IT','FR','DE'],step:'Paso 5 · silueta',imp:'med',eff:'med',ab:'23%',detail:'Texto contextual que cambia según la opción seleccionada: "cintura visible y costillas palpables" / "cintura poco definida". La descripción ayuda al usuario a autodiagnosticar sin sentirse juzgado. Especialmente relevante para IT y FR.'},
+  {id:'B7',lv:4,title:'Formularios reducidos',isNew:false,mkts:['ES','IT','FR','DE'],step:'Todo el funnel',imp:'hi',eff:'hi',ab:'CTR 18%',detail:'Versiones más cortas del formulario con distinto nivel de campos. Investigación previa en curso (SW-1547). El nuevo formulario demostró que más largo puede ser mejor, pero ¿hay un punto óptimo?'},
+  {id:'H13',lv:4,title:'Preview borrosa del plan detrás del lead gate',isNew:true,mkts:['ES','IT','FR','DE'],step:'Lead gate',imp:'med',eff:'hi',ab:'35–91%',detail:'Patrón "reveal gate": el plan (menús, gramaje, precio) ligeramente desenfocado detrás del formulario. El usuario ve que hay algo concreto que desbloquear. Convierte el lead gate de "muro" a "desbloqueo".'},
+  {id:'H12',lv:4,title:'Apple Pay / Google Pay como primera opción',isNew:false,mkts:['ES','IT','FR','DE'],step:'Checkout',imp:'hi',eff:'hi',ab:'84%',detail:'Stripe Express Checkout Element ya integrado técnicamente. Apple Pay (Safari + iOS), Google Pay (Chrome/Edge/Safari). Con 88% mobile, elimina completamente el formulario de tarjeta. Solo falta decidir test A/B vs implementación directa.'},
+  {id:'H_DE',lv:4,title:'Funnel completo adaptado para Alemania',isNew:true,mkts:['DE'],step:'Todo el funnel',imp:'hi',eff:'hi',ab:'—',detail:'Alemania no puede usar el mismo funnel con solo traducción. Necesita: sin teléfono en lead gate, copy directo sin exclamaciones, precio/día explícito desde el inicio, sellos TÜV/Trusted Shops/DSGVO prominentes.'},
+];
+const PG_LVL = [
+  {cls:'#E3F2E9',col:'#1A5C31',title:'Nivel 1 — Copy & config',sub:'Sin código. Testeable en días.',badge:'Riesgo mínimo'},
+  {cls:'#E3EEF9',col:'#0F3D7A',title:'Nivel 2 — Micro UI',sub:'Mínimo código, sin rediseño. 1 semana.',badge:'Riesgo bajo'},
+  {cls:'#FEF0E0',col:'#7A3A0A',title:'Nivel 3 — Estructural',sub:'Rediseño de 1 paso. 2–3 semanas.',badge:'Riesgo medio'},
+  {cls:'#FDECEA',col:'#7A1A14',title:'Nivel 4 — Radical',sub:'Rediseño profundo. 1+ mes.',badge:'Riesgo alto'},
+];
+const MKT_S = {ES:'background:#FBE9E1;color:#A83A14',IT:'background:#E3EEF9;color:#1B5FA8',FR:'background:#E3F2E9;color:#2D7A45',DE:'background:#EDEBF9;color:#5B3FA8'};
+let pgVotes={}, pgNotes={};
+
+function pgMkts(arr){return arr.map(m=>`<span style="display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;font-family:var(--font-mono);${MKT_S[m]||'background:var(--bg2);color:var(--text2)'}">${m}</span>`).join('')}
+function pgImp(v){return v==='hi'?'<span style="font-family:var(--font-mono);font-size:9px;color:#1A5C31;background:#E3F2E9;padding:1px 5px;border-radius:3px">↑ Impacto alto</span>':'<span style="font-family:var(--font-mono);font-size:9px;color:#7A3A0A;background:#FEF0E0;padding:1px 5px;border-radius:3px">→ Impacto medio</span>'}
+function pgEff(v){const m={low:['#1B5FA8','#E3EEF9','Esfuerzo bajo'],med:['#7A3A0A','#FEF0E0','Esfuerzo medio'],hi:['#7A1A14','#FDECEA','Esfuerzo alto']};const[c,b,t]=m[v]||['#888','#eee',v];return `<span style="font-family:var(--font-mono);font-size:9px;color:${c};background:${b};padding:1px 5px;border-radius:3px">${t}</span>`}
+
+function pgCardHTML(h){
+  const vArr=pgVotes[h.id]||[], nArr=pgNotes[h.id]||[];
+  const avs=vArr.slice(0,4).map(v=>`<div style="width:18px;height:18px;border-radius:50%;background:#FBE9E1;border:1.5px solid var(--surface);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:600;color:#E8541A;font-family:var(--font-mono)" title="${v}">${v.slice(0,2).toUpperCase()}</div>`).join('');
+  const notesHTML=nArr.length?nArr.map(n=>`<div style="background:${n.ai?'#FBE9E1;border:0.5px solid #F0A882':'var(--bg2)'};border-radius:6px;padding:7px 9px;margin-bottom:5px"><div style="display:flex;gap:6px;align-items:center;margin-bottom:3px"><span style="font-size:10px;font-weight:500;color:${n.ai?'#E8541A':'var(--text)'};font-family:var(--font-mono)">${n.ai?'✦ IA':n.author}</span><span style="font-size:9px;color:var(--text3);font-family:var(--font-mono)">${n.date}</span></div><div style="font-size:11px;color:var(--text2);line-height:1.5">${n.text}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3);font-style:italic;font-family:var(--font-mono)">Sin notas todavía.</div>';
+  const voted=vArr.some(v=>v.startsWith('__me__'));
+  return `<div id="pgc-${h.id}" style="background:var(--surface);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:6px;transition:border-color .15s">
+    <div style="padding:10px 12px 8px;cursor:pointer" onclick="pgToggle('${h.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:5px">
+        <span style="font-family:var(--font-mono);font-size:9px;color:var(--text3);background:var(--bg2);padding:2px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0">${h.id}</span>
+        <span style="font-size:11px;font-weight:500;color:var(--text);flex:1;line-height:1.35">${h.title}${h.isNew?' <span style="font-size:8px;background:#E3EEF9;color:#1B5FA8;padding:1px 4px;border-radius:3px;font-family:var(--font-mono)">NUEVO</span>':''}</span>
+        <span id="chv-${h.id}" style="font-size:9px;color:var(--text3);transition:transform .2s;flex-shrink:0">▼</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center">
+        ${pgMkts(h.mkts)} ${pgImp(h.imp)} ${pgEff(h.eff)}
+        <span style="font-family:var(--font-mono);font-size:9px;background:var(--bg2);color:var(--text2);padding:1px 5px;border-radius:3px">Abandono: ${h.ab}</span>
+      </div>
+    </div>
+    <div style="padding:6px 12px;border-top:0.5px solid var(--bg2);display:flex;align-items:center;justify-content:space-between;gap:6px">
+      <button id="vb-${h.id}" onclick="pgVote('${h.id}',this)" style="display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;border:0.5px solid ${voted?'#F0A882':'var(--border2)'};background:${voted?'#FBE9E1':'transparent'};font-size:11px;font-family:var(--font-sans);color:${voted?'#E8541A':'var(--text2)'};cursor:pointer;font-weight:${voted?'500':'400'}">${voted?'✓ Votado':'Quiero testear'}</button>
+      <div style="display:flex;align-items:center;gap:5px">
+        <div style="display:flex;gap:2px">${avs}</div>
+        <span id="vc-${h.id}" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">${vArr.length} voto${vArr.length!==1?'s':''}</span>
+      </div>
+    </div>
+    <div id="pgb-${h.id}" style="display:none;border-top:0.5px solid var(--bg2)">
+      <div style="padding:12px;font-size:11px;color:var(--text2);line-height:1.6;border-bottom:0.5px solid var(--bg2)">${h.detail}<br><br><strong style="color:var(--text)">Paso afectado:</strong> ${h.step}</div>
+      <div style="padding:10px 12px">
+        <div style="font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px">Notas del equipo</div>
+        <div id="pgnl-${h.id}" style="margin-bottom:8px">${notesHTML}</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <input type="text" id="pgna-${h.id}" placeholder="Tu nombre" style="width:100%;padding:5px 9px;border:0.5px solid var(--border2);border-radius:6px;font-size:11px;font-family:var(--font-sans);background:var(--surface);color:var(--text);height:30px" />
+          <textarea id="pgnt-${h.id}" placeholder="Añade contexto, ideas o dudas..." style="width:100%;padding:6px 9px;border:0.5px solid var(--border2);border-radius:6px;font-size:11px;font-family:var(--font-sans);background:var(--surface);color:var(--text);resize:vertical;min-height:52px;line-height:1.5"></textarea>
+          <div style="display:flex;gap:5px">
+            <button onclick="pgAddNote('${h.id}')" style="padding:5px 12px;background:#E8541A;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;font-family:var(--font-sans);cursor:pointer">Añadir nota</button>
+            <button id="pgai-${h.id}" onclick="pgAskAI('${h.id}')" style="padding:5px 10px;background:transparent;color:#E8541A;border:0.5px solid #F0A882;border-radius:6px;font-size:11px;font-family:var(--font-sans);cursor:pointer;display:flex;align-items:center;gap:4px">✦ Preguntar a la IA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function pgRender(){
+  const grid=document.getElementById('pg-levels');
+  if(!grid){return;}
+  grid.innerHTML=PG_LVL.map((lm,i)=>{
+    const lv=i+1, items=PG_HYP.filter(h=>h.lv===lv);
+    return `<div style="display:flex;flex-direction:column">
+      <div style="border-radius:10px 10px 0 0;padding:12px 14px;background:${lm.cls};color:${lm.col}">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">${lm.title}</div>
+        <div style="font-size:10px;opacity:.75;line-height:1.4">${lm.sub}</div>
+        <div style="display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;margin-top:5px;background:rgba(255,255,255,.5);font-family:var(--font-mono)">${lm.badge}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;background:var(--bg2);padding:8px;border-radius:0 0 10px 10px;border:0.5px solid var(--border);border-top:none;min-height:160px">
+        ${items.map(pgCardHTML).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  pgUpdateTop();
+}
+
+function pgToggle(id){
+  const b=document.getElementById('pgb-'+id);
+  const c=document.getElementById('chv-'+id);
+  if(!b) return;
+  const open=b.style.display==='block';
+  b.style.display=open?'none':'block';
+  if(c) c.style.transform=open?'':'rotate(180deg)';
+}
+
+function pgVote(id,btn){
+  if(!pgVotes[id]) pgVotes[id]=[];
+  const meIdx=pgVotes[id].findIndex(v=>v.startsWith('__me__'));
+  if(meIdx>-1){
+    pgVotes[id].splice(meIdx,1);
+    btn.style.background='transparent';btn.style.borderColor='var(--border2)';btn.style.color='var(--text2)';btn.style.fontWeight='400';btn.textContent='Quiero testear';
+  } else {
+    const name=prompt('¿Tu nombre o iniciales?')||'Anon';
+    pgVotes[id].push('__me__'+name);
+    btn.style.background='#FBE9E1';btn.style.borderColor='#F0A882';btn.style.color='#E8541A';btn.style.fontWeight='500';btn.textContent='✓ Votado';
+  }
+  const vc=document.getElementById('vc-'+id);
+  if(vc) vc.textContent=`${pgVotes[id].length} voto${pgVotes[id].length!==1?'s':''}`;
+  const vaWrap=btn.closest('div').querySelector('div[style*="gap:2px"]');
+  if(vaWrap) vaWrap.innerHTML=pgVotes[id].slice(0,4).map(v=>`<div style="width:18px;height:18px;border-radius:50%;background:#FBE9E1;border:1.5px solid var(--surface);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:600;color:#E8541A;font-family:var(--font-mono)">${v.replace('__me__','').slice(0,2).toUpperCase()||'YO'}</div>`).join('');
+  pgUpdateTop();
+}
+
+function pgAddNote(id){
+  const na=document.getElementById('pgna-'+id);
+  const nt=document.getElementById('pgnt-'+id);
+  if(!nt||!nt.value.trim()) return;
+  if(!pgNotes[id]) pgNotes[id]=[];
+  pgNotes[id].push({author:(na&&na.value.trim())||'Anon',text:nt.value.trim(),date:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}),ai:false});
+  nt.value='';
+  pgRefreshNotes(id);
+}
+
+function pgRefreshNotes(id){
+  const nl=document.getElementById('pgnl-'+id);
+  if(!nl) return;
+  const nArr=pgNotes[id]||[];
+  nl.innerHTML=nArr.length?nArr.map(n=>`<div style="background:${n.ai?'#FBE9E1;border:0.5px solid #F0A882':'var(--bg2)'};border-radius:6px;padding:7px 9px;margin-bottom:5px"><div style="display:flex;gap:6px;align-items:center;margin-bottom:3px"><span style="font-size:10px;font-weight:500;color:${n.ai?'#E8541A':'var(--text)'};font-family:var(--font-mono)">${n.ai?'✦ IA':n.author}</span><span style="font-size:9px;color:var(--text3);font-family:var(--font-mono)">${n.date}</span></div><div style="font-size:11px;color:var(--text2);line-height:1.5">${n.text}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3);font-style:italic;font-family:var(--font-mono)">Sin notas todavía.</div>';
+}
+
+async function pgAskAI(id){
+  const h=PG_HYP.find(x=>x.id===id);
+  if(!h) return;
+  const btn=document.getElementById('pgai-'+id);
+  if(btn){btn.disabled=true;btn.innerHTML='⟳ Consultando...';}
+  const nl=document.getElementById('pgnl-'+id);
+  const loader=document.createElement('div');
+  loader.style.cssText='background:#FBE9E1;border:0.5px solid #F0A882;border-radius:6px;padding:7px 9px;margin-bottom:5px;font-size:11px;color:#E8541A;font-family:var(--font-mono)';
+  loader.textContent='✦ IA analizando hipótesis...';
+  if(nl) nl.appendChild(loader);
+  const existNotes=(pgNotes[id]||[]).map(n=>`${n.author}: ${n.text}`).join('\n');
+  const prompt=`Eres un experto en CRO para Dogfy Diet, servicio de comida fresca para perros en España, Italia, Francia y Alemania (~88% tráfico mobile).\n\nHipótesis: "${h.title}"\nDetalle: ${h.detail}\nMercados: ${h.mkts.join(', ')}\nPaso: ${h.step} · Abandono: ${h.ab}\nNivel de riesgo: ${h.lv} (${['','Copy/config','Micro UI','Estructural','Radical'][h.lv]})\nVotos del equipo: ${(pgVotes[id]||[]).length}\n${existNotes?`Notas previas:\n${existNotes}`:''}\n\nDa un análisis conciso (máx 3 párrafos): (1) si vale la pena testear ahora y por qué, (2) qué métrica exacta medir y cuánto tiempo de test necesitas, (3) riesgos o matices culturales por mercado.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content?.[0]?.text||'Sin respuesta.';
+    if(!pgNotes[id]) pgNotes[id]=[];
+    pgNotes[id].push({author:'IA',text,date:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}),ai:true});
+    loader.remove();
+    pgRefreshNotes(id);
+  }catch(e){loader.textContent='Error al conectar con la IA.';}
+  if(btn){btn.disabled=false;btn.innerHTML='✦ Preguntar a la IA';}
+}
+
+function pgUpdateTop(){
+  const el=document.getElementById('pg-top-voted');
+  if(!el) return;
+  const sorted=Object.entries(pgVotes).map(([id,v])=>({id,count:v.length})).filter(x=>x.count>0).sort((a,b)=>b.count-a.count).slice(0,5);
+  if(!sorted.length){el.innerHTML='<div style="font-size:11px;color:var(--text3);font-family:var(--font-mono)">Aún no hay votos — sé el primero en votar arriba.</div>';return;}
+  el.innerHTML=sorted.map((x,i)=>{const h=PG_HYP.find(hh=>hh.id===x.id);return`<div style="display:flex;align-items:center;gap:8px;padding:7px 9px;background:var(--surface);border-radius:6px;border:0.5px solid var(--border);margin-bottom:6px"><span style="font-family:var(--font-mono);font-size:10px;color:var(--text3);width:16px;text-align:center">${i+1}</span><span style="font-size:12px;font-weight:500;color:var(--text);flex:1">${h?h.title:x.id}</span><span style="font-family:var(--font-mono);font-size:11px;color:#E8541A;font-weight:500">${x.count} voto${x.count!==1?'s':''}</span></div>`;}).join('');
+}
+// ── END PLAYGROUND ──────────────────────────────────────────────────────────
 
 function filterBacklog(tag, btn) {
   document.querySelectorAll('.filters .filter-btn').forEach(b => b.classList.remove('active'));
@@ -1251,6 +1846,7 @@ function filterBacklog(tag, btn) {
     }
   });
 }
+
 </script>
 
 </body>
