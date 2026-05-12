@@ -1,0 +1,168 @@
+<template>
+  <div class="ventas-view">
+    <!-- ── Tabs ── -->
+    <div class="ventas-header">
+      <div class="ventas-tabs">
+        <button v-for="t in tabs" :key="t" class="tab-btn" :class="{ active: activeTab === t }" @click="activeTab = t">{{ t }}</button>
+      </div>
+    </div>
+
+    <!-- ── KPIs (Personal / Mi equipo) ── -->
+    <div v-if="activeTab !== 'Ranking'" class="kpi-row">
+      <KpiCard :valor="String(kpis.hoy.valor)"    label="Ventas de hoy"        :comparativa="kpis.hoy.delta"    tendencia="up" />
+      <KpiCard :valor="String(kpis.ayer.valor)"   label="Ventas de ayer"       :comparativa="kpis.ayer.delta"   tendencia="up" />
+      <KpiCard :valor="String(kpis.semana.valor)" label="Ventas de la semana"  :comparativa="kpis.semana.delta" tendencia="up" />
+      <!-- Última card: agente → "Para comisión"; TL/Manager → "Ventas del mes" con progreso -->
+      <KpiCard
+        v-if="kpisAgenteMode"
+        :valor="String(kpis.comision.valor)"
+        label="Para comisión"
+        :comparativa="kpis.comision.delta"
+        tendencia="up"
+      />
+      <KpiCard
+        v-else
+        :valor="`${kpis.mes.valor}/${kpis.mes.objetivo}`"
+        label="Ventas del mes"
+        :progreso="kpis.mes.valor"
+        :objetivo="kpis.mes.objetivo"
+      />
+    </div>
+
+    <!-- ── Tabla principal (Personal / Mi equipo) ── -->
+    <SectionCard v-if="activeTab !== 'Ranking'">
+      <div class="section-toolbar">
+        <span class="spacer" />
+        <Button label="Filtros" icon="pi pi-filter" severity="secondary" outlined size="small" />
+      </div>
+
+      <DataTable :value="displayed" stripedRows @row-click="goToVenta">
+        <Column field="fecha"    header="Fecha"     sortable style="min-width:140px" />
+        <Column v-if="showAgenteCol" header="Agente" style="min-width:90px">
+          <template #body="{ data }">
+            <span class="agente-cell" :title="data.agente">
+              <span class="agente-avatar"><i class="pi pi-user" /></span>
+              <span class="agente-iniciales">{{ data.agenteIni }}</span>
+            </span>
+          </template>
+        </Column>
+        <Column field="telefono" header="Teléfono"  style="min-width:120px" />
+        <Column field="email"    header="Email"     style="min-width:240px" />
+        <Column field="cupon"    header="Cupón"     sortable style="min-width:120px" />
+        <Column field="score"    header="Score"     sortable style="min-width:80px" />
+        <Column field="importe"  header="Importe"   sortable style="min-width:90px" />
+      </DataTable>
+
+      <div ref="sentinel" class="infinite-sentinel">
+        <span v-if="hasMore" class="infinite-loading">Cargando más ventas…</span>
+      </div>
+    </SectionCard>
+
+    <!-- ── Ranking: 4 columnas por país ── -->
+    <SectionCard v-else>
+      <div class="ranking-grid">
+        <div v-for="col in mockRankingPaises" :key="col.pais" class="ranking-col">
+          <div class="ranking-col-header">
+            <span class="ranking-pais">{{ col.flag }} {{ col.pais }}</span>
+            <span class="ranking-total">{{ col.total }}</span>
+          </div>
+          <div class="ranking-table">
+            <div class="ranking-row ranking-row--head">
+              <span class="ranking-cell ranking-cell--name">Agente</span>
+              <span class="ranking-cell">Hoy</span>
+              <span class="ranking-cell">Mes</span>
+            </div>
+            <div v-for="(a, i) in col.agentes" :key="i" class="ranking-row">
+              <span class="ranking-cell ranking-cell--name">{{ a.nombre }}</span>
+              <span class="ranking-cell">{{ a.hoy }}</span>
+              <span class="ranking-cell">{{ a.mes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Button from 'primevue/button'
+import KpiCard from '@/components/ui/KpiCard.vue'
+import SectionCard from '@/components/ui/SectionCard.vue'
+import { mockVentas, mockKpisVentasAgente, mockKpisVentasTL, mockRankingPaises } from '@/data/mock'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+const router = useRouter()
+const route = useRoute()
+const role = computed(() => auth.currentRole)
+
+function goToVenta(event: { data: { id: string } }) {
+  router.push(`/ventas/${event.data.id}`)
+}
+
+// Tabs por rol — agente solo Personal/Ranking; team_lead/manager: Personal/Mi equipo/Ranking
+const tabs = computed<string[]>(() =>
+  role.value === 'agente' ? ['Personal', 'Ranking'] : ['Personal', 'Mi equipo', 'Ranking']
+)
+const activeTab = ref('Personal')
+watch(role, () => { activeTab.value = 'Personal' })
+onMounted(() => {
+  const t = route.query.tab as string
+  if (t && tabs.value.includes(t)) activeTab.value = t
+})
+
+// KPIs según rol/tab
+const kpisAgenteMode = computed(() => role.value === 'agente' || activeTab.value === 'Personal')
+const kpis = computed<any>(() => kpisAgenteMode.value ? mockKpisVentasAgente : mockKpisVentasTL)
+
+// Columna agente solo en Mi equipo (TL/Manager)
+const showAgenteCol = computed(() => role.value !== 'agente' && activeTab.value === 'Mi equipo')
+
+// Filtra ventas (Personal: las mías; Mi equipo: todas)
+const filtered = computed(() => activeTab.value === 'Personal' ? mockVentas.slice(0, 30) : mockVentas)
+const { displayed, sentinel, hasMore } = useInfiniteScroll(filtered, 20)
+</script>
+
+<style scoped>
+.ventas-view { display: flex; flex-direction: column; gap: 16px; }
+.ventas-header { display: flex; align-items: center; }
+.ventas-tabs { display: flex; gap: 4px; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.section-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.section-toolbar .spacer { flex: 1; }
+
+.agente-cell { display: inline-flex; align-items: center; gap: 8px; cursor: help; }
+.agente-avatar {
+  width: 26px; height: 26px; border-radius: 50%; background: #e6eaf2; color: #6b7280;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.agente-avatar .pi { font-size: 13px; }
+.agente-iniciales { font-size: 12px; font-weight: 600; color: var(--n-700, #333); }
+
+.infinite-sentinel { height: 32px; display: flex; align-items: center; justify-content: center; }
+.infinite-loading { font-size: 12px; color: var(--n-400); }
+
+/* ── Ranking por país ── */
+.ranking-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.ranking-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ranking-col + .ranking-col { border-left: 1px solid var(--n-150, #ebedf2); padding-left: 16px; }
+.ranking-col-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; }
+.ranking-pais { font-size: 14px; font-weight: 600; color: var(--n-800, #2d2d2f); }
+.ranking-total { font-size: 14px; font-weight: 700; color: var(--n-800, #2d2d2f); }
+.ranking-table { display: flex; flex-direction: column; }
+.ranking-row { display: grid; grid-template-columns: 1fr 50px 50px; gap: 8px; padding: 6px 8px; font-size: 12px; border-bottom: 1px solid var(--n-100, #f3f4f7); }
+.ranking-row--head { color: var(--n-500, #6b7280); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; }
+.ranking-cell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ranking-cell--name { color: var(--n-700, #2b2b2b); }
+
+@media (max-width: 1100px) {
+  .kpi-row     { grid-template-columns: repeat(2, 1fr); }
+  .ranking-grid{ grid-template-columns: repeat(2, 1fr); }
+  .ranking-col + .ranking-col { border-left: none; padding-left: 0; }
+}
+</style>

@@ -1,0 +1,187 @@
+@import 'primeicons/primeicons.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ─── Brand ──────────────────────────────────── */
+  --brand:           #ef6948;
+  --brand-dark:      #c8452a;
+  --brand-hover:     #f07d62;
+  --brand-subtle:    #fdf1ed;  /* very light tint for active bg */
+
+  /* ─── Neutrals (interface) ───────────────────── */
+  --n-900: #1c1c1e;
+  --n-800: #2d2d2f;
+  --n-700: #3d3d3d;
+  --n-600: #5a5a5a;
+  --n-500: #767676;
+  --n-400: #a0a0a0;
+  --n-300: #c2c2c2;
+  --n-200: #e0e0e0;
+  --n-150: #ebebeb;
+  --n-100: #f2f2f2;
+  --n-50:  #f7f7f7;
+  --n-0:   #ffffff;
+
+  /* ─── Chart palette (harmonious warm-earth) ─── */
+  /* Used consistently in ALL charts across the app */
+  --chart-1: #374c52;   /* dark slate-teal  — primary series  */
+  --chart-2: #ef6948;   /* brand orange     — highlight/accent */
+  --chart-3: #7da399;   /* sage             — secondary        */
+  --chart-4: #b8936a;   /* warm tan         — tertiary         */
+  --chart-5: #5e7f8a;   /* steel blue       — quaternary       */
+  --chart-6: #c9b99a;   /* sand             — light fill       */
+  --chart-area: rgba(55, 76, 82, 0.07);
+
+  /* ─── Semantic ───────────────────────────────── */
+  /* Tones aligned to chart palette for visual coherence */
+  --success:       #22c55e;   /* green-500  (--p-green-500)  */
+  --success-bg:    #dcfce7;
+  --error:         #c8452a;   /* brand-dark ← brand family   */
+  --error-bg:      #feeee9;
+  --warning:       #7a5520;   /* warm tan   ← chart-4 family */
+  --warning-bg:    #f5eedf;
+  --info:          #2d5c6e;   /* steel blue ← chart-5 family */
+  --info-bg:       #e8eef2;
+
+  /* ─── Layout ─────────────────────────────────── */
+  --sidebar-collapsed: 68px;
+  --sidebar-expanded:  210px;
+  --sidebar-transition: 220ms ease;
+  --rightbar-width:  272px;
+  --content-bg:      var(--n-50);
+  --card-radius:     10px;
+  --card-shadow:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --card-border:     1px solid var(--n-150);
+}
+
+html, body, #app {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: var(--n-700);
+  background: var(--content-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Typography ──────────────────────────────── */
+.text-xs    { font-size: 11px; line-height: 1.4; }
+.text-sm    { font-size: 12px; line-height: 1.5; }
+.text-base  { font-size: 14px; line-height: 1.5; }
+.text-lg    { font-size: 16px; line-height: 1.4; }
+.text-xl    { font-size: 20px; line-height: 1.3; }
+.text-2xl   { font-size: 24px; line-height: 1.2; }
+.text-3xl   { font-size: 32px; line-height: 1.1; }
+
+.font-medium   { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold     { font-weight: 700; }
+
+.text-muted  { color: var(--n-500); }
+.text-subtle { color: var(--n-400); }
+.text-brand  { color: var(--brand); }
+
+/* ─── Trend ───────────────────────────────────── */
+.trend-up   { color: var(--success); }
+.trend-down { color: var(--error); }
+
+/* ─── Scrollbar ───────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--n-200); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--n-300); }
+
+/* ─── PrimeVue overrides (global, scoped below) ─ */
+.p-card { border-radius: var(--card-radius) !important; box-shadow: var(--card-shadow) !important; border: var(--card-border) !important; }
+.p-button.p-button-sm { font-size: 12px !important; padding: 5px 12px !important; }
+.p-datatable .p-datatable-thead > tr > th { background: var(--n-50) !important; font-size: 11px !important; font-weight: 600 !important; color: var(--n-500) !important; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--n-150) !important; }
+.p-datatable .p-datatable-tbody > tr { cursor: pointer; }
+.p-datatable .p-datatable-tbody > tr:hover > td { background: var(--n-50) !important; }
+.p-datatable .p-datatable-tbody > tr > td { font-size: 13px !important; border-color: var(--n-100) !important; }
+.p-tag { font-size: 11px !important; font-weight: 600 !important; border-radius: 5px !important; padding: 2px 7px !important; }
+.p-progressbar { border-radius: 99px !important; background: var(--n-150) !important; }
+.p-progressbar .p-progressbar-value { border-radius: 99px !important; background: var(--chart-1) !important; }
+/* Hide the percentage label rendered inside the bar — values shown externally */
+.p-progressbar .p-progressbar-label { display: none !important; }
+.p-select { font-size: 13px !important; }
+.p-inputtext { font-size: 13px !important; }
+.p-dialog .p-dialog-header { border-bottom: none !important; padding-bottom: 8px !important; }
+.p-dialog .p-dialog-content { padding-top: 0 !important; }
+
+/* ─── Tag severity — aligned to chart palette ──── */
+:root {
+  --p-tag-success-background:  var(--success-bg);
+  --p-tag-success-color:       var(--success);
+  --p-tag-info-background:     var(--info-bg);
+  --p-tag-info-color:          var(--info);
+  --p-tag-warn-background:     var(--warning-bg);
+  --p-tag-warn-color:          var(--warning);
+  --p-tag-danger-background:   var(--error-bg);
+  --p-tag-danger-color:        var(--error);
+}
+
+/* ─── Button severity ───────────────────────────── */
+:root {
+  --p-button-success-background:        var(--success);
+  --p-button-success-border-color:      var(--success);
+  --p-button-success-color:             #fff;
+  --p-button-success-hover-background:  #16a34a;
+  --p-button-success-hover-border-color:#16a34a;
+  --p-button-success-active-background: #15803d;
+  --p-button-danger-background:         var(--error);
+  --p-button-danger-border-color:       var(--error);
+  --p-button-danger-color:              #fff;
+  --p-button-danger-hover-background:   #a33420;
+  --p-button-danger-hover-border-color: #a33420;
+  --p-button-danger-active-background:  #7a2618;
+}
+
+/* ─── ToggleSwitch + RadioButton + Checkbox: green when checked ── */
+.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider { background: var(--success) !important; }
+.p-toggleswitch.p-toggleswitch-checked:not(.p-disabled):hover .p-toggleswitch-slider { background: #16a34a !important; }
+.p-radiobutton.p-radiobutton-checked .p-radiobutton-box { border-color: var(--success) !important; background: var(--success) !important; }
+.p-checkbox.p-checkbox-checked .p-checkbox-box { border-color: var(--success) !important; background: var(--success) !important; }
+
+/* ─── Tabs (Personal / Mi equipo / Listas de difusión, etc.) ─────
+   Estilo unificado para todos los tab-selectors del CRM.
+   Indicador inferior visible para identificar claramente la pestaña activa. */
+.tab-btn {
+  background: none !important;
+  border: none !important;
+  padding: 10px 18px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--n-500) !important;
+  cursor: pointer;
+  position: relative;
+  border-radius: 0 !important;
+  transition: color 0.15s;
+}
+.tab-btn:hover { color: var(--n-800) !important; }
+.tab-btn.active {
+  color: var(--brand) !important;
+  font-weight: 700 !important;
+  background: none !important;
+}
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 3px;
+  background: var(--brand);
+  border-radius: 2px 2px 0 0;
+}
+/* Container con borde inferior de referencia */
+.leads-tabs,
+.ventas-tabs,
+.filter-tabs {
+  border-bottom: 1px solid var(--n-150);
+  gap: 0 !important;
+}
+
