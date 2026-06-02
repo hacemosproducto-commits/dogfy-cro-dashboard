@@ -9,9 +9,22 @@
 
 ---
 
+## Estrategia de ramas
+
+| Rama | Propósito | Vercel URL |
+|------|-----------|-----------|
+| `v2-ideal` | Visión completa: todas las mejoras UX **+** features nuevas. Es la rama principal de desarrollo del prototipo. | https://dogfy-crm-sales.vercel.app |
+| `v1-ux-only` | Solo mejoras de UX sobre el CRM actual — sin features nuevas. Misma funcionalidad que el staging, mejor experiencia visual. URL independiente pendiente de configurar. | — |
+
+- Para retomar trabajo en V2: trabaja en la rama `v2-ideal`
+- Para retomar trabajo en V1: trabaja en la rama `v1-ux-only`
+- Repositorio: https://github.com/hacemosproducto-commits/dogfy-cro-dashboard
+
+---
+
 ## Deploy
 
-- **URL producción:** https://dogfy-crm-sales.vercel.app
+- **URL producción (V2):** https://dogfy-crm-sales.vercel.app
 - **Plataforma:** Vercel (proyecto `dogfy-crm-sales`, cuenta `hacemosproducto`)
 - **Deploy:** `vercel deploy --prod --yes` desde la raíz del proyecto
 - **SPA routing:** `vercel.json` en la raíz — redirige todas las rutas a `index.html`
