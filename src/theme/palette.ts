@@ -5,11 +5,11 @@
 
 // PrimeVue palette 400-level — var(--p-{color}-400)
 export const CHART_COLORS = [
-  '#3B82F6',  // 0 — violet-400  (primary / No gestionados)
+  '#3B82F6',  // 0 — blue-500    (primary / No gestionados)
   '#2dd4bf',  // 1 — teal-400    (secondary / No contesta)
   '#fbbf24',  // 2 — amber-400   (frescos / tertiary)
   '#4ade80',  // 3 — green-400   (additional series)
-  '#f9a8d4',  // 4 — pink-300    (extra)
+  '#6366F1',  // 4 — indigo-500  (extra — usado para "Otros")
   '#60a5fa',  // 5 — blue-400    (extra)
 ] as const
 

@@ -17,7 +17,7 @@
     <!-- KPIs -->
     <div class="kpi-row">
       <KpiCard valor="122"   label="Ventas de hoy"       comparativa="+8% vs ayer"  tendencia="up" />
-      <KpiCard valor="3045"  label="Ventas del mes"       :progreso="30" :objetivo="160" />
+      <KpiCard :valor="`${mockKpisTL.ventasMes.actual}`" label="Ventas del mes" :progreso="mockKpisTL.ventasMes.actual" :objetivo="mockKpisTL.ventasMes.objetivo" />
       <KpiCard valor="24/80" label="Agentes disponibles" />
       <KpiCard valor="3%"    label="CR sobre frescos"     comparativa="+2% media país" tendencia="up" />
     </div>
@@ -28,14 +28,14 @@
         <div class="bolsa-inner">
           <div class="bolsa-donut">
             <Chart type="doughnut" :data="bolsaDonut" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="bolsa-center"><strong>4.599</strong><small>leads</small></div>
+            <div class="bolsa-center">{{ bolsaTotal.toLocaleString('es-ES') }}<br><small>leads</small></div>
           </div>
           <div class="bolsa-list">
             <div class="bolsa-row" v-for="item in bolsaItems" :key="item.label">
               <div class="bl-header">
                 <span class="bl-dot" :style="{ background: item.color }" />
                 <span class="bl-label">{{ item.label }}</span>
-                <Button v-if="item.asignar" label="Asignar" icon="pi pi-plus" size="small" outlined @click="openAsignacion(item.label)" class="bl-asignar" />
+                <Button v-if="item.asignar" label="Asignar" icon="pi pi-plus" size="small" severity="secondary" outlined @click="openAsignacion()" class="bl-asignar" />
                 <span class="bl-count">{{ item.count.toLocaleString() }}</span>
                 <span class="bl-trend" :class="item.trendUp ? 'bl-trend--up' : 'bl-trend--down'">{{ item.trend }}</span>
               </div>
@@ -48,13 +48,31 @@
       </SectionCard>
 
       <SectionCard class="resumen-agente-card">
-        <Select v-model="agenteSeleccionado" :options="agentesOpts" placeholder="Seleccionar agente del equipo" style="width:100%;margin-bottom:12px" />
+        <MultiSelect
+          :modelValue="agenteSeleccionado"
+          @update:modelValue="onSelectionChange"
+          :options="agentesGrupos"
+          optionLabel="label"
+          optionGroupLabel="label"
+          optionGroupChildren="items"
+          placeholder="Seleccionar agente del equipo"
+          :maxSelectedLabels="hasMiEquipo ? 0 : 1"
+          :selectedItemsLabel="hasMiEquipo ? 'Mi equipo' : '{0} agentes'"
+          :showToggleAll="false"
+          :showClear="true"
+          style="width:100%;margin-bottom:12px"
+        />
         <div class="am-list">
-          <div class="am-row" v-for="m in agenteMetrics" :key="m.label">
-            <span class="am-label">{{ m.label }}</span>
-            <span class="am-val">{{ m.val }}</span>
+          <RouterLink
+            v-for="m in agenteMetrics" :key="m.label" :to="m.to"
+            class="am-row" :class="{ 'am-row--error': m.error }"
+          >
+            <span v-if="m.error" class="am-dot" />
+            <span class="am-label" :class="{ 'am-label--error': m.error }">{{ m.label }}</span>
+            <span v-if="m.error" class="am-badge">{{ m.val }}</span>
+            <span v-else class="am-val">{{ m.val }}</span>
             <i class="pi pi-chevron-right" style="font-size:10px;color:var(--n-300)" />
-          </div>
+          </RouterLink>
         </div>
       </SectionCard>
     </div>
@@ -77,11 +95,11 @@
               <span class="vt-val">{{ vt.val }}</span>
             </div>
             <div class="vt-divider" />
-            <div class="vt-row vt-total"><span class="vt-label">Ventas totales</span><span class="vt-val">33</span></div>
+            <div class="vt-row vt-total"><span class="vt-label">Ventas totales</span><span class="vt-val">{{ ventasTipoTotal }}</span></div>
           </div>
           <div class="ventas-donut-wrap">
             <Chart type="doughnut" :data="ventasDonut" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="donut-center">30<br><small>ventas</small></div>
+            <div class="donut-center">{{ ventasTipoTotal }}<br><small>ventas</small></div>
           </div>
         </div>
       </SectionCard>
@@ -93,14 +111,35 @@
         <template #header>
           <Select v-model="periodoEquipo" :options="['Día','Semana','Mes']" style="font-size:12px" />
         </template>
-        <Chart type="bar" :data="equipoBarData" :options="barOpts" style="height:190px" />
+        <div class="equipo-chart-wrap" ref="equipoChartWrap">
+          <Chart ref="equipoChartRef" type="bar" :data="equipoBarData" :options="barOpts" style="height:240px" />
+          <div ref="labelTip" class="label-tip" style="display:none" />
+        </div>
       </SectionCard>
       <SectionCard title="Top ventas" class="top-ventas-card">
-        <div class="tv-row" v-for="a in mockAgentes.slice(0, 5)" :key="a.id">
-          <AgentAvatar :nombre="a.nombre" :ini="a.ini" size="sm" />
-          <span class="tv-name">{{ a.nombre }}</span>
-          <span class="tv-stat">{{ a.total }} · {{ a.cr }}% cr</span>
+        <template #header>
+          <i
+            class="pi pi-info-circle tv-info-icon"
+            v-tooltip.top="'Ranking combinado: 50% ventas + 50% CR normalizados. Un CR alto con pocas ventas no alcanza el top.'"
+          />
+        </template>
+        <!-- Column headers -->
+        <div class="tv-header">
+          <span class="tv-h-name">Agente</span>
+          <span class="tv-h-stat">Vtas</span>
+          <span class="tv-h-stat">CR</span>
         </div>
+        <RouterLink
+          v-for="(a, idx) in topVentasRanked" :key="a.id"
+          :to="`/agentes/${a.id}`"
+          class="tv-row"
+        >
+          <span class="tv-rank">{{ idx + 1 }}</span>
+          <AgentAvatar :nombre="a.nombre" :ini="a.ini" size="sm" />
+          <span class="tv-name" v-tooltip.top="a.nombre">{{ a.nombre }}</span>
+          <span class="tv-stat-num">{{ a.total }}</span>
+          <span class="tv-stat-num tv-cr">{{ a.cr }}%</span>
+        </RouterLink>
       </SectionCard>
     </div>
 
@@ -109,108 +148,184 @@
       <template #header>
         <Select v-model="periodoHistorico" :options="['Anual','Mensual','Semanal']" style="font-size:12px" />
       </template>
-      <Chart type="line" :data="lineData" :options="lineOpts" style="height:220px" />
+      <Chart type="line" :data="lineData" :options="lineOpts" style="height:260px" />
     </SectionCard>
 
     </div><!-- end Mi equipo dash-content -->
   </div><!-- end tl-root -->
 
   <!-- Modal Asignación -->
-  <Dialog v-model:visible="showAsignacion" header="Asignación de leads" modal dismissableMask style="width:540px">
-    <div class="asig-modal">
-
-      <!-- Tipo selector -->
-      <div class="asig-tabs-wrap">
-        <SelectButton v-model="tipoAsignacion" :options="tipoOptions" optionLabel="label" optionValue="value" />
-      </div>
-
-      <!-- Info line -->
-      <p class="asig-info">
-        Leads <strong>{{ tipoAsignacion }}</strong> disponibles:
-        <strong>{{ tipoAsignacion === 'No contesta' ? '456' : '3.085' }}</strong>
-      </p>
-
-      <!-- Cantidad por agente -->
-      <div class="asig-cantidad-row">
-        <span class="asig-cantidad-label">Cantidad por agente</span>
-        <InputNumber v-model="cantidadPorAgente" showButtons buttonLayout="horizontal" :min="1" :inputStyle="{ width: '56px', textAlign: 'center' }" />
-      </div>
-
-      <!-- Agentes -->
-      <div class="asig-agentes-section">
-        <p class="asig-agentes-label">Agentes</p>
-        <div class="asig-agentes-box">
-          <div class="asig-agentes-grid">
-            <div class="asig-col">
-              <label class="asig-check-row">
-                <Checkbox :modelValue="allSelected" :binary="true" @update:modelValue="toggleAll" />
-                <span class="asig-agent-name">Seleccionar todos</span>
-              </label>
-              <label class="asig-check-row" v-for="a in leftCol" :key="a.id">
-                <Checkbox v-model="selectedAgentes" :value="a.id" />
-                <span class="asig-agent-name">{{ a.nombre }}</span>
-              </label>
-            </div>
-            <div class="asig-col">
-              <label class="asig-check-row" v-for="a in rightCol" :key="a.id">
-                <Checkbox v-model="selectedAgentes" :value="a.id" />
-                <span class="asig-agent-name">{{ a.nombre }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-    <template #footer>
-      <Button label="Cancelar" severity="secondary" outlined style="flex:1" @click="showAsignacion = false" />
-      <Button label="Asignar" style="flex:1" @click="showAsignacion = false" />
-    </template>
-  </Dialog>
+  <AsignarLeadsModal v-model:visible="showAsignacion" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import Chart from 'primevue/chart'
 import Select from 'primevue/select'
+import MultiSelect from 'primevue/multiselect'
 import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import Checkbox from 'primevue/checkbox'
-import SelectButton from 'primevue/selectbutton'
-import InputNumber from 'primevue/inputnumber'
 import KpiCard from '@/components/ui/KpiCard.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import AgentAvatar from '@/components/ui/AgentAvatar.vue'
 import DashboardAgente from '@/components/dashboard/DashboardAgente.vue'
-import { mockAgentes, mockHistoricoVentas, mockEquipoBarras } from '@/data/mock'
+import AsignarLeadsModal from '@/components/leads/AsignarLeadsModal.vue'
+import { mockAgentes, mockHistoricoVentas, mockEquipoBarras, mockKpisTL, mockRankingPaises } from '@/data/mock'
 import { CHART_COLORS, CHART_AREA_FILL, CHART_PREV_COLOR, createMetaPattern } from '@/theme/palette'
 
 const activeTab = ref('Mi equipo')
 const tabs = ['Personal', 'Mi equipo']
 const pais = ref('España')
 const paises = ['España', 'Francia', 'Italia', 'Alemania']
-const agenteSeleccionado = ref(null)
-const agentesOpts = mockAgentes.map(a => a.nombre)
+// Agentes de España divididos en 3 equipos
+const espanaAgentes = mockRankingPaises.find(p => p.pais === 'España')?.agentes ?? []
+const agentesGrupos = [
+  {
+    // Atajos de equipo completo — aparecen primero
+    label: 'Equipos',
+    items: [
+      { label: 'Mi equipo', value: 'equipo-mi' },
+      { label: 'Equipo 2',  value: 'equipo-2'  },
+      { label: 'Equipo 3',  value: 'equipo-3'  },
+    ]
+  },
+  {
+    label: 'Mi equipo — Agentes',
+    items: espanaAgentes.slice(0, 5).map((a, i) => ({ label: a.nombre, value: `mi-${i}` }))
+  },
+  {
+    label: 'Equipo 2 — Agentes',
+    items: espanaAgentes.slice(5, 10).map((a, i) => ({ label: a.nombre, value: `e2-${i}` }))
+  },
+  {
+    label: 'Equipo 3 — Agentes',
+    items: espanaAgentes.slice(10).map((a, i) => ({ label: a.nombre, value: `e3-${i}` }))
+  },
+]
+// Items individuales de "Mi equipo"
+const miEquipoItems = agentesGrupos[1].items
+
+// Pre-selecciona "Mi equipo" + todos sus agentes individuales para que aparezcan marcados
+const agenteSeleccionado = ref<{ label: string; value: string }[]>([
+  { label: 'Mi equipo', value: 'equipo-mi' },
+  ...miEquipoItems
+])
+
+// Computed: ¿está activo el atajo "Mi equipo"?
+const hasMiEquipo = computed(() => agenteSeleccionado.value.some(x => x.value === 'equipo-mi'))
+
+// Gestiona los cambios de selección con lógica inteligente de atajos
+function onSelectionChange(newVal: { label: string; value: string }[]) {
+  const prevVals = agenteSeleccionado.value.map(x => x.value)
+  const newVals  = newVal.map(x => x.value)
+
+  // Caso: "Mi equipo" recién añadido → expandir con todos los agentes individuales
+  if (newVals.includes('equipo-mi') && !prevVals.includes('equipo-mi')) {
+    const withoutMiIndiv = newVal.filter(x => !x.value.startsWith('mi-'))
+    agenteSeleccionado.value = [...withoutMiIndiv, ...miEquipoItems]
+    return
+  }
+
+  // Caso: "Mi equipo" recién eliminado → limpiar también todos los mi-* individuales
+  if (!newVals.includes('equipo-mi') && prevVals.includes('equipo-mi')) {
+    agenteSeleccionado.value = newVal.filter(x => !x.value.startsWith('mi-'))
+    return
+  }
+
+  // Caso: se eliminó un agente individual mientras "Mi equipo" estaba activo → desactivar atajo
+  if (newVals.includes('equipo-mi')) {
+    const prevMiCount = prevVals.filter(v => v.startsWith('mi-')).length
+    const newMiCount  = newVals.filter(v  => v.startsWith('mi-')).length
+    if (newMiCount < prevMiCount) {
+      agenteSeleccionado.value = newVal.filter(x => x.value !== 'equipo-mi')
+      return
+    }
+  }
+
+  agenteSeleccionado.value = newVal
+}
+const router = useRouter()
 const periodoEquipo = ref('Día')
 const periodoHistorico = ref('Anual')
-const tipoOptions = [
-  { label: 'No contesta  [456]',     value: 'No contesta'   },
-  { label: 'No gestionado  [3.085]', value: 'No gestionado' },
-]
 const showAsignacion = ref(false)
-const tipoAsignacion = ref('No contesta')
-const selectedAgentes = ref<string[]>([])
-const cantidadPorAgente = ref(10)
 
-const half = Math.ceil(mockAgentes.length / 2)
-const leftCol = mockAgentes.slice(0, half)
-const rightCol = mockAgentes.slice(half)
+// ── Equipo chart: agentes reales de España (primeros 8) ──────────────────────
+const espanaChartAgentes = mockAgentes.filter(a => a.pais === 'España').slice(0, 8)
 
-const allSelected = computed(() => selectedAgentes.value.length === mockAgentes.length)
-function toggleAll(val: boolean) { selectedAgentes.value = val ? mockAgentes.map(a => a.id) : [] }
+// Template refs para interactividad en x-axis labels
+const equipoChartRef  = ref<InstanceType<typeof Chart> | null>(null)
+const equipoChartWrap = ref<HTMLElement | null>(null)
+const labelTip        = ref<HTMLElement | null>(null)
 
-function openAsignacion(tipo: string) {
-  tipoAsignacion.value = tipo === 'No gestionados' ? 'No gestionado' : tipo
+// Tolerancia horizontal (px) para detectar clic/hover sobre un tick
+const TICK_HIT_PX = 36
+
+function getHoveredTickIdx(canvas: HTMLCanvasElement, clientX: number, clientY: number): number {
+  const chartInst = equipoChartRef.value?.getChart?.() as any
+  if (!chartInst) return -1
+  const rect      = canvas.getBoundingClientRect()
+  const x         = clientX - rect.left
+  const y         = clientY - rect.top
+  const xScale    = chartInst.scales?.x
+  const chartArea = chartInst.chartArea
+  if (!xScale || !chartArea || y <= chartArea.bottom) return -1
+
+  for (let i = 0; i < espanaChartAgentes.length; i++) {
+    if (Math.abs(x - xScale.getPixelForTick(i)) < TICK_HIT_PX) return i
+  }
+  return -1
+}
+
+let _canvas: HTMLCanvasElement | null = null
+
+function onCanvasMove(e: MouseEvent) {
+  if (!_canvas || !labelTip.value) return
+  const idx = getHoveredTickIdx(_canvas, e.clientX, e.clientY)
+  if (idx >= 0) {
+    _canvas.style.cursor = 'pointer'
+    const chartInst = equipoChartRef.value?.getChart?.() as any
+    const tickX = chartInst?.scales?.x?.getPixelForTick(idx) ?? 0
+    const tickY = (chartInst?.chartArea?.bottom ?? 0) + 22
+    labelTip.value.textContent = espanaChartAgentes[idx].nombre
+    labelTip.value.style.display = 'block'
+    labelTip.value.style.left    = tickX + 'px'
+    labelTip.value.style.top     = tickY + 'px'
+  } else {
+    _canvas.style.cursor = ''
+    labelTip.value.style.display = 'none'
+  }
+}
+
+function onCanvasLeave() {
+  if (_canvas) _canvas.style.cursor = ''
+  if (labelTip.value) labelTip.value.style.display = 'none'
+}
+
+function onCanvasClick(e: MouseEvent) {
+  if (!_canvas) return
+  const idx = getHoveredTickIdx(_canvas, e.clientX, e.clientY)
+  if (idx >= 0) router.push(`/agentes/${espanaChartAgentes[idx].id}`)
+}
+
+onMounted(() => {
+  // Chart.js renders async; wait a tick for the canvas to be in the DOM
+  setTimeout(() => {
+    _canvas = equipoChartRef.value?.getChart?.()?.canvas ?? null
+    if (!_canvas) return
+    _canvas.addEventListener('mousemove',  onCanvasMove)
+    _canvas.addEventListener('mouseleave', onCanvasLeave)
+    _canvas.addEventListener('click',      onCanvasClick)
+  }, 100)
+})
+
+onBeforeUnmount(() => {
+  if (!_canvas) return
+  _canvas.removeEventListener('mousemove',  onCanvasMove)
+  _canvas.removeEventListener('mouseleave', onCanvasLeave)
+  _canvas.removeEventListener('click',      onCanvasClick)
+})
+
+function openAsignacion() {
   showAsignacion.value = true
 }
 
@@ -229,9 +344,13 @@ const bolsaItems = [
 ]
 
 const agenteMetrics = [
-  { label: 'Pendientes',   val: 45 }, { label: 'No contesta', val: 453 },
-  { label: 'Cita',         val: 203 }, { label: 'Formulario',  val: 507 },
-  { label: 'Ventas día',   val: 12 },  { label: 'Ventas mes',  val: 45 },
+  { label: 'Pendientes',      val: 1,   to: { path: '/leads', query: { estado: 'Pendiente'  } } },
+  { label: 'No contesta',     val: 453, to: { path: '/leads', query: { estado: 'No contesta'} } },
+  { label: 'Cita',            val: 203, to: { path: '/leads', query: { estado: 'En cita'    } } },
+  { label: 'Formulario',      val: 507, to: { path: '/leads', query: { estado: 'Formulario' } } },
+  { label: 'Ventas día',      val: 12,  to: '/ventas' },
+  { label: 'Ventas mes',      val: 45,  to: '/ventas' },
+  { label: 'Errores de pago', val: 3,   to: '/errores-pago', error: true },
 ]
 
 const actividadItems = [
@@ -242,17 +361,35 @@ const actividadItems = [
 ]
 
 const ventasTipoItems = [
-  { label: 'Frescos (×1)',       val: 10, color: CHART_COLORS[0] },
-  { label: 'Recuperados (×1.5)', val: 10, color: CHART_COLORS[1] },
-  { label: 'Pausados (×1.5)',    val: 10, color: CHART_COLORS[2] },
+  { label: 'Frescos (×1)',       val: 55, color: CHART_COLORS[0] },
+  { label: 'Recuperados (×1.5)', val: 42, color: CHART_COLORS[1] },
+  { label: 'Pausados (×1.5)',    val: 25, color: CHART_COLORS[2] },
 ]
+const ventasTipoTotal = ventasTipoItems.reduce((s, i) => s + i.val, 0)
 
 const ventasDonut = {
-  datasets: [{ data: [10, 10, 10], backgroundColor: CHART_COLORS.slice(0, 3), borderWidth: 0, hoverOffset: 2 }]
+  datasets: [{ data: ventasTipoItems.map(i => i.val), backgroundColor: CHART_COLORS.slice(0, 3), borderWidth: 0, hoverOffset: 2 }]
+}
+
+// Top ventas: agentes España ordenados por score combinado (50% ventas + 50% CR normalizados)
+const topVentasRanked = computed(() => {
+  const espana = mockAgentes.filter(a => a.pais === 'España')
+  const maxTotal = Math.max(...espana.map(a => a.total))
+  const maxCr    = Math.max(...espana.map(a => a.cr))
+  return espana
+    .map(a => ({ ...a, score: (a.total / maxTotal) * 50 + (a.cr / maxCr) * 50 }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+})
+
+// Abreviar nombre: "Juan Martín" → "Juan M."
+function abbrev(nombre: string) {
+  const parts = nombre.trim().split(' ')
+  return parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '')
 }
 
 const equipoBarData = {
-  labels: mockEquipoBarras.labels,
+  labels: espanaChartAgentes.map(a => abbrev(a.nombre)),
   datasets: [
     { label: 'Ventas', data: mockEquipoBarras.ventas, backgroundColor: CHART_COLORS[0], borderRadius: 4, borderSkipped: false },
     { label: 'Meta',   data: mockEquipoBarras.meta,   backgroundColor: createMetaPattern('white', '#BFDBFE'), borderWidth: 0, borderRadius: 4, borderSkipped: false },
@@ -321,7 +458,7 @@ const lineOpts = {
 .bl-header { display: flex; align-items: center; gap: 8px; font-size: 12px; }
 .bl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .bl-label { flex: 1; color: var(--n-600); }
-.bl-asignar { font-size: 11px !important; padding: 2px 8px !important; flex-shrink: 0; }
+.bl-asignar { flex-shrink: 0; }
 .bl-count { font-weight: 600; color: var(--n-800); }
 .bl-trend { font-size: 11px; font-weight: 500; }
 .bl-trend--up   { color: var(--success, #22c55e); }
@@ -331,7 +468,14 @@ const lineOpts = {
 
 /* Resumen agente */
 .am-list { display: flex; flex-direction: column; gap: 0; }
-.am-row { display: flex; align-items: center; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--n-100); cursor: pointer; gap: 4px; }
+.am-row { display: flex; align-items: center; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--n-100); cursor: pointer; gap: 4px; text-decoration: none; color: inherit; }
+.am-row:last-child { border-bottom: none; }
+.am-row:hover { background: var(--n-50, #fafafa); border-radius: 4px; }
+.am-row--error { background: var(--error-bg); border-radius: 6px; border-bottom: none !important; padding: 6px 4px; margin-top: 2px; }
+.am-row--error:hover { background: #fce3dc; }
+.am-label--error { color: var(--error); }
+.am-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--error); flex-shrink: 0; }
+.am-badge { background: transparent; color: var(--error); font-weight: 700; font-size: 12px; padding: 0; }
 .am-row:last-child { border-bottom: none; }
 .am-label { flex: 1; color: var(--n-500); }
 .am-val { font-weight: 600; color: var(--n-800); }
@@ -366,10 +510,43 @@ const lineOpts = {
 .donut-center small { font-size: 12px; font-weight: 400; color: var(--n-400); display: block; }
 
 /* Top ventas */
-.tv-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--n-100); font-size: 12px; }
+.tv-info-icon { font-size: 12px; color: var(--n-400); margin-left: 5px; cursor: default; vertical-align: middle; }
+.tv-header { display: grid; grid-template-columns: 1fr 36px 40px; align-items: center; padding: 0 4px 6px; border-bottom: 1px solid var(--n-150); margin-bottom: 2px; }
+.tv-h-name { font-size: 10px; font-weight: 600; color: var(--n-400); text-transform: uppercase; letter-spacing: 0.04em; }
+.tv-h-stat { font-size: 10px; font-weight: 600; color: var(--n-400); text-transform: uppercase; letter-spacing: 0.04em; text-align: right; }
+.tv-row { display: grid; grid-template-columns: 16px 28px 1fr 36px 40px; align-items: center; gap: 6px; padding: 6px 4px; border-bottom: 1px solid var(--n-100); font-size: 12px; text-decoration: none; color: inherit; border-radius: 4px; }
 .tv-row:last-child { border-bottom: none; }
-.tv-name { flex: 1; font-weight: 500; color: var(--n-700); }
-.tv-stat { color: var(--n-400); font-size: 11px; }
+.tv-row:hover { background: var(--n-50); }
+.tv-rank { font-size: 11px; font-weight: 700; color: var(--n-400); text-align: right; }
+.tv-name { font-weight: 500; color: var(--n-700); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tv-stat-num { font-weight: 600; color: var(--n-800); font-size: 12px; text-align: right; }
+.tv-cr { color: var(--n-500); font-weight: 500; }
+
+/* Equipo chart */
+.equipo-chart-wrap { position: relative; }
+.label-tip {
+  position: absolute;
+  transform: translateX(-50%);
+  background: var(--n-800);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+.label-tip::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: var(--n-800);
+  border-top: none;
+}
 
 /* Asig modal */
 .asig-modal { display: flex; flex-direction: column; gap: 16px; }
@@ -407,5 +584,15 @@ const lineOpts = {
 /* Mobile */
 @media (max-width: 767px) {
   .kpi-row    { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .bolsa-inner          { flex-direction: column; gap: 16px; }
+  .bolsa-donut          { max-width: 140px; width: 140px; align-self: center; }
+  .bolsa-list           { width: 100%; }
+  .bl-header            { flex-wrap: wrap; gap: 6px; }
+  .ventas-tipo-inner    { flex-direction: column; gap: 16px; }
+  .ventas-donut-wrap    { max-width: 140px; width: 140px; align-self: center; }
+  .ventas-tipo-list     { width: 100%; }
 }
 </style>

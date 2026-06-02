@@ -16,6 +16,7 @@ const router = createRouter({
     { path: '/exportaciones', component: () => import('@/views/ExportacionesView.vue'), name: 'exportaciones' },
     { path: '/notificaciones', component: () => import('@/views/NotificacionesView.vue'), name: 'notificaciones' },
     { path: '/configuracion', component: () => import('@/views/ConfiguracionView.vue'), name: 'configuracion' },
+    { path: '/buscar', component: () => import('@/views/BuscarView.vue'), name: 'buscar' },
   ]
 })
 

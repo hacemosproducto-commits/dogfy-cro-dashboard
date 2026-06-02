@@ -33,7 +33,16 @@
     <SectionCard v-if="activeTab !== 'Ranking'">
       <div class="section-toolbar">
         <span class="spacer" />
-        <Button label="Filtros" icon="pi pi-filter" severity="secondary" outlined size="small" />
+        <FiltrosChips v-model="filtrosActivos" />
+        <Button
+          label="Filtros"
+          icon="pi pi-filter"
+          severity="secondary"
+          :outlined="!ventasFiltrosBadge"
+          size="small"
+          :badge="ventasFiltrosBadge || undefined"
+          @click="showFiltros = true"
+        />
       </div>
 
       <DataTable :value="displayed" stripedRows @row-click="goToVenta">
@@ -73,7 +82,7 @@
               <span class="ranking-cell">Mes</span>
             </div>
             <div v-for="(a, i) in col.agentes" :key="i" class="ranking-row">
-              <span class="ranking-cell ranking-cell--name">{{ a.nombre }}</span>
+              <span class="ranking-cell ranking-cell--name" v-tooltip.top="a.nombre">{{ a.nombre }}</span>
               <span class="ranking-cell">{{ a.hoy }}</span>
               <span class="ranking-cell">{{ a.mes }}</span>
             </div>
@@ -82,6 +91,8 @@
       </div>
     </SectionCard>
   </div>
+
+  <FiltrosPanel v-model:visible="showFiltros" modo="ventas" @apply="onFiltrosAplicados" />
 </template>
 
 <script setup lang="ts">
@@ -95,6 +106,9 @@ import SectionCard from '@/components/ui/SectionCard.vue'
 import { mockVentas, mockKpisVentasAgente, mockKpisVentasTL, mockRankingPaises } from '@/data/mock'
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import { useAuthStore } from '@/stores/auth'
+import FiltrosPanel from '@/components/ui/FiltrosPanel.vue'
+import FiltrosChips from '@/components/ui/FiltrosChips.vue'
+import type { FiltrosValue } from '@/components/ui/FiltrosPanel.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -123,8 +137,30 @@ const kpis = computed<any>(() => kpisAgenteMode.value ? mockKpisVentasAgente : m
 // Columna agente solo en Mi equipo (TL/Manager)
 const showAgenteCol = computed(() => role.value !== 'agente' && activeTab.value === 'Mi equipo')
 
+// Filtros panel
+const showFiltros = ref(false)
+const filtrosActivos = ref<FiltrosValue | null>(null)
+function onFiltrosAplicados(f: FiltrosValue) { filtrosActivos.value = f }
+
+const ventasFiltrosBadge = computed(() => {
+  const f = filtrosActivos.value; if (!f) return ''
+  let c = 0
+  if (f.planes.length) c++; if (f.campana) c++; if (f.cupon) c++
+  if (f.fechaDesde || f.fechaHasta) c++; if (f.importeMin !== null || f.importeMax !== null) c++
+  return c > 0 ? String(c) : ''
+})
+
 // Filtra ventas (Personal: las mías; Mi equipo: todas)
-const filtered = computed(() => activeTab.value === 'Personal' ? mockVentas.slice(0, 30) : mockVentas)
+const filtered = computed(() => {
+  let list = activeTab.value === 'Personal' ? mockVentas.slice(0, 30) : mockVentas
+  const f = filtrosActivos.value
+  if (f) {
+    if (f.planes.length)  list = list.filter(v => f.planes.includes((v as any).plan ?? ''))
+    if (f.campana)        list = list.filter(v => (v as any).campana === f.campana)
+    if (f.cupon)          list = list.filter(v => ((v as any).cupon ?? '').toLowerCase().includes(f.cupon.toLowerCase()))
+  }
+  return list
+})
 const { displayed, sentinel, hasMore } = useInfiniteScroll(filtered, 20)
 </script>
 
@@ -148,21 +184,38 @@ const { displayed, sentinel, hasMore } = useInfiniteScroll(filtered, 20)
 .infinite-loading { font-size: 12px; color: var(--n-400); }
 
 /* ── Ranking por país ── */
-.ranking-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.ranking-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.ranking-col + .ranking-col { border-left: 1px solid var(--n-150, #ebedf2); padding-left: 16px; }
-.ranking-col-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; }
+.ranking-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+.ranking-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 0 16px; }
+.ranking-col:first-child { padding-left: 0; }
+.ranking-col:last-child  { padding-right: 0; }
+.ranking-col + .ranking-col { border-left: 1px solid var(--n-150, #ebedf2); }
+.ranking-col-header { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px; }
 .ranking-pais { font-size: 14px; font-weight: 600; color: var(--n-800, #2d2d2f); }
 .ranking-total { font-size: 14px; font-weight: 700; color: var(--n-800, #2d2d2f); }
 .ranking-table { display: flex; flex-direction: column; }
-.ranking-row { display: grid; grid-template-columns: 1fr 50px 50px; gap: 8px; padding: 6px 8px; font-size: 12px; border-bottom: 1px solid var(--n-100, #f3f4f7); }
+/* Nombre toma todo el espacio disponible; HOY y MES con ancho ajustado al contenido */
+.ranking-row { display: grid; grid-template-columns: 1fr 36px 40px; gap: 4px; padding: 6px 4px; font-size: 12px; border-bottom: 1px solid var(--n-100, #f3f4f7); }
 .ranking-row--head { color: var(--n-500, #6b7280); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; }
 .ranking-cell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ranking-cell--name { color: var(--n-700, #2b2b2b); }
+/* Columnas numéricas alineadas a la derecha */
+.ranking-cell:not(.ranking-cell--name) { text-align: right; }
 
 @media (max-width: 1100px) {
   .kpi-row     { grid-template-columns: repeat(2, 1fr); }
-  .ranking-grid{ grid-template-columns: repeat(2, 1fr); }
-  .ranking-col + .ranking-col { border-left: none; padding-left: 0; }
+  .ranking-grid { grid-template-columns: repeat(2, 1fr); gap: 0; }
+
+  /* Quita bordes horizontales entre pares y añade separador de fila */
+  .ranking-col { padding: 16px 12px; }
+  .ranking-col:first-child { padding-left: 12px; }
+  .ranking-col:last-child  { padding-right: 12px; }
+
+  /* Bordes: derecha a los pares impares, inferior entre las dos filas */
+  .ranking-col:nth-child(odd)  { border-left: none; border-right: 1px solid var(--n-150); }
+  .ranking-col:nth-child(even) { border-left: none; }
+  .ranking-col:nth-child(1),
+  .ranking-col:nth-child(2)    { border-bottom: 1px solid var(--n-200); padding-bottom: 20px; }
+  .ranking-col:nth-child(3),
+  .ranking-col:nth-child(4)    { padding-top: 20px; border-bottom: none; }
 }
 </style>

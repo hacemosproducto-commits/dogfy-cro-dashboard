@@ -7,10 +7,10 @@
 
     <!-- KPIs globales -->
     <div class="kpi-row">
-      <KpiCard :valor="paisData.ventas.toLocaleString()" label="Ventas totales hoy"  comparativa="+9% vs ayer"       tendencia="up" />
-      <KpiCard :valor="(paisData.ventas * 4).toLocaleString()" label="Ventas totales mes"  comparativa="+8% día anterior"  tendencia="up" />
-      <KpiCard :valor="`${paisData.cr}%`"   label="CR leads frescos"    comparativa="+8% vs sem. ant."  tendencia="up" />
-      <KpiCard valor="3,2%"   label="CR general"          comparativa="+8% vs ayer"       tendencia="up" />
+      <KpiCard :valor="paisData.ventas.toLocaleString('es-ES')"    label="Ventas totales hoy"  comparativa="+9% vs ayer"       tendencia="up" />
+      <KpiCard :valor="paisData.ventasMes.toLocaleString('es-ES')" label="Ventas totales mes"  comparativa="+8% día anterior"  tendencia="up" />
+      <KpiCard :valor="`${paisData.cr}%`"                          label="CR leads frescos"    comparativa="+2% media global"  tendencia="up" />
+      <KpiCard :valor="`${paisData.crGeneral}%`"                   label="CR general"          comparativa="+0.4% vs ayer"     tendencia="up" />
     </div>
 
     <!-- Bolsa + mini stats -->
@@ -19,7 +19,7 @@
         <div class="bolsa-inner">
           <div class="bolsa-donut">
             <Chart type="doughnut" :data="bolsaDonut" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="bolsa-center"><strong>{{ paisData.leadsActivos.toLocaleString() }}</strong><small>leads</small></div>
+            <div class="bolsa-center">{{ paisData.leadsActivos.toLocaleString('es-ES') }}<br><small>leads</small></div>
           </div>
           <div class="bolsa-list">
             <div class="bolsa-row" v-for="item in bolsaItems" :key="item.label">
@@ -55,7 +55,7 @@
         <template #header>
           <Select v-model="periodoVentas" :options="periodos" style="font-size:12px" />
         </template>
-        <Chart type="bar" :data="ventasBarData" :options="barOpts" style="height:160px" />
+        <Chart type="bar" :data="ventasBarData" :options="barOpts" style="height:240px" />
       </SectionCard>
       <SectionCard title="Ventas por tipo">
         <template #header>
@@ -69,11 +69,11 @@
               <span class="vt-val">{{ vt.val }}</span>
             </div>
             <div class="vt-divider" />
-            <div class="vt-row vt-total"><span class="vt-label">Ventas totales</span><span class="vt-val">3.449</span></div>
+            <div class="vt-row vt-total"><span class="vt-label">Ventas totales</span><span class="vt-val">{{ ventasTipoTotal }}</span></div>
           </div>
           <div class="donut-wrap">
             <Chart type="doughnut" :data="ventasDonut" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="donut-center">3449<br><small>ventas</small></div>
+            <div class="donut-center">{{ ventasTipoTotal }}<br><small>ventas</small></div>
           </div>
         </div>
       </SectionCard>
@@ -84,7 +84,7 @@
       <template #header>
         <Select v-model="periodoHistorico" :options="['Anual','Mensual','Semanal']" style="font-size:12px" />
       </template>
-      <Chart type="line" :data="lineData" :options="lineOpts" style="height:220px" />
+      <Chart type="line" :data="lineData" :options="lineOpts" style="height:260px" />
     </SectionCard>
 
     <!-- Top cupones + campañas -->
@@ -150,17 +150,7 @@ const periodos = ['Día', 'Semana', 'Mes', 'Anual']
 const paises = ['España', 'Francia', 'Italia', 'Alemania']
 const paisActivo = ref('España')
 
-const extraPorPais: Record<string, { mediaFresh: string }> = {
-  'España':   { mediaFresh: '6,7' },
-  'Francia':  { mediaFresh: '5,2' },
-  'Italia':   { mediaFresh: '4,8' },
-  'Alemania': { mediaFresh: '3,1' },
-}
-
-const paisData = computed(() => {
-  const base = mockKpisPaises.find(p => p.pais === paisActivo.value) ?? mockKpisPaises[0]
-  return { ...base, mediaFresh: extraPorPais[paisActivo.value]?.mediaFresh ?? '–' }
-})
+const paisData = computed(() => mockKpisPaises.find(p => p.pais === paisActivo.value) ?? mockKpisPaises[0])
 
 const donutOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '74%' }
 
@@ -179,20 +169,23 @@ const bolsaItems = computed(() => {
   ]
 })
 
-const ventasTipoItems = [
-  { label: 'Frescos (×1)',       val: 10, color: CHART_COLORS[0] },
-  { label: 'Recuperados (×1.5)', val: 10, color: CHART_COLORS[1] },
-  { label: 'Pausados (×1.5)',    val: 10, color: CHART_COLORS[2] },
-]
-const ventasDonut = { datasets: [{ data: [10, 10, 10], backgroundColor: CHART_COLORS.slice(0, 3), borderWidth: 0 }] }
+const ventasTipoItems = computed(() => [
+  { label: 'Frescos (×1)',       val: paisData.value.ventasTipo[0], color: CHART_COLORS[0] },
+  { label: 'Recuperados (×1.5)', val: paisData.value.ventasTipo[1], color: CHART_COLORS[1] },
+  { label: 'Pausados (×1.5)',    val: paisData.value.ventasTipo[2], color: CHART_COLORS[2] },
+])
+const ventasTipoTotal = computed(() => ventasTipoItems.value.reduce((s, i) => s + i.val, 0))
+const ventasDonut = computed(() => ({
+  datasets: [{ data: paisData.value.ventasTipo, backgroundColor: CHART_COLORS.slice(0, 3), borderWidth: 0, hoverOffset: 2 }]
+}))
 
-const ventasBarData = {
+const ventasBarData = computed(() => ({
   labels: ['Feb', 'Mar', 'Abr', 'May'],
   datasets: [
-    { label: 'Ventas', data: [14000, 12000, 18000, 10000], backgroundColor: CHART_COLORS[0], borderRadius: 4, borderSkipped: false },
-    { label: 'Meta',   data: [15000, 15000, 15000, 15000], backgroundColor: createMetaPattern('white', '#BFDBFE'), borderWidth: 0, borderRadius: 4, borderSkipped: false },
+    { label: 'Ventas', data: paisData.value.barVentas, backgroundColor: CHART_COLORS[0], borderRadius: 4, borderSkipped: false },
+    { label: 'Meta',   data: Array(4).fill(paisData.value.barMeta), backgroundColor: createMetaPattern('white', '#BFDBFE'), borderWidth: 0, borderRadius: 4, borderSkipped: false },
   ]
-}
+}))
 const barOpts = {
   responsive: true,
   maintainAspectRatio: false,
@@ -229,10 +222,17 @@ const topCupones = [
 
 function paisFields(p: typeof mockKpisPaises[0]) {
   return {
-    'Ventas': p.ventas, 'CR': `${p.cr}%`, 'PUCR': p.pucr,
-    'T. llamada': p.tiempo, 'Leads activos': p.leadsActivos,
-    'Pendientes': p.pendientes, 'No contesta': p.noContesta,
-    'Cita': p.cita, 'Formulario': p.formulario,
+    'Ventas hoy':     p.ventas,
+    'Ventas mes':     p.ventasMes.toLocaleString('es-ES'),
+    'CR frescos':     `${p.cr}%`,
+    'CR general':     `${p.crGeneral}%`,
+    'PUCR':           p.pucr,
+    'T. llamada':     p.tiempo,
+    'Leads activos':  p.leadsActivos.toLocaleString('es-ES'),
+    'Pendientes':     p.pendientes,
+    'No contesta':    p.noContesta.toLocaleString('es-ES'),
+    'Cita':           p.cita,
+    'Formulario':     p.formulario.toLocaleString('es-ES'),
   }
 }
 </script>
@@ -304,11 +304,11 @@ function paisFields(p: typeof mockKpisPaises[0]) {
 .top-bar-fill  { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
 .top-count { width: 36px; text-align: right; font-weight: 600; color: var(--n-800); }
 
-/* Países */
+/* ─── Países — desktop: 4 cols con separadores verticales ─── */
 .paises-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
-.pais-col { padding: 0 14px; border-right: 1px solid var(--n-150); }
+.pais-col { padding: 0 16px; border-right: 1px solid var(--n-150); }
 .pais-col:first-child { padding-left: 0; }
-.pais-col:last-child { border-right: none; padding-right: 0; }
+.pais-col:last-child  { border-right: none; padding-right: 0; }
 .pais-header { font-size: 13px; font-weight: 700; color: var(--n-800); margin-bottom: 10px; }
 .pais-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--n-100); }
 .pais-row:last-child { border-bottom: none; }
@@ -316,29 +316,57 @@ function paisFields(p: typeof mockKpisPaises[0]) {
 .pais-val { font-weight: 600; color: var(--n-800); }
 
 /* ─── Responsive ───────────────────────────────── */
-/* TH (content ~816px) */
+/* TH / TV (≤1100px): layout 2×2 con separadores en cruz */
 @media (max-width: 1100px) {
-  .kpi-row        { grid-template-columns: repeat(2, 1fr); }
-  .dash-row-2     { grid-template-columns: 1fr; }
-  .mini-stats     { width: 100%; flex-direction: row; }
-  .dash-row-charts{ grid-template-columns: 1fr; }
-  .dash-row-top   { grid-template-columns: 1fr; }
-  .paises-grid    { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .pais-col       { border-right: none; border-bottom: 1px solid var(--n-150); padding: 0 0 12px; }
-  .pais-col:last-child { border-bottom: none; }
+  .kpi-row         { grid-template-columns: repeat(2, 1fr); }
+  .dash-row-2      { grid-template-columns: 1fr; }
+  .mini-stats      { width: 100%; flex-direction: row; }
+  .dash-row-charts { grid-template-columns: 1fr; }
+  .dash-row-top    { grid-template-columns: 1fr; }
+
+  /* 2×2: separador central en cruz */
+  .paises-grid              { grid-template-columns: 1fr 1fr; }
+  /* Reset borders del layout de 4 cols */
+  .pais-col                 { padding: 0; border-right: none; }
+  /* Columna izquierda (cols 1 y 3): separador derecho */
+  .pais-col:nth-child(odd)  { padding-right: 16px; border-right: 1px solid var(--n-150); }
+  /* Columna derecha (cols 2 y 4): espacio interno */
+  .pais-col:nth-child(even) { padding-left: 16px; }
+  /* Fila superior (cols 1 y 2): separador inferior */
+  .pais-col:nth-child(-n+2) { padding-bottom: 16px; border-bottom: 1px solid var(--n-150); }
+  /* Fila inferior (cols 3 y 4): espacio superior */
+  .pais-col:nth-child(n+3)  { padding-top: 16px; }
 }
 
-/* TV (right panel hidden → content ~700px) */
+/* TV adicional (≤900px) */
 @media (max-width: 900px) {
-  .kpi-row        { grid-template-columns: repeat(2, 1fr); }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .dash-row-2, .dash-row-charts, .dash-row-top { grid-template-columns: 1fr; }
-  .paises-grid    { grid-template-columns: 1fr 1fr; gap: 12px; }
 }
 
-/* Mobile */
-@media (max-width: 767px) {
-  .kpi-row     { grid-template-columns: repeat(2, 1fr); }
+/* Mobile ≤480px: 1 col apilada con separadores entre países */
+@media (max-width: 480px) {
+  .bolsa-inner       { flex-direction: column; gap: 16px; }
+  .bolsa-donut       { max-width: 140px; width: 140px; align-self: center; }
+  .bolsa-list        { width: 100%; }
+  .ventas-tipo-inner { flex-direction: column; gap: 16px; }
+  .donut-wrap        { max-width: 140px; width: 140px; align-self: center; }
+  .ventas-tipo-list  { width: 100%; }
+  .dash-row-charts   { grid-template-columns: 1fr; }
+  .dash-row-top      { grid-template-columns: 1fr; }
+
+  /* 1 col: reset todos los estilos 2×2 y apilar */
   .paises-grid { grid-template-columns: 1fr; }
-  .pais-col    { padding: 0 0 12px; }
+  .pais-col,
+  .pais-col:nth-child(odd),
+  .pais-col:nth-child(even),
+  .pais-col:nth-child(-n+2),
+  .pais-col:nth-child(n+3) {
+    padding: 0 0 14px;
+    border-right: none;
+    border-bottom: 1px solid var(--n-150);
+  }
+  .pais-col + .pais-col { padding-top: 14px; }
+  .pais-col:last-child  { border-bottom: none; padding-bottom: 0; }
 }
 </style>

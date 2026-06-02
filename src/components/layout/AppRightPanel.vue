@@ -1,4 +1,11 @@
 <template>
+  <!-- Mobile overlay -->
+  <Teleport to="body">
+    <Transition name="overlay-fade">
+      <div v-if="auth.mobilePanelOpen" class="mobile-panel-overlay" @click="auth.closeMobilePanel()" />
+    </Transition>
+  </Teleport>
+
   <aside
     v-if="showPanel"
     class="right-panel"
@@ -7,6 +14,7 @@
       'right-panel--uw': auth.isUwMode,
       'right-panel--perfil-lead': isPerfilLead,
       'right-panel--perfil-venta': isPerfilVenta,
+      'right-panel--mobile-open': auth.mobilePanelOpen,
     }"
   >
 
@@ -18,7 +26,7 @@
     <!-- ── Full content ── -->
     <div class="right-panel-inner">
 
-      <!-- ── PERFIL VENTA: solo WhatsApp (el historial vive dentro de la página) ── -->
+      <!-- ── PERFIL VENTA: WhatsApp + Historial (mismo patrón que perfil lead) ── -->
       <template v-if="isPerfilVenta">
         <SectionCard class="wa-card">
           <template #header>
@@ -36,6 +44,26 @@
             <Button icon="pi pi-plus" text rounded size="small" />
             <input type="text" placeholder="Mensaje" class="wa-input" />
             <Button icon="pi pi-microphone" text rounded size="small" />
+          </div>
+        </SectionCard>
+
+        <SectionCard class="hist-card">
+          <template #header>
+            <span class="hist-title">Historial <i class="pi pi-chevron-up" /></span>
+          </template>
+          <div class="hist-pills">
+            <button class="pill" :class="{ active: histTab === 'Todo' }" @click="histTab = 'Todo'">Todo</button>
+            <button class="pill" :class="{ active: histTab === 'Llamadas' }" @click="histTab = 'Llamadas'">Llamadas</button>
+            <button class="pill" :class="{ active: histTab === 'Comentarios' }" @click="histTab = 'Comentarios'">Comentarios</button>
+          </div>
+          <div class="hist-list">
+            <div v-for="(item, i) in mockPerfilLead.historial" :key="i" class="hist-item">
+              <i :class="histIcon(item.tipo)" class="hist-icon" />
+              <div class="hist-body">
+                <p class="hist-text">{{ item.texto }}</p>
+                <p class="hist-fecha">{{ item.fecha }}</p>
+              </div>
+            </div>
           </div>
         </SectionCard>
       </template>
@@ -88,10 +116,11 @@
 
       <!-- AGENTE -->
       <template v-else-if="auth.currentRole === 'agente'">
-        <SectionCard v-if="showCalendarWidget" :title="weekRangeLabel">
+        <SectionCard v-if="showCalendarWidget">
           <template #header>
             <div class="wcal-nav-row">
               <button class="wcal-nav" @click="weekOffset--"><i class="pi pi-chevron-left" /></button>
+              <span class="wcal-title">{{ weekRangeLabel }}</span>
               <button class="wcal-nav" @click="weekOffset++"><i class="pi pi-chevron-right" /></button>
               <RouterLink to="/calendario" class="wcal-ver-link"><i class="pi pi-arrow-right" /></RouterLink>
             </div>
@@ -102,6 +131,7 @@
               :key="day.date"
               class="wday-col"
               :class="{ 'wday-col--today': day.isToday }"
+              @click="router.push({ path: '/calendario', query: { dia: day.date } })"
             >
               <span class="wday-label">{{ day.label }}</span>
               <span class="wday-num">{{ day.num }}</span>
@@ -114,7 +144,7 @@
           <template #header>
             <Button icon="pi pi-plus" text rounded size="small" @click="showCrearCita = true" />
           </template>
-          <div class="cita-item" v-for="c in mockProximasCitas" :key="c.id">
+          <div class="cita-item" v-for="c in mockProximasCitas" :key="c.id" @click="openCita(c)">
             <span class="cita-dot" />
             <div>
               <p class="cita-title">{{ c.titulo }}</p>
@@ -135,14 +165,11 @@
               :class="{ 'rec-todo--done': r.completado }"
             >
               <button class="rec-check" :class="{ 'rec-check--done': r.completado }" @click.stop="toggleRec(r.id)">
-                <i v-if="r.completado" class="pi pi-check" style="font-size:9px" />
+                <i v-if="r.completado" class="pi pi-check" style="font-size:8px" />
               </button>
-              <div class="rec-body" @click="toggleExpand(r.id)">
+              <div class="rec-body" @click="openRec(r)">
                 <p class="rec-titulo">{{ r.titulo }}</p>
                 <p class="rec-meta">{{ r.fechaStr }}<span v-if="r.lead"> · {{ r.lead }}</span></p>
-                <div v-if="expandedRecId === r.id && (r.descripcion || r.lead)" class="rec-detail">
-                  <p v-if="r.descripcion" class="rec-desc">{{ r.descripcion }}</p>
-                </div>
               </div>
             </div>
           </div>
@@ -166,11 +193,11 @@
       <template v-else-if="auth.currentRole === 'team_lead'">
         <SectionCard>
           <div class="obj-top">
-            <span class="obj-val">749/2.430</span>
-            <span class="obj-pct">31%</span>
+            <span class="obj-val">{{ mockKpisTL.ventasMes.actual.toLocaleString('es-ES') }}/{{ mockKpisTL.ventasMes.objetivo.toLocaleString('es-ES') }}</span>
+            <span class="obj-pct">{{ objMensualpct }}%</span>
           </div>
           <p class="obj-label">Objetivo mensual</p>
-          <ProgressBar :value="31" style="height:6px;margin-top:8px" />
+          <ProgressBar :value="objMensualpct" style="height:6px;margin-top:8px" />
         </SectionCard>
 
         <SectionCard class="reto-card">
@@ -195,14 +222,11 @@
               :class="{ 'rec-todo--done': r.completado }"
             >
               <button class="rec-check" :class="{ 'rec-check--done': r.completado }" @click.stop="toggleRec(r.id)">
-                <i v-if="r.completado" class="pi pi-check" style="font-size:9px" />
+                <i v-if="r.completado" class="pi pi-check" style="font-size:8px" />
               </button>
-              <div class="rec-body" @click="toggleExpand(r.id)">
+              <div class="rec-body" @click="openRec(r)">
                 <p class="rec-titulo">{{ r.titulo }}</p>
                 <p class="rec-meta">{{ r.fechaStr }}<span v-if="r.lead"> · {{ r.lead }}</span></p>
-                <div v-if="expandedRecId === r.id && (r.descripcion || r.lead)" class="rec-detail">
-                  <p v-if="r.descripcion" class="rec-desc">{{ r.descripcion }}</p>
-                </div>
               </div>
             </div>
           </div>
@@ -258,14 +282,11 @@
               :class="{ 'rec-todo--done': r.completado }"
             >
               <button class="rec-check" :class="{ 'rec-check--done': r.completado }" @click.stop="toggleRec(r.id)">
-                <i v-if="r.completado" class="pi pi-check" style="font-size:9px" />
+                <i v-if="r.completado" class="pi pi-check" style="font-size:8px" />
               </button>
-              <div class="rec-body" @click="toggleExpand(r.id)">
+              <div class="rec-body" @click="openRec(r)">
                 <p class="rec-titulo">{{ r.titulo }}</p>
                 <p class="rec-meta">{{ r.fechaStr }}<span v-if="r.lead"> · {{ r.lead }}</span></p>
-                <div v-if="expandedRecId === r.id && (r.descripcion || r.lead)" class="rec-detail">
-                  <p v-if="r.descripcion" class="rec-desc">{{ r.descripcion }}</p>
-                </div>
               </div>
             </div>
           </div>
@@ -290,26 +311,231 @@
     <CrearCitaModal v-model:visible="showCrearCita" />
     <CrearRecordatorioModal v-model:visible="showCrearRecordatorio" @save="addRecordatorio" />
     <EditarRetoModal v-model:visible="showEditarReto" :reto="retoStore.reto" @save="retoStore.updateReto" />
+
+  <!-- ── Cita detail dialog ── -->
+  <Dialog
+    v-model:visible="showCitaDialog"
+    :modal="true"
+    :position="_dialogPos"
+    :draggable="false"
+    :style="_dialogStyle"
+    :class="_dialogClass"
+    :pt="_dialogPt"
+  >
+    <template #header>
+      <div class="detail-header">
+        <div class="detail-icon nf-icon--cita"><i class="pi pi-calendar" /></div>
+        <div>
+          <Tag value="Cita" severity="info" size="small" />
+          <p class="detail-fecha">{{ selectedCita?.fecha }}</p>
+        </div>
+      </div>
+    </template>
+    <p class="detail-texto">{{ selectedCita?.titulo }}</p>
+    <div class="detail-actions">
+      <Button label="Ver en agenda" icon="pi pi-calendar"
+        :outlined="!!selectedCita?.leadId"
+        @click="() => { showCitaDialog = false; router.push({ path: '/calendario', query: { dia: selectedCita?.date } }) }" />
+      <Button v-if="selectedCita?.leadId" label="Ir al lead" icon="pi pi-user"
+        @click="navFromCita(`/leads/${selectedCita.leadId}`)" />
+    </div>
+  </Dialog>
+
+  <!-- ── Recordatorio detail dialog ── -->
+  <Dialog
+    v-model:visible="showRecDialog"
+    :modal="true"
+    :position="_dialogPos"
+    :draggable="false"
+    :style="_dialogStyle"
+    :class="_dialogClass"
+    :pt="_dialogPt"
+  >
+    <template #header>
+      <div class="detail-header">
+        <div class="detail-icon nf-icon--recordatorio"><i class="pi pi-bookmark" /></div>
+        <div>
+          <Tag value="Recordatorio" severity="secondary" size="small" />
+          <p class="detail-fecha">{{ selectedRec?.fechaStr }}</p>
+        </div>
+      </div>
+    </template>
+    <p class="detail-texto">{{ selectedRec?.titulo }}</p>
+    <p v-if="selectedRec?.descripcion" class="detail-desc">{{ selectedRec.descripcion }}</p>
+    <div class="detail-actions">
+      <Button label="Aplazar" icon="pi pi-clock" outlined @click="abrirAplazarRec" />
+      <Button label="Marcar como hecho" icon="pi pi-check" @click="marcarRecHecho" />
+    </div>
+  </Dialog>
+
+  <!-- ── Sheet 1: opciones rápidas ── -->
+  <Dialog
+    v-model:visible="showAplazarRec"
+    :modal="true"
+    :position="_dialogPos"
+    :draggable="false"
+    :style="_dialogStyle"
+    :class="_dialogClass"
+    header="Aplazar hasta…"
+    :pt="{ root: { style: 'padding:0' }, header: { style: 'padding: 16px 20px 14px; border-bottom: 1px solid var(--n-100)' }, content: { style: 'padding: 8px 12px 20px' } }"
+  >
+    <div class="aplazar-sheet">
+      <button class="aplazar-row" @click="aplazarRec('1h')">
+        <span class="aplazar-row-icon"><i class="pi pi-clock" /></span>
+        <span class="aplazar-row-body">
+          <span class="aplazar-row-label">En 1 hora</span>
+          <span class="aplazar-row-hint">{{ aplazarHint1h }}</span>
+        </span>
+      </button>
+      <button class="aplazar-row" @click="aplazarRec('manana')">
+        <span class="aplazar-row-icon"><i class="pi pi-sun" /></span>
+        <span class="aplazar-row-body">
+          <span class="aplazar-row-label">Mañana</span>
+          <span class="aplazar-row-hint">{{ aplazarHintManana }}</span>
+        </span>
+      </button>
+      <div class="aplazar-sep" />
+      <button class="aplazar-row" @click="abrirCustomRec">
+        <span class="aplazar-row-icon"><i class="pi pi-calendar" /></span>
+        <span class="aplazar-row-body">
+          <span class="aplazar-row-label">Fecha personalizada</span>
+        </span>
+        <i class="pi pi-chevron-right aplazar-row-chevron" />
+      </button>
+    </div>
+  </Dialog>
+
+  <!-- ── Sheet 2: calendario inline ── -->
+  <Dialog
+    v-model:visible="showCustomRec"
+    :modal="true"
+    :position="_dialogPos"
+    :draggable="false"
+    :style="_dialogStyle"
+    :class="_dialogClass"
+    :pt="{ root: { style: 'padding:0' }, header: { style: 'padding: 12px 16px; border-bottom: 1px solid var(--n-100); align-items: center' }, content: { style: 'padding: 16px 20px 24px' } }"
+  >
+    <template #header>
+      <button class="aplazar-back-btn" @click="showCustomRec = false; showAplazarRec = true">
+        <i class="pi pi-arrow-left" />
+      </button>
+      <span class="aplazar-custom-title">Fecha personalizada</span>
+    </template>
+    <div class="aplazar-custom-sheet">
+      <DatePicker v-model="aplazarFechaRec" inline showTime hourFormat="24" :minDate="new Date()" />
+      <Button label="Confirmar" icon="pi pi-check" :disabled="!aplazarFechaRec" @click="aplazarRec('custom')" class="aplazar-confirm-btn" />
+    </div>
+  </Dialog>
+
   </aside>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useRetoStore } from '@/stores/reto'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
+import DatePicker from 'primevue/datepicker'
+import Tag from 'primevue/tag'
 import ProgressBar from 'primevue/progressbar'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import CrearCitaModal from '@/components/ui/CrearCitaModal.vue'
 import CrearRecordatorioModal from '@/components/ui/CrearRecordatorioModal.vue'
 import EditarRetoModal from '@/components/ui/EditarRetoModal.vue'
-import { mockProximasCitas, mockObjetivosPaises, mockLeadsPaises, mockPerfilLead } from '@/data/mock'
+import { mockProximasCitas, mockObjetivosPaises, mockLeadsPaises, mockPerfilLead, mockKpisTL } from '@/data/mock'
 import { CHART_COLORS } from '@/theme/palette'
 
 const auth = useAuthStore()
 const retoStore = useRetoStore()
-const route = useRoute()
+const route  = useRoute()
+const router = useRouter()
+
+// ── Responsive dialog (bottom sheet ≤900 / centered >900) ────────────────────
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1440)
+function _onResize() { windowWidth.value = window.innerWidth }
+onMounted(()  => window.addEventListener('resize', _onResize))
+onUnmounted(() => window.removeEventListener('resize', _onResize))
+const _isWide        = computed(() => windowWidth.value >= 900)
+const _dialogPos     = computed(() => _isWide.value ? 'center' : 'bottom')
+const _dialogStyle   = computed(() => _isWide.value
+  ? { width: '100%', maxWidth: '480px' }
+  : { width: '100%', maxWidth: '520px', margin: '0 auto' }
+)
+const _dialogClass   = computed(() => _isWide.value ? 'detail-dialog--center' : 'detail-dialog--bottom')
+const _dialogPt      = { root: { style: 'padding:0' }, header: { style: 'padding: 16px 20px 12px; border-bottom: 1px solid var(--n-100); align-items: flex-start' }, content: { style: 'padding: 0 20px 24px' } }
+
+// ── Cita detail dialog ────────────────────────────────────────────────────────
+type CitaItem = typeof mockProximasCitas[0]
+const showCitaDialog = ref(false)
+const selectedCita   = ref<CitaItem | null>(null)
+
+function openCita(c: CitaItem) {
+  selectedCita.value = c
+  showCitaDialog.value = true
+}
+function navFromCita(path: string | null) {
+  showCitaDialog.value = false
+  if (path) router.push(path)
+}
+
+// ── Recordatorio detail dialog ────────────────────────────────────────────────
+interface Recordatorio {
+  id: string
+  titulo: string
+  descripcion?: string
+  lead?: string
+  fechaStr: string
+  completado: boolean
+}
+const showRecDialog  = ref(false)
+const selectedRec    = ref<Recordatorio | null>(null)
+
+function openRec(r: Recordatorio) {
+  selectedRec.value = r
+  showRecDialog.value = true
+}
+function marcarRecHecho() {
+  if (selectedRec.value) toggleRec(selectedRec.value.id)
+  showRecDialog.value = false
+}
+// ── Aplazar (snooze) ──────────────────────────────
+const showAplazarRec  = ref(false)
+const showCustomRec   = ref(false)
+const aplazarFechaRec = ref<Date | null>(null)
+
+function abrirAplazarRec() {
+  showRecDialog.value = false
+  showAplazarRec.value = true
+}
+
+function abrirCustomRec() {
+  aplazarFechaRec.value = null
+  showAplazarRec.value = false
+  showCustomRec.value = true
+}
+
+function horaDeRec(): string {
+  return selectedRec.value?.fechaStr?.split('·')[1]?.trim() ?? '09:00'
+}
+
+const aplazarHint1h = computed(() => {
+  const d = new Date(); d.setHours(d.getHours() + 1, 0, 0, 0)
+  return `Hoy · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+})
+
+const aplazarHintManana = computed(() => {
+  const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+  const d = new Date(); d.setDate(d.getDate() + 1)
+  return `${dias[d.getDay()]} · ${horaDeRec()}`
+})
+
+function aplazarRec(_tipo: '1h' | 'manana' | 'custom') {
+  showAplazarRec.value = false
+  showCustomRec.value = false
+  aplazarFechaRec.value = null
+}
 
 // ── Pages where the right panel is visible ───────
 // Same composition per role across these screens.
@@ -320,44 +546,46 @@ const PANEL_ROUTES = [
   'ventas',
   'errores-pago',
   'agentes',
+  'detalle-agente',
   'exportaciones',
   'calendario',
   'notificaciones',
+  'configuracion',
+  'buscar',
   'perfil-lead',
   'perfil-venta',
 ]
+
+// Nota: la navegación secundaria (Errores, Agentes, Exportaciones, etc.)
+// se accede ahora desde el bottom sheet "Más" del AppBottomNav.
+// Este drawer está reservado 100% a widgets contextuales (recordatorios,
+// citas, calendario semanal, etc.).
 const showPanel = computed(() => PANEL_ROUTES.includes(String(route.name)))
 const isPerfilLead  = computed(() => route.name === 'perfil-lead')
 const isPerfilVenta = computed(() => route.name === 'perfil-venta')
 
-// Modales
-const showCrearCita         = ref(false)
-const showCrearRecordatorio = ref(false)
-const showEditarReto        = ref(false)
+// Modales — Crear cita y Crear recordatorio se conectan al store global
+// para que el FAB SpeedDial (en AppHeader) y los widgets "+" disparen la misma instancia.
+const showCrearCita = computed({
+  get: () => auth.showCrearCita,
+  set: (v) => { auth.showCrearCita = v },
+})
+const showCrearRecordatorio = computed({
+  get: () => auth.showCrearRecordatorio,
+  set: (v) => { auth.showCrearRecordatorio = v },
+})
+const showEditarReto = ref(false)
 
 // ── Recordatorios (to-do list reactivo) ───────────
-interface Recordatorio {
-  id: string
-  titulo: string
-  descripcion?: string
-  lead?: string
-  fechaStr: string
-  completado: boolean
-}
 const recordatoriosLocal = ref<Recordatorio[]>([
   { id: '1', titulo: 'Avisar renovación a Carlos García', descripcion: 'Cliente con plan premium, renovación el 20 de feb', lead: 'Carlos García', fechaStr: 'Lun 16 feb · 10:00', completado: false },
   { id: '2', titulo: 'Llamar a María López', fechaStr: 'Lun 16 feb · 12:00', completado: false },
   { id: '3', titulo: 'Enviar presupuesto Plan B', lead: 'Ana Soto', fechaStr: 'Mar 17 feb · 09:00', completado: false },
   { id: '4', titulo: 'Seguimiento post-venta Spike', fechaStr: 'Mié 18 feb · 11:00', completado: false },
 ])
-const expandedRecId = ref<string | null>(null)
-
 function toggleRec(id: string) {
   const r = recordatoriosLocal.value.find(r => r.id === id)
   if (r) r.completado = !r.completado
-}
-function toggleExpand(id: string) {
-  expandedRecId.value = expandedRecId.value === id ? null : id
 }
 function addRecordatorio(data: { nota: string; lead: string; fecha: Date }) {
   const fecha = data.fecha
@@ -388,6 +616,8 @@ function histIcon(tipo: string) {
 
 // ── Pages that exclude specific widgets ──────────
 // /calendario: hide the weekly-calendar widget (agente-only card)
+const objMensualpct = computed(() => Math.round(mockKpisTL.ventasMes.actual / mockKpisTL.ventasMes.objetivo * 100))
+
 const showCalendarWidget      = computed(() => route.name !== 'calendario')
 // /notificaciones: hide the notifications widget (redundant on that page)
 const showNotificationsWidget = computed(() => route.name !== 'notificaciones')
@@ -653,13 +883,41 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
    Widget styles
    ══════════════════════════════════════════ */
 
+/* ── CTA icon buttons — hover circular gris (token compartido) ── */
+/* Aplica a: wcal-nav, wcal-ver-link, + buttons en headers de widgets */
+:deep(.section-card__header .p-button-text.p-button-rounded) {
+  width: 28px !important; height: 28px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  color: var(--brand) !important;
+  background: transparent !important;
+  transition: background .12s;
+}
+:deep(.section-card__header .p-button-text.p-button-rounded:hover) {
+  background: var(--n-100) !important;
+  color: var(--brand) !important;
+}
+
+.wcal-nav, .wcal-ver-link {
+  background: none; border: none;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .12s;
+  text-decoration: none;
+}
+.wcal-nav { color: var(--n-400); }
+.wcal-nav:hover { background: var(--n-100); color: var(--n-700); }
+.wcal-ver-link { color: var(--brand); }
+.wcal-ver-link:hover { background: var(--n-100); color: var(--brand); }
+.wcal-nav .pi, .wcal-ver-link .pi { font-size: 10px; }
+
 /* Week calendar */
-.wcal-nav-row { display: flex; align-items: center; gap: 2px; }
-.wcal-nav { background: none; border: none; padding: 2px 4px; cursor: pointer; color: var(--n-400); border-radius: 4px; transition: color .12s, background .12s; }
-.wcal-nav:hover { color: var(--n-700); background: var(--n-100); }
-.wcal-nav .pi { font-size: 10px; }
-.week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-.wday-col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; border-radius: 8px; }
+.wcal-nav-row { display: flex; align-items: center; gap: 2px; width: 100%; }
+.wcal-title { font-size: 13px; font-weight: 600; color: var(--n-800); flex: 1; text-align: center; white-space: nowrap; }
+.week-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; padding: 0 2px; }
+.wday-col { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0; min-width: 0; border-radius: 8px; cursor: pointer; transition: background .12s; }
+.wday-col:hover { background: var(--n-100); }
+.wday-col--today:hover { background: var(--n-150); }
 .wday-label { font-size: 10px; font-weight: 500; color: var(--n-400); letter-spacing: 0.02em; }
 .wday-num { font-size: 13px; font-weight: 500; color: var(--n-700); width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
 .wday-col--today .wday-num { background: var(--n-200); color: var(--n-800); font-weight: 700; }
@@ -667,15 +925,13 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
 .wday-dot { width: 5px; height: 5px; border-radius: 50%; }
 .wday-dot--on  { background: var(--brand); }
 .wday-dot--off { background: transparent; }
-.wcal-ver-link { color: var(--n-400); text-decoration: none; padding: 2px 4px; border-radius: 4px; display: flex; align-items: center; transition: color .12s, background .12s; }
-.wcal-ver-link:hover { color: var(--brand); background: var(--n-100); }
-.wcal-ver-link .pi { font-size: 10px; }
 
-/* Citas */
-.cita-item  { display: flex; gap: 8px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid var(--n-100); }
+/* Citas — clickable rows */
+.cita-item  { display: flex; gap: 8px; align-items: center; padding: 6px 4px; border-bottom: 1px solid var(--n-100); border-radius: 6px; cursor: pointer; transition: background .12s; }
 .cita-item:last-child { border-bottom: none; }
-.cita-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--n-300); margin-top: 5px; flex-shrink: 0; }
-.cita-title { font-size: 12px; font-weight: 500; color: var(--n-700); }
+.cita-item:hover { background: var(--n-50); }
+.cita-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--n-300); flex-shrink: 0; }
+.cita-title { font-size: 12px; font-weight: 500; color: var(--n-700); flex: 1; }
 
 /* Notificaciones "ver todas" link */
 .notif-ver-todas {
@@ -684,6 +940,21 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
 }
 .notif-ver-todas:hover { text-decoration: underline; }
 .notif-ver-todas .pi { font-size: 9px; }
+
+/* ── Detail dialog (shared with NotificacionesView) ── */
+.detail-header { display: flex; gap: 12px; align-items: flex-start; }
+.detail-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+.nf-icon--cita         { background: var(--info-bg);    color: var(--info); }
+.nf-icon--recordatorio { background: var(--n-100);      color: var(--n-500); }
+.detail-fecha  { font-size: 11px; color: var(--n-400); margin-top: 4px; }
+.detail-texto  { font-size: 14px; color: var(--n-700); margin: 0 0 16px; }
+.detail-desc   { font-size: 12px; color: var(--n-500); margin: -8px 0 16px; }
+.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.detail-actions .p-button { flex: 1; min-width: 120px; justify-content: center; }
+
+/* bottom-sheet border radius */
+:global(.detail-dialog--bottom .p-dialog) { border-radius: 16px 16px 0 0 !important; }
+:global(.detail-dialog--center .p-dialog) { border-radius: 12px !important; }
 
 /* Recordatorios / Notifs */
 .rec-item { display: flex; gap: 8px; align-items: flex-start; padding: 5px 0; border-bottom: 1px solid var(--n-100); }
@@ -715,8 +986,8 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
 .rec-todo:hover { background: var(--n-50, #f9fafb); }
 
 .rec-check {
-  flex-shrink: 0; margin-top: 1px;
-  width: 18px; height: 18px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 2px;
+  width: 15px; height: 15px; border-radius: 50%;
   border: 1.5px solid var(--n-300, #d1d5db);
   background: transparent; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
@@ -829,7 +1100,7 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
   min-height: 0;
 }
 
-/* ── Perfil-venta: panel ancho con WhatsApp ocupando todo el alto ── */
+/* ── Perfil-venta: mismo layout que perfil-lead (60% WA + resto Historial) ── */
 .right-panel--perfil-venta {
   width: 380px;
   height: 100vh;
@@ -844,13 +1115,123 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
   height: 100%;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 .right-panel--perfil-venta .wa-card {
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.right-panel--perfil-venta .wa-card :deep(.section-card__header) { flex-shrink: 0; }
+.right-panel--perfil-venta .wa-card .wa-compose { flex-shrink: 0; }
+.right-panel--perfil-venta .hist-card {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
-.right-panel--perfil-venta .wa-card :deep(.section-card__header),
-.right-panel--perfil-venta .wa-card .wa-compose { flex-shrink: 0; }
+.right-panel--perfil-venta .hist-card :deep(.section-card__header),
+.right-panel--perfil-venta .hist-card .hist-pills,
+.right-panel--perfil-venta .hist-card .hist-compose { flex-shrink: 0; }
+.right-panel--perfil-venta .hist-card .hist-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: none;
+  min-height: 0;
+}
+
+/* ── Narrow tablet: hide strip, slide-in drawer only ────── */
+@media (max-width: 640px) {
+  .right-panel {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px !important;
+    height: 100dvh !important;
+    z-index: 400;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    overflow-y: auto;
+  }
+}
+
+/* ── Mobile drawer ──────────────────────────────── */
+@media (max-width: 480px) {
+  .right-panel {
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px !important;
+    height: 100dvh !important;
+    z-index: 400;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    overflow-y: auto;
+  }
+  /* En mobile el panel NO se abre por hover sino por clic → el contenido
+     debe estar visible siempre (anula el opacity:0 del breakpoint ≤1024px) */
+  .right-panel-inner {
+    opacity: 1 !important;
+    min-width: 0 !important;
+    /* Padding-bottom para que el contenido no quede oculto por el bottom nav */
+    padding-bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+  }
+  .right-panel--mobile-open {
+    transform: translateX(0);
+  }
+  /* Ocultar el icon strip colapsado — no aplica en mobile */
+  .rp-icon-strip { display: none !important; }
+}
+
+/* Equivalente .is-mob (preview mode) */
+.is-mob .right-panel-inner {
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+.mobile-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 399;
+}
+.overlay-fade-enter-active, .overlay-fade-leave-active { transition: opacity 0.25s ease; }
+.overlay-fade-enter-from, .overlay-fade-leave-to { opacity: 0; }
+
+/* ── Aplazar sheets ──────────────────────────────── */
+.aplazar-sheet { display: flex; flex-direction: column; gap: 2px; }
+.aplazar-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 8px; border-radius: 10px; border: none; background: none;
+  cursor: pointer; width: 100%; text-align: left; transition: background 0.1s;
+}
+.aplazar-row:hover { background: var(--n-50); }
+.aplazar-row-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--n-100); color: var(--n-600);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.aplazar-row-body  { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.aplazar-row-label { font-size: 14px; color: var(--n-800); font-weight: 500; }
+.aplazar-row-hint  { font-size: 12px; color: var(--n-400); }
+.aplazar-row-chevron { color: var(--n-400); font-size: 12px; flex-shrink: 0; margin-left: auto; }
+.aplazar-sep { height: 1px; background: var(--n-150); margin: 6px 0; }
+
+.aplazar-back-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  border: none; background: none; cursor: pointer; color: var(--n-600);
+  margin-right: 8px; transition: background 0.1s;
+}
+.aplazar-back-btn:hover { background: var(--n-100); }
+.aplazar-custom-title { font-size: 15px; font-weight: 600; color: var(--n-800); }
+
+.aplazar-custom-sheet { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.aplazar-confirm-btn  { width: 100%; justify-content: center; }
+:deep(.aplazar-custom-sheet .p-datepicker) { width: 100% !important; border: none !important; box-shadow: none !important; }
 </style>

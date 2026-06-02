@@ -66,7 +66,7 @@ const allNavItems = [
   { route: '/ventas',         icon: 'pi pi-chart-line',    label: 'Ventas',          roles: ['agente', 'team_lead', 'manager'] },
   { route: '/errores-pago',   icon: 'pi pi-credit-card',   label: 'Errores de pago', roles: ['agente', 'team_lead', 'manager'] },
   { route: '/agentes',        icon: 'pi pi-sitemap',       label: 'Agentes',         roles: ['team_lead', 'manager'] },
-  { route: '/calendario',     icon: 'pi pi-calendar',      label: 'Calendario',      roles: ['agente', 'team_lead', 'manager'] },
+  { route: '/calendario',     icon: 'pi pi-calendar',      label: 'Agenda',          roles: ['agente', 'team_lead', 'manager'] },
   { route: '/notificaciones', icon: 'pi pi-bell',          label: 'Notificaciones',  roles: ['agente', 'team_lead', 'manager'] },
   { route: '/exportaciones',  icon: 'pi pi-download',      label: 'Exportaciones',   roles: ['team_lead', 'manager'] },
   { route: '/configuracion',  icon: 'pi pi-cog',           label: 'Configuración',   roles: ['manager'] },
@@ -186,8 +186,9 @@ const visibleItems = computed(() =>
 }
 
 /* Hover background — circle in collapsed, pill in expanded */
-.nav-item:hover::before { content: ""; position: absolute; inset: 0 auto 0 6px; width: 40px; border-radius: 50%; background: #f7f7f7; z-index: 0; transition: width 0.18s ease, left 0.18s ease, border-radius 0.18s ease; }
-.sidebar--expanded .nav-item:hover::before { left: 0; right: 0; width: auto; border-radius: 99px; }
+/* explicit top + height (not inset shorthand) so the pseudo-element is always exactly 40×40 */
+.nav-item:hover::before { content: ""; position: absolute; top: 0; left: 6px; width: 40px; height: 40px; border-radius: 50%; background: #f7f7f7; z-index: 0; transition: width 0.18s ease, left 0.18s ease, border-radius 0.18s ease; }
+.sidebar--expanded .nav-item:hover::before { left: 0; width: 100%; height: 40px; border-radius: 99px; }
 
 /* Active background — same trick */
 .nav-item--active { background: none; color: var(--brand); }
@@ -273,6 +274,11 @@ const visibleItems = computed(() =>
     opacity: 0 !important;
     max-width: 0 !important;
   }
+}
+
+/* ── Mobile ≤480px — ocultar sidebar, usa bottom nav ── */
+@media (max-width: 480px) {
+  .sidebar { display: none !important; }
 }
 
 </style>

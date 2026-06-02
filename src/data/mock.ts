@@ -2,7 +2,7 @@ export type Role = 'agente' | 'team_lead' | 'manager'
 
 export const mockAgente = {
   id: '1',
-  nombre: 'Catalina D\'Amato',
+  nombre: 'Juan Camilo Cruz',
   rol: 'agente' as Role,
   pais: 'España',
   avatar: '',
@@ -12,7 +12,7 @@ export const mockAgente = {
 
 export const mockTeamLead = {
   id: '2',
-  nombre: 'Catalina D\'Amato',
+  nombre: 'Michele Carlini',
   rol: 'team_lead' as Role,
   pais: 'España',
   avatar: '',
@@ -22,7 +22,7 @@ export const mockTeamLead = {
 
 export const mockManager = {
   id: '3',
-  nombre: 'Catalina D\'Amato',
+  nombre: 'Judit Cabrera',
   rol: 'manager' as Role,
   pais: 'Global',
   avatar: '',
@@ -42,7 +42,7 @@ export const mockKpisAgente = {
 
 export const mockKpisTL = {
   ventasHoy: 122,
-  ventasMes: 3045,
+  ventasMes: { actual: 749, objetivo: 2430 },
   agentesDisponibles: { disponibles: 24, total: 80 },
   cr: 3.0,
 }
@@ -91,9 +91,9 @@ export const mockHistoricoVentas = {
 }
 
 export const mockProximasCitas = [
-  { id: '1', titulo: 'Cita Lead papá de Spike',    fecha: 'Mi, 13 may · 10:00', date: '2026-05-13' },
-  { id: '2', titulo: 'Seguimiento Laura Méndez',    fecha: 'Vi, 15 may · 12:30', date: '2026-05-15' },
-  { id: '3', titulo: 'Demo plan Premium empresa X', fecha: 'Lu, 18 may · 16:00', date: '2026-05-18' },
+  { id: '1', titulo: 'Cita Lead papá de Spike',    fecha: 'Mi, 13 may · 10:00', date: '2026-05-13', leadId: '1' },
+  { id: '2', titulo: 'Seguimiento Laura Méndez',    fecha: 'Vi, 15 may · 12:30', date: '2026-05-15', leadId: '2' },
+  { id: '3', titulo: 'Demo plan Premium empresa X', fecha: 'Lu, 18 may · 16:00', date: '2026-05-18', leadId: null },
 ]
 
 export const mockRecordatorios = [
@@ -109,56 +109,31 @@ export const mockRetoSemanal = {
   linkReglas: '#',
 }
 
-const _agentesData = [
-  { nombre: 'Juan Martín',     ini: 'JM' },
-  { nombre: 'Laura Ruiz',      ini: 'LR' },
-  { nombre: 'Carlos Díaz',     ini: 'CD' },
-  { nombre: 'Ana Soto',        ini: 'AS' },
-  { nombre: 'María Pérez',     ini: 'MP' },
-  { nombre: 'Pablo García',    ini: 'PG' },
-  { nombre: 'Sara Molina',     ini: 'SM' },
-  { nombre: 'David Fernández', ini: 'DF' },
-  { nombre: 'Elena Torres',    ini: 'ET' },
-  { nombre: 'Roberto Vega',    ini: 'RV' },
-  { nombre: 'Nuria López',     ini: 'NL' },
-  { nombre: 'Marcos Jiménez',  ini: 'MJ' },
-  { nombre: 'Claudia Ramos',   ini: 'CR' },
-  { nombre: 'Iván Serrano',    ini: 'IS' },
-  { nombre: 'Patricia Moya',   ini: 'PM' },
-  { nombre: 'Alejandro Gil',   ini: 'AG' },
-  { nombre: 'Sofía Navarro',   ini: 'SN' },
-  { nombre: 'Tomás Blanco',    ini: 'TB' },
-  { nombre: 'Raquel Moreno',   ini: 'RM' },
-  { nombre: 'Hugo Castillo',   ini: 'HC' },
+// Datos deterministas — sin Math.random() para que los valores sean consistentes entre builds
+// score = (total/maxTotal * 50) + (cr/maxCr * 50) — usado en Top ventas
+// pais se usa para filtros en AgentesView
+export const mockAgentes = [
+  { id:'1',  pais:'España',   nombre:'Juan Martín',     ini:'JM', avatar:'', total:32, cr:6.1,  llamadasDia:28, tiempoLlamada:'6m 12s', fresh:8,  freshCr:4.2, recuperados:6,  recuperadosCr:7.8,  pausados:4, pausadosCr:5.1, noGestionados:18, noContesta1:12, noContesta2:5,  enCita:8,  formulario:12, ventasDias:8,  ventasMes:32, pendientes:1,  noContesta:38,  cita:14 },
+  { id:'2',  pais:'España',   nombre:'Laura Ruiz',      ini:'LR', avatar:'', total:34, cr:11.3, llamadasDia:22, tiempoLlamada:'8m 45s', fresh:12, freshCr:9.1, recuperados:4,  recuperadosCr:13.2, pausados:3, pausadosCr:9.8, noGestionados:8,  noContesta1:7,  noContesta2:2,  enCita:6,  formulario:9,  ventasDias:11, ventasMes:34, pendientes:1,  noContesta:14,  cita:8  },
+  { id:'3',  pais:'España',   nombre:'Carlos Díaz',     ini:'CD', avatar:'', total:52, cr:2.1,  llamadasDia:46, tiempoLlamada:'4m 30s', fresh:6,  freshCr:1.8, recuperados:9,  recuperadosCr:2.4,  pausados:5, pausadosCr:2.0, noGestionados:42, noContesta1:31, noContesta2:14, enCita:4,  formulario:6,  ventasDias:6,  ventasMes:52, pendientes:1, noContesta:68,  cita:5  },
+  { id:'4',  pais:'España',   nombre:'Ana Soto',        ini:'AS', avatar:'', total:30, cr:6.1,  llamadasDia:25, tiempoLlamada:'7m 05s', fresh:7,  freshCr:5.2, recuperados:5,  recuperadosCr:6.9,  pausados:3, pausadosCr:4.7, noGestionados:14, noContesta1:11, noContesta2:4,  enCita:7,  formulario:11, ventasDias:7,  ventasMes:30, pendientes:1,  noContesta:22,  cita:11 },
+  { id:'5',  pais:'España',   nombre:'María Pérez',     ini:'MP', avatar:'', total:41, cr:4.4,  llamadasDia:35, tiempoLlamada:'5m 22s', fresh:9,  freshCr:3.6, recuperados:7,  recuperadosCr:5.1,  pausados:4, pausadosCr:3.8, noGestionados:25, noContesta1:18, noContesta2:8,  enCita:5,  formulario:8,  ventasDias:9,  ventasMes:41, pendientes:1, noContesta:41,  cita:7  },
+  { id:'6',  pais:'España',   nombre:'Pablo García',    ini:'PG', avatar:'', total:45, cr:5.2,  llamadasDia:38, tiempoLlamada:'5m 48s', fresh:10, freshCr:4.4, recuperados:8,  recuperadosCr:6.0,  pausados:5, pausadosCr:4.2, noGestionados:28, noContesta1:20, noContesta2:9,  enCita:6,  formulario:10, ventasDias:10, ventasMes:45, pendientes:1, noContesta:48,  cita:9  },
+  { id:'7',  pais:'España',   nombre:'Sara Molina',     ini:'SM', avatar:'', total:38, cr:7.8,  llamadasDia:30, tiempoLlamada:'7m 33s', fresh:11, freshCr:6.8, recuperados:6,  recuperadosCr:9.2,  pausados:3, pausadosCr:6.5, noGestionados:12, noContesta1:9,  noContesta2:3,  enCita:9,  formulario:14, ventasDias:10, ventasMes:38, pendientes:1,  noContesta:18,  cita:13 },
+  { id:'8',  pais:'España',   nombre:'David Fernández', ini:'DF', avatar:'', total:55, cr:3.3,  llamadasDia:48, tiempoLlamada:'4m 15s', fresh:7,  freshCr:2.8, recuperados:10, recuperadosCr:3.9,  pausados:6, pausadosCr:2.5, noGestionados:45, noContesta1:34, noContesta2:15, enCita:3,  formulario:5,  ventasDias:7,  ventasMes:55, pendientes:1, noContesta:75,  cita:4  },
+  { id:'9',  pais:'España',   nombre:'Elena Torres',    ini:'ET', avatar:'', total:28, cr:8.5,  llamadasDia:20, tiempoLlamada:'9m 10s', fresh:9,  freshCr:7.2, recuperados:4,  recuperadosCr:10.1, pausados:2, pausadosCr:7.9, noGestionados:7,  noContesta1:5,  noContesta2:2,  enCita:8,  formulario:12, ventasDias:9,  ventasMes:28, pendientes:1,  noContesta:11,  cita:11 },
+  { id:'10', pais:'España',   nombre:'Roberto Vega',    ini:'RV', avatar:'', total:42, cr:4.9,  llamadasDia:36, tiempoLlamada:'5m 37s', fresh:9,  freshCr:4.1, recuperados:7,  recuperadosCr:5.7,  pausados:4, pausadosCr:4.0, noGestionados:22, noContesta1:16, noContesta2:7,  enCita:5,  formulario:9,  ventasDias:8,  ventasMes:42, pendientes:1,  noContesta:35,  cita:8  },
+  { id:'11', pais:'Francia',  nombre:'Nuria López',     ini:'NL', avatar:'', total:35, cr:6.7,  llamadasDia:29, tiempoLlamada:'6m 52s', fresh:8,  freshCr:5.8, recuperados:5,  recuperadosCr:7.8,  pausados:3, pausadosCr:5.4, noGestionados:13, noContesta1:9,  noContesta2:3,  enCita:7,  formulario:11, ventasDias:9,  ventasMes:35, pendientes:1,  noContesta:20,  cita:10 },
+  { id:'12', pais:'Francia',  nombre:'Marcos Jiménez',  ini:'MJ', avatar:'', total:29, cr:5.8,  llamadasDia:24, tiempoLlamada:'7m 18s', fresh:6,  freshCr:4.9, recuperados:4,  recuperadosCr:6.8,  pausados:2, pausadosCr:4.5, noGestionados:16, noContesta1:12, noContesta2:5,  enCita:6,  formulario:9,  ventasDias:7,  ventasMes:29, pendientes:1,  noContesta:26,  cita:8  },
+  { id:'13', pais:'Francia',  nombre:'Claudia Ramos',   ini:'CR', avatar:'', total:48, cr:3.6,  llamadasDia:41, tiempoLlamada:'4m 55s', fresh:8,  freshCr:3.0, recuperados:9,  recuperadosCr:4.2,  pausados:5, pausadosCr:3.1, noGestionados:36, noContesta1:26, noContesta2:11, enCita:4,  formulario:6,  ventasDias:8,  ventasMes:48, pendientes:1, noContesta:55,  cita:5  },
+  { id:'14', pais:'Francia',  nombre:'Iván Serrano',    ini:'IS', avatar:'', total:25, cr:9.2,  llamadasDia:19, tiempoLlamada:'9m 44s', fresh:8,  freshCr:8.1, recuperados:3,  recuperadosCr:11.0, pausados:2, pausadosCr:8.6, noGestionados:5,  noContesta1:4,  noContesta2:1,  enCita:9,  formulario:13, ventasDias:10, ventasMes:25, pendientes:1,  noContesta:8,   cita:12 },
+  { id:'15', pais:'Italia',   nombre:'Patricia Moya',   ini:'PM', avatar:'', total:39, cr:4.1,  llamadasDia:33, tiempoLlamada:'5m 59s', fresh:7,  freshCr:3.4, recuperados:6,  recuperadosCr:4.8,  pausados:4, pausadosCr:3.5, noGestionados:26, noContesta1:19, noContesta2:8,  enCita:4,  formulario:7,  ventasDias:7,  ventasMes:39, pendientes:1, noContesta:44,  cita:6  },
+  { id:'16', pais:'Italia',   nombre:'Alejandro Gil',   ini:'AG', avatar:'', total:44, cr:5.6,  llamadasDia:37, tiempoLlamada:'5m 14s', fresh:10, freshCr:4.8, recuperados:8,  recuperadosCr:6.4,  pausados:5, pausadosCr:4.5, noGestionados:24, noContesta1:17, noContesta2:7,  enCita:5,  formulario:9,  ventasDias:9,  ventasMes:44, pendientes:1, noContesta:38,  cita:8  },
+  { id:'17', pais:'Italia',   nombre:'Sofía Navarro',   ini:'SN', avatar:'', total:31, cr:7.2,  llamadasDia:26, tiempoLlamada:'7m 28s', fresh:7,  freshCr:6.1, recuperados:5,  recuperadosCr:8.4,  pausados:3, pausadosCr:6.0, noGestionados:10, noContesta1:8,  noContesta2:3,  enCita:7,  formulario:11, ventasDias:8,  ventasMes:31, pendientes:1,  noContesta:16,  cita:10 },
+  { id:'18', pais:'Alemania', nombre:'Tomás Blanco',    ini:'TB', avatar:'', total:37, cr:5.0,  llamadasDia:31, tiempoLlamada:'6m 02s', fresh:8,  freshCr:4.2, recuperados:6,  recuperadosCr:5.8,  pausados:3, pausadosCr:4.1, noGestionados:20, noContesta1:14, noContesta2:6,  enCita:5,  formulario:8,  ventasDias:8,  ventasMes:37, pendientes:1,  noContesta:30,  cita:7  },
+  { id:'19', pais:'Alemania', nombre:'Raquel Moreno',   ini:'RM', avatar:'', total:33, cr:6.8,  llamadasDia:27, tiempoLlamada:'7m 05s', fresh:7,  freshCr:5.8, recuperados:5,  recuperadosCr:7.9,  pausados:3, pausadosCr:5.5, noGestionados:11, noContesta1:8,  noContesta2:3,  enCita:7,  formulario:10, ventasDias:9,  ventasMes:33, pendientes:1,  noContesta:18,  cita:9  },
+  { id:'20', pais:'Alemania', nombre:'Hugo Castillo',   ini:'HC', avatar:'', total:27, cr:8.1,  llamadasDia:21, tiempoLlamada:'8m 52s', fresh:8,  freshCr:7.0, recuperados:3,  recuperadosCr:9.6,  pausados:2, pausadosCr:7.3, noGestionados:6,  noContesta1:5,  noContesta2:2,  enCita:8,  formulario:12, ventasDias:8,  ventasMes:27, pendientes:1,  noContesta:10,  cita:11 },
 ]
-
-export const mockAgentes = _agentesData.map((a, i) => ({
-  id: String(i + 1),
-  nombre: a.nombre,
-  ini: a.ini,
-  avatar: '',
-  total: 30 + Math.floor(Math.random() * 30),
-  cr: parseFloat((2 + Math.random() * 10).toFixed(1)),
-  llamadasDia: 20 + Math.floor(Math.random() * 30),
-  tiempoLlamada: `${3 + Math.floor(Math.random() * 9)}m ${Math.floor(Math.random() * 59)}s`,
-  fresh: Math.floor(Math.random() * 20),
-  freshCr: parseFloat((1 + Math.random() * 8).toFixed(1)),
-  recuperados: Math.floor(Math.random() * 15),
-  recuperadosCr: parseFloat((2 + Math.random() * 10).toFixed(1)),
-  pausados: Math.floor(Math.random() * 10),
-  pausadosCr: parseFloat((1 + Math.random() * 7).toFixed(1)),
-  noGestionados: Math.floor(Math.random() * 60),
-  noContesta1: Math.floor(Math.random() * 40),
-  noContesta2: Math.floor(Math.random() * 20),
-  enCita: Math.floor(Math.random() * 25),
-  formulario: Math.floor(Math.random() * 35),
-  // legacy fields kept for other uses
-  ventasDias: 5 + Math.floor(Math.random() * 10),
-  ventasMes: 30 + Math.floor(Math.random() * 30),
-  pendientes: Math.floor(Math.random() * 50),
-  noContesta: Math.floor(Math.random() * 200),
-  cita: Math.floor(Math.random() * 100),
-}))
 
 export const mockEquipoBarras = {
   labels: ['Juan M.','Laura R.','Carlos D.','Ana S.','María P.','Pablo G.','Sara M.','David F.'],
@@ -194,11 +169,51 @@ export const mockLeads = Array.from({ length: 80 }, (_, i) => {
   }
 })
 
+// ventas    = hoy (suma agentes en mockRankingPaises)
+// ventasMes  = este mes, coincide con mockObjetivosPaises.actual
+// leadsActivos = pendientes + noContesta + cita + formulario, coincide con mockLeadsPaises
+// ventasTipo = [frescos, recuperados, pausados], suma = ventas hoy
 export const mockKpisPaises = [
-  { pais: 'España', flag: '🇪🇸', ventas: 1234, cr: 7, pucr: '38s', tiempo: '5m 19s', leadsActivos: 1234, pendientes: 45, noContesta: 453, cita: 203, formulario: 507 },
-  { pais: 'Francia', flag: '🇫🇷', ventas: 1234, cr: 7, pucr: '38s', tiempo: '5m 19s', leadsActivos: 1234, pendientes: 45, noContesta: 453, cita: 203, formulario: 507 },
-  { pais: 'Italia',  flag: '🇮🇹', ventas: 1234, cr: 7, pucr: '38s', tiempo: '5m 19s', leadsActivos: 1234, pendientes: 45, noContesta: 453, cita: 203, formulario: 507 },
-  { pais: 'Alemania',flag: '🇩🇪', ventas: 1234, cr: 7, pucr: '38s', tiempo: '5m 19s', leadsActivos: 1234, pendientes: 45, noContesta: 453, cita: 203, formulario: 507 },
+  {
+    pais: 'España', flag: '🇪🇸',
+    ventas: 87, ventasMes: 2149,
+    cr: 8, crGeneral: 5.8,
+    pucr: '42s', tiempo: '6m 12s', mediaFresh: '6,7',
+    leadsActivos: 3085,   // 618+856+368+1243
+    pendientes: 618, noContesta: 856, cita: 368, formulario: 1243,
+    ventasTipo: [38, 28, 21],   // 38+28+21 = 87
+    barVentas: [4850, 5210, 4920, 2149], barMeta: 5430,
+  },
+  {
+    pais: 'Francia', flag: '🇫🇷',
+    ventas: 32, ventasMes: 749,
+    cr: 7, crGeneral: 4.2,
+    pucr: '38s', tiempo: '5m 45s', mediaFresh: '5,2',
+    leadsActivos: 656,    // 134+192+62+268
+    pendientes: 134, noContesta: 192, cita: 62, formulario: 268,
+    ventasTipo: [14, 11, 7],    // 14+11+7 = 32
+    barVentas: [1050, 1120, 980, 749], barMeta: 1245,
+  },
+  {
+    pais: 'Italia', flag: '🇮🇹',
+    ventas: 45, ventasMes: 1249,
+    cr: 7, crGeneral: 4.9,
+    pucr: '35s', tiempo: '5m 58s', mediaFresh: '4,8',
+    leadsActivos: 456,    // 96+142+34+184
+    pendientes: 96, noContesta: 142, cita: 34, formulario: 184,
+    ventasTipo: [20, 15, 10],   // 20+15+10 = 45
+    barVentas: [1850, 2100, 1920, 1249], barMeta: 2430,
+  },
+  {
+    pais: 'Alemania', flag: '🇩🇪',
+    ventas: 3, ventasMes: 119,
+    cr: 5, crGeneral: 2.1,
+    pucr: '28s', tiempo: '4m 33s', mediaFresh: '3,1',
+    leadsActivos: 112,    // 22+32+10+48
+    pendientes: 22, noContesta: 32, cita: 10, formulario: 48,
+    ventasTipo: [1, 1, 1],      // 1+1+1 = 3
+    barVentas: [280, 310, 265, 119], barMeta: 400,
+  },
 ]
 
 export const mockObjetivosPaises = [
@@ -250,12 +265,35 @@ export const mockPerfilLead = {
       forma: 'Figurín',
       tipoComida: 'Gourmet',
       nivelActividad: 'alto',
+      apetito: 'Gourmet',
       esterilizado: 'Si',
+      cumplMes: 'Septiembre',
+      cumplAno: '2024',
       patologias: [
-        { nombre: 'Alergia alimentaria', incompatible: false },
+        { nombre: 'Alergias alimentarias', incompatible: false },
         { nombre: 'Diabetes',            incompatible: false },
         { nombre: 'Insuficiencia renal', incompatible: true  },
       ],
+    },
+    {
+      nombre: 'Toby',
+      kcalDia: '320 kcal/día',
+      gDia: '200g/día',
+      plan: 'Plan completo',
+      menus: ['Pollo', 'Pavo'],
+      sexo: 'Macho',
+      raza: 'Chihuahua',
+      etapa: 'Adulto',
+      edad: '3 años',
+      peso: '3kg',
+      forma: 'Figurín',
+      tipoComida: 'Gourmet',
+      nivelActividad: 'normal',
+      apetito: 'Glotón',
+      esterilizado: 'No',
+      cumplMes: 'Mayo',
+      cumplAno: '2023',
+      patologias: [],
     },
   ],
   fechaEntrega: '27 / 07 / 2022',
@@ -273,9 +311,9 @@ export const mockPerfilLead = {
     total: { grDia: '800g', cantidad: '28u', tamano: '4x300g', base: '43,72€' },
   },
   datosEnvio: {
-    facturacion: '[Nombre] [Apellido]',
-    direccion: '[Calle, 00], [Localidad], [Código Postal], [Provincia]',
-    notas: '---',
+    facturacion: 'María García López',
+    direccion: 'Calle de Fuencarral, 43, 2ºA, 28004 Madrid',
+    notas: 'Dejar con el portero si no hay nadie',
   },
   historial: [
     { tipo: 'whatsapp',   texto: '[mensaje de whatsapp...]',         fecha: 'Lunes, 16 de feb. 10:00 am', entrante: true  },
@@ -324,8 +362,8 @@ export const mockPerfilVenta = {
     fuenteAdquisicion: ['Web', 'Whatsapp', 'Sales'],
   },
   datosEnvio: {
-    facturacion: '[Nombre] [Apellido]',
-    direccion: '[Calle, 00], [Localidad], [Código Postal], [Provincia]',
+    facturacion: 'María García López',
+    direccion: 'Calle de Fuencarral, 43, 2ºA, 28004 Madrid',
     notas: '---',
   },
   // Datos de la compra
@@ -383,10 +421,51 @@ export const mockKpisVentasTL = {
 }
 
 export const mockRankingPaises = [
-  { pais: 'España',   flag: '🇪🇸', total: 87, agentes: Array.from({ length: 14 }, () => ({ nombre: 'José Manuel Sala...', hoy: 6, mes: 34 })) },
-  { pais: 'Francia',  flag: '🇫🇷', total: 32, agentes: Array.from({ length: 8  }, () => ({ nombre: 'José Manuel Sala...', hoy: 6, mes: 34 })) },
-  { pais: 'Italia',   flag: '🇮🇹', total: 45, agentes: Array.from({ length: 10 }, () => ({ nombre: 'José Manuel Sala...', hoy: 6, mes: 34 })) },
-  { pais: 'Alemania', flag: '🇩🇪', total: 3,  agentes: Array.from({ length: 5  }, () => ({ nombre: 'José Manuel Sala...', hoy: 6, mes: 34 })) },
+  { pais: 'España', flag: '🇪🇸', total: 87, agentes: [
+    { nombre: 'Carlos Ruiz Martín',      hoy: 10, mes: 58 },
+    { nombre: 'Ana García López',         hoy: 9,  mes: 52 },
+    { nombre: 'Miguel Fernández Cano',    hoy: 8,  mes: 48 },
+    { nombre: 'Laura Sánchez Gil',        hoy: 7,  mes: 45 },
+    { nombre: 'Javier Moreno Díaz',       hoy: 7,  mes: 43 },
+    { nombre: 'María Torres Vega',        hoy: 7,  mes: 41 },
+    { nombre: 'Alejandro Gómez Parra',    hoy: 6,  mes: 38 },
+    { nombre: 'Cristina López Herrera',   hoy: 6,  mes: 36 },
+    { nombre: 'Pablo Jiménez Reyes',      hoy: 6,  mes: 35 },
+    { nombre: 'Elena Castillo Novo',      hoy: 5,  mes: 33 },
+    { nombre: 'David Rodríguez Pons',     hoy: 5,  mes: 31 },
+    { nombre: 'Sandra Navarro Blanco',    hoy: 4,  mes: 28 },
+    { nombre: 'Iván Molina Soto',         hoy: 4,  mes: 24 },
+    { nombre: 'Beatriz Serrano Rueda',    hoy: 3,  mes: 18 },
+  ]},
+  { pais: 'Francia', flag: '🇫🇷', total: 32, agentes: [
+    { nombre: 'Pierre Dupont',    hoy: 8, mes: 45 },
+    { nombre: 'Camille Martin',   hoy: 6, mes: 38 },
+    { nombre: 'Lucas Lefebvre',   hoy: 5, mes: 32 },
+    { nombre: 'Sophie Bernard',   hoy: 4, mes: 28 },
+    { nombre: 'Antoine Petit',    hoy: 4, mes: 25 },
+    { nombre: 'Chloé Dubois',     hoy: 3, mes: 21 },
+    { nombre: 'Thomas Moreau',    hoy: 2, mes: 16 },
+    { nombre: 'Julie Simon',      hoy: 0, mes:  8 },
+  ]},
+  { pais: 'Italia', flag: '🇮🇹', total: 45, agentes: [
+    { nombre: 'Marco Rossi',          hoy: 7, mes: 52 },
+    { nombre: 'Giulia Bianchi',       hoy: 6, mes: 44 },
+    { nombre: 'Luca Esposito',        hoy: 6, mes: 38 },
+    { nombre: 'Sara Romano',          hoy: 5, mes: 34 },
+    { nombre: 'Alessandro Ferrari',   hoy: 5, mes: 30 },
+    { nombre: 'Chiara Ricci',         hoy: 5, mes: 27 },
+    { nombre: 'Matteo Conti',         hoy: 4, mes: 22 },
+    { nombre: 'Francesca Marino',     hoy: 3, mes: 18 },
+    { nombre: 'Davide Greco',         hoy: 2, mes: 12 },
+    { nombre: 'Valentina Gallo',      hoy: 2, mes:  8 },
+  ]},
+  { pais: 'Alemania', flag: '🇩🇪', total: 3, agentes: [
+    { nombre: 'Thomas Müller',   hoy: 1, mes: 12 },
+    { nombre: 'Anna Schmidt',    hoy: 1, mes:  9 },
+    { nombre: 'Felix Wagner',    hoy: 1, mes:  7 },
+    { nombre: 'Laura Becker',    hoy: 0, mes:  5 },
+    { nombre: 'Markus Fischer',  hoy: 0, mes:  3 },
+  ]},
 ]
 
 // ── Errores de pago ──────────────────────────────
@@ -466,3 +545,25 @@ export const mockErroresPago = Array.from({ length: 50 }, (_, i) => {
     agenteIni: _agentesIni[ai],
   }
 })
+
+// ── Búsqueda global — datos realistas ───────────────
+export const mockSearchLeads = [
+  { id: '1',  nombre: 'María',    apellido: 'García López',     email: 'tumejorcorreo@gmail.com',     telefono: '+34 000 000 000', estado: 'Pendiente',    campana: 'Black Friday 2025', cupon: 'BIENVENIDA10',  codigoAmigo: '' },
+  { id: '2',  nombre: 'Carlos',   apellido: 'Martínez Ruiz',    email: 'carlos.martinez@gmail.com',    telefono: '+34 611 234 567', estado: 'En cita',      campana: 'Halloween 2025',    cupon: '',              codigoAmigo: 'AMIGO-CARLOS' },
+  { id: '3',  nombre: 'Laura',    apellido: 'Sánchez Pérez',    email: 'laura.sanchez@hotmail.com',    telefono: '+34 622 345 678', estado: 'No contesta',  campana: 'Verano 2025',       cupon: 'AMIGO15',       codigoAmigo: '' },
+  { id: '4',  nombre: 'Pablo',    apellido: 'López García',      email: 'pablo.lopez@gmail.com',        telefono: '+34 633 456 789', estado: 'No interesa',  campana: 'Black Friday 2025', cupon: '',              codigoAmigo: '' },
+  { id: '5',  nombre: 'Ana',      apellido: 'Torres Vega',      email: 'ana.torres@yahoo.es',          telefono: '+34 644 567 890', estado: 'Formulario',   campana: 'Navidad 2025',      cupon: 'REF-CARLOS',    codigoAmigo: '' },
+  { id: '6',  nombre: 'Javier',   apellido: 'Romero Blanco',    email: 'javier.romero@gmail.com',      telefono: '+34 655 678 901', estado: 'Pendiente',    campana: 'Halloween 2025',    cupon: '',              codigoAmigo: 'AMIGO-MARIA' },
+  { id: '7',  nombre: 'Sofía',    apellido: 'Navarro Castillo', email: 'sofia.navarro@icloud.com',     telefono: '+34 666 789 012', estado: 'En cita',      campana: 'Black Friday 2025', cupon: 'DESCUENTO20',   codigoAmigo: '' },
+  { id: '8',  nombre: 'Miguel',   apellido: 'Jiménez Mora',     email: 'miguel.jimenez@outlook.com',   telefono: '+34 677 890 123', estado: 'No contesta',  campana: 'Verano 2025',       cupon: '',              codigoAmigo: '' },
+  { id: '9',  nombre: 'Carmen',   apellido: 'Flores Delgado',   email: 'carmen.flores@gmail.com',      telefono: '+34 688 901 234', estado: 'Venta',        campana: 'Navidad 2025',      cupon: 'NAVIDAD15',     codigoAmigo: 'AMIGO-PABLO' },
+  { id: '10', nombre: 'Roberto',  apellido: 'Vega Serrano',     email: 'roberto.vega@hotmail.com',     telefono: '+34 699 012 345', estado: 'Pendiente',    campana: 'Halloween 2025',    cupon: '',              codigoAmigo: '' },
+]
+
+export const mockSearchVentas = [
+  { id: '1', ventaCode: '7VTA-9281Z', nombre: 'María',   apellido: 'García López',     email: 'tumejorcorreo@gmail.com',   telefono: '+34 000 000 000', campana: 'Black Friday 2025', cupon: 'BIENVENIDA10',  codigoAmigo: '',            fecha: '16/02/2025', importe: '14,78€', plan: 'Prueba' },
+  { id: '2', ventaCode: '3VTA-1234A', nombre: 'Carlos',  apellido: 'Martínez Ruiz',    email: 'carlos.martinez@gmail.com', telefono: '+34 611 234 567', campana: 'Halloween 2025',    cupon: '',              codigoAmigo: 'AMIGO-CARLOS', fecha: '05/03/2025', importe: '39,90€', plan: 'Mensualidad' },
+  { id: '3', ventaCode: '9VTA-5678B', nombre: 'Laura',   apellido: 'Sánchez Pérez',    email: 'laura.sanchez@hotmail.com', telefono: '+34 622 345 678', campana: 'Verano 2025',       cupon: 'AMIGO15',       codigoAmigo: '',            fecha: '12/03/2025', importe: '49,25€', plan: 'Mensualidad' },
+  { id: '4', ventaCode: '5VTA-2345C', nombre: 'Carmen',  apellido: 'Flores Delgado',   email: 'carmen.flores@gmail.com',   telefono: '+34 688 901 234', campana: 'Navidad 2025',      cupon: 'NAVIDAD15',     codigoAmigo: 'AMIGO-PABLO', fecha: '18/03/2025', importe: '14,78€', plan: 'Prueba' },
+  { id: '5', ventaCode: '2VTA-6789D', nombre: 'Sofía',   apellido: 'Navarro Castillo', email: 'sofia.navarro@icloud.com',  telefono: '+34 666 789 012', campana: 'Black Friday 2025', cupon: 'DESCUENTO20',   codigoAmigo: '',            fecha: '22/03/2025', importe: '43,72€', plan: 'Mensualidad' },
+]

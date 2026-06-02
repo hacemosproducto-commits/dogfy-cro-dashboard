@@ -2,10 +2,10 @@
   <div class="dash-content">
     <!-- KPIs -->
     <div class="kpi-row">
-      <KpiCard valor="12"  label="Ventas de hoy"         comparativa="+8% vs ayer"     tendencia="up" />
-      <KpiCard valor="30"  label="Ventas del mes"         :progreso="30" :objetivo="160" />
-      <KpiCard valor="16"  label="Días trabajados"        comparativa="Media: 12/día" />
-      <KpiCard valor="3%"  label="CR sobre frescos"       comparativa="+2% media país"  tendencia="up" />
+      <KpiCard valor="5"   label="Ventas de hoy"         comparativa="+8% vs ayer"     tendencia="up" />
+      <KpiCard valor="47"  label="Ventas del mes"         :progreso="47" :objetivo="160" />
+      <KpiCard valor="14"  label="Días trabajados"        comparativa="3.4 ventas/día" />
+      <KpiCard valor="8%"  label="CR sobre frescos"       comparativa="+2% media país"  tendencia="up" />
       <KpiCard valor="2"   label="Para cambiar de tarifa" badge="Tarifa: 1.25" />
     </div>
 
@@ -18,7 +18,7 @@
         <a v-if="retoStore.reto.linkReglas" :href="retoStore.reto.linkReglas" class="reto-link" target="_blank" rel="noopener">Ver reglas →</a>
       </SectionCard>
 
-      <SectionCard title="Ventas por tipo">
+      <SectionCard title="Ventas por tipo" class="ventas-tipo-card" @click="router.push('/ventas')" style="cursor:pointer">
         <div class="ventas-tipo-inner">
           <div class="ventas-tipo-list">
             <div class="vt-row" v-for="vt in ventasTipoItems" :key="vt.label">
@@ -29,37 +29,26 @@
             <div class="vt-divider" />
             <div class="vt-row vt-total">
               <span class="vt-label">Ventas totales</span>
-              <span class="vt-val">33</span>
+              <span class="vt-val">{{ ventasTipoTotal }}</span>
             </div>
             <div class="vt-row">
               <span class="vt-label text-muted">Bracket comisión</span>
-              <span class="vt-val">1.2</span>
+              <span class="vt-val">1.25</span>
             </div>
           </div>
           <div class="donut-wrap">
             <Chart type="doughnut" :data="donutData" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="donut-center">30<br><small>ventas</small></div>
+            <div class="donut-center">{{ ventasTipoTotal }}<br><small>ventas</small></div>
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard class="leads-activos-card">
-        <RouterLink to="/leads" class="leads-total-link">
-          <span class="leads-total-num">115</span>
-          <span class="leads-total-sub">Leads activos</span>
-          <i class="pi pi-arrow-right" style="font-size:11px;color:var(--n-400)" />
-        </RouterLink>
-        <div class="le-list">
-          <div class="le-row" v-for="item in leadsEstados" :key="item.label">
-            <span class="le-label">{{ item.label }}</span>
-            <span class="le-val">{{ item.val }}</span>
-          </div>
-          <RouterLink to="/errores-pago" class="le-row le-error">
-            <span class="le-dot" /><span class="le-label">Error de pago</span>
-            <span class="le-badge">3</span>
-          </RouterLink>
-        </div>
-      </SectionCard>
+      <LeadsPorEstadoCard
+        class="leads-activos-card"
+        :total="115"
+        :estados="leadsEstados"
+        :erroresPago="3"
+      />
     </div>
 
     <!-- Row 3: Histórico + Actividad -->
@@ -68,7 +57,7 @@
         <template #header>
           <Select v-model="periodo" :options="periodos" style="font-size:12px" />
         </template>
-        <Chart type="line" :data="lineData" :options="lineOpts" style="height:176px" />
+        <Chart type="line" :data="lineData" :options="lineOpts" style="height:240px" />
       </SectionCard>
 
       <SectionCard title="Actividad del día" class="actividad-card">
@@ -83,28 +72,32 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Chart from 'primevue/chart'
 import Select from 'primevue/select'
 import KpiCard from '@/components/ui/KpiCard.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
+import LeadsPorEstadoCard from '@/components/ui/LeadsPorEstadoCard.vue'
 import { mockHistoricoVentas } from '@/data/mock'
 import { useRetoStore } from '@/stores/reto'
 
 const retoStore = useRetoStore()
+const router = useRouter()
 import { CHART_COLORS, CHART_AREA_FILL, CHART_PREV_COLOR } from '@/theme/palette'
 
 const periodo = ref('Anual')
 const periodos = ['Anual', 'Mensual', 'Semanal']
 
 const ventasTipoItems = [
-  { label: 'Frescos (×1)',       val: 10, color: CHART_COLORS[0] },
-  { label: 'Recuperados (×1.5)', val: 10, color: CHART_COLORS[2] },
+  { label: 'Frescos (×1)',       val: 22, color: CHART_COLORS[0] },
+  { label: 'Recuperados (×1.5)', val: 15, color: CHART_COLORS[2] },
   { label: 'Pausados (×1.5)',    val: 10, color: CHART_COLORS[3] },
 ]
+const ventasTipoTotal = ventasTipoItems.reduce((s, i) => s + i.val, 0) // 47
 
 const donutData = {
   labels: ['Frescos', 'Recuperados', 'Pausados'],
-  datasets: [{ data: [10, 10, 10], backgroundColor: [CHART_COLORS[0], CHART_COLORS[2], CHART_COLORS[3]], borderWidth: 0, hoverOffset: 2 }]
+  datasets: [{ data: ventasTipoItems.map(i => i.val), backgroundColor: [CHART_COLORS[0], CHART_COLORS[2], CHART_COLORS[3]], borderWidth: 0, hoverOffset: 2 }]
 }
 const donutOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '74%' }
 
@@ -125,17 +118,19 @@ const lineOpts = {
   }
 }
 
+// Un agente solo tiene 1 lead "Pendiente" activo — el que está gestionando en este momento
+// `estado` es el valor exacto que se pasa como query param a /leads
 const leadsEstados = [
-  { label: 'Pendientes',  val: 1  },
-  { label: 'No contesta', val: 25 },
-  { label: 'Cita',        val: 16 },
-  { label: 'Formulario',  val: 32 },
+  { label: 'Pendientes',  estado: 'Pendiente',   val: 1  },
+  { label: 'No contesta', estado: 'No contesta',  val: 46 },
+  { label: 'Cita',        estado: 'En cita',      val: 27 },
+  { label: 'Formulario',  estado: 'Formulario',   val: 38 },
 ]
 const actividadItems = [
   { label: 'Llamadas realizadas', val: '33' },
   { label: 'Tiempo en llamadas',  val: '3h 43m' },
-  { label: 'Tiempo medio',        val: '12m 14s' },
-  { label: 'PUCR gestión leads',  val: '5m 19s' },
+  { label: 'Tiempo medio',        val: '6m 46s' },
+  { label: 'PUCR gestión leads',  val: '4m 12s' },
 ]
 </script>
 
@@ -176,20 +171,7 @@ const actividadItems = [
 .donut-center { position: absolute; text-align: center; font-size: 20px; font-weight: 700; color: var(--n-800); line-height: 1.2; pointer-events: none; }
 .donut-center small { font-size: 12px; font-weight: 400; color: var(--n-400); display: block; }
 
-/* ─── Leads activos ────────────────────────────── */
-.leads-total-link { display: flex; align-items: center; gap: 6px; text-decoration: none; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--n-150); }
-.leads-total-num  { font-size: 24px; font-weight: 700; color: var(--n-900); letter-spacing: -0.5px; }
-.leads-total-sub  { font-size: 12px; color: var(--n-500); flex: 1; }
-.le-list  { display: flex; flex-direction: column; }
-.le-row   { display: flex; align-items: center; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--n-100); gap: 6px; cursor: pointer; text-decoration: none; color: inherit; }
-.le-row:last-child { border-bottom: none; }
-.le-label { flex: 1; color: var(--n-500); }
-.le-val   { font-weight: 600; color: var(--n-800); }
-.le-row   { padding-left: 6px; padding-right: 6px; }
-.le-error { background: var(--error-bg); border-radius: 6px; border-bottom: none !important; }
-.le-error .le-label { color: var(--error); }
-.le-dot   { width: 6px; height: 6px; border-radius: 50%; background: var(--error); flex-shrink: 0; }
-.le-badge { background: var(--error-bg); color: var(--error); font-weight: 700; padding: 1px 7px; border-radius: 4px; font-size: 12px; }
+/* ─── Leads activos: estilos en LeadsPorEstadoCard.vue ───────── */
 
 /* ─── Actividad ────────────────────────────────── */
 .act-row  { display: flex; justify-content: space-between; font-size: 12px; padding: 7px 0; border-bottom: 1px solid var(--n-100); }
@@ -209,12 +191,22 @@ const actividadItems = [
 @media (max-width: 900px) {
   .kpi-row  { grid-template-columns: repeat(2, 1fr); }
   .row-3col { grid-template-columns: 1fr; }
-  .row-2col { flex-direction: column; }
+  .row-2col { grid-template-columns: 1fr; }
   .actividad-card { width: 100%; }
 }
 
-/* Mobile */
-@media (max-width: 767px) {
-  .kpi-row  { grid-template-columns: repeat(2, 1fr); }
+/* Mobile ≤480px */
+@media (max-width: 480px) {
+  /* KPIs: 2 cols, bracket (5ª) a ancho completo */
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .kpi-row > :nth-child(5) { grid-column: 1 / -1; }
+
+  /* Filas multi-columna → stack vertical */
+  .row-3col { grid-template-columns: 1fr; }
+  .row-2col { grid-template-columns: 1fr; }
+  .actividad-card { width: 100%; }
+
+  /* El row-2col apilado: cada card ocupa el ancho completo y el canvas re-renderiza */
+  .row-2col :deep(.p-chart) { height: 200px !important; }
 }
 </style>

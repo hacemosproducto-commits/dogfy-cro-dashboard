@@ -5,11 +5,16 @@
     modal
     dismissableMask
     style="width: 480px"
+    :pt="{ header: { style: 'border-bottom: 1px solid var(--n-150)' } }"
   >
     <template #header>
-      <span class="modal-icon-header">
-        <img :src="truckIcon" alt="" class="modal-header-icon" />
-      </span>
+      <div class="modal-header">
+        <span class="modal-icon"><img :src="truckIcon" alt="" class="modal-svg-icon" /></span>
+        <div>
+          <div class="modal-title">Editar dirección</div>
+          <div class="modal-subtitle">Datos de entrega</div>
+        </div>
+      </div>
     </template>
 
     <div class="ee-form">
@@ -60,12 +65,12 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import truckIcon from '@/assets/icons/truck.svg'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
+import truckIcon from '@/assets/icons/truck.svg'
 
 interface EnvioData {
   facturacion?: string  // "Nombre Apellido"
@@ -119,8 +124,11 @@ function handleGuardar() {
 </script>
 
 <style scoped>
-.modal-icon-header { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
-.modal-header-icon { width: 20px; height: 20px; }
+.modal-header   { display: flex; align-items: flex-start; gap: 12px; }
+.modal-svg-icon { width: 18px; height: 18px; display: block; }
+.modal-icon     { width: 36px; height: 36px; border-radius: 50%; background: var(--n-100); color: var(--n-600); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.modal-title    { font-size: 15px; font-weight: 700; color: var(--n-900); }
+.modal-subtitle { font-size: 12px; color: var(--n-500); margin-top: 2px; }
 
 .ee-form { display: flex; flex-direction: column; gap: 16px; }
 .ee-row { display: flex; gap: 14px; align-items: flex-start; }

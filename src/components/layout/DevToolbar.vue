@@ -1,7 +1,7 @@
 <template>
   <div class="dev-toolbar">
     <!-- Role switcher -->
-    <div class="dt-group" title="Cambiar rol (solo QA)">
+    <div class="dt-group" title="Cambiar perfil (solo QA)">
       <i class="pi pi-user dt-icon" />
       <button
         v-for="role in roles"
@@ -10,27 +10,6 @@
         :class="{ 'dt-btn--active': auth.currentRole === role.value }"
         @click="auth.switchRole(role.value)"
       >{{ role.label }}</button>
-    </div>
-
-    <div class="dt-sep" />
-
-    <!-- Breakpoint switcher -->
-    <div class="dt-group" title="Simular breakpoint (solo QA)">
-      <i class="pi pi-desktop dt-icon" />
-      <button
-        v-for="bp in breakpoints"
-        :key="bp.label"
-        class="dt-btn"
-        :class="{ 'dt-btn--active': auth.previewWidth === bp.width }"
-        @click="toggleBreakpoint(bp.width)"
-      >{{ bp.label }}</button>
-      <!-- Reset to fluid -->
-      <button
-        v-if="auth.previewWidth !== null"
-        class="dt-btn dt-btn--reset"
-        title="Volver a fluid"
-        @click="auth.setPreviewWidth(null)"
-      >✕</button>
     </div>
   </div>
 </template>
@@ -42,22 +21,10 @@ import type { Role } from '@/data/mock'
 const auth = useAuthStore()
 
 const roles: { label: string; value: Role }[] = [
-  { label: 'Agente',    value: 'agente' },
-  { label: 'Team Lead', value: 'team_lead' },
-  { label: 'Manager',   value: 'manager' },
+  { label: 'Agente',     value: 'agente' },
+  { label: 'Team Lead',  value: 'team_lead' },
+  { label: 'Manager',    value: 'manager' },
 ]
-
-const breakpoints = [
-  { label: 'TV',   width: 768  },
-  { label: 'TH',   width: 1024 },
-  { label: '1440', width: 1440 },
-  { label: 'HD',   width: 1920 },
-  { label: 'UW',   width: 2560 },
-]
-
-function toggleBreakpoint(width: number) {
-  auth.setPreviewWidth(auth.previewWidth === width ? null : width)
-}
 </script>
 
 <style scoped>
@@ -79,7 +46,13 @@ function toggleBreakpoint(width: number) {
   border-radius: 99px;
   padding: 4px 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.2);
+
+  /* No exceder el ancho del viewport */
+  max-width: calc(100vw - 24px);
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.dev-toolbar::-webkit-scrollbar { display: none; }
 
 .dt-group {
   display: flex;
@@ -92,14 +65,6 @@ function toggleBreakpoint(width: number) {
   color: rgba(255,255,255,0.3);
   margin-right: 4px;
   margin-left: 2px;
-}
-
-.dt-sep {
-  width: 1px;
-  height: 14px;
-  background: rgba(255,255,255,0.12);
-  margin: 0 6px;
-  flex-shrink: 0;
 }
 
 .dt-btn {
@@ -125,16 +90,5 @@ function toggleBreakpoint(width: number) {
   background: rgba(255,255,255,0.16);
   color: #fff;
   font-weight: 600;
-}
-
-.dt-btn--reset {
-  color: rgba(255,255,255,0.3);
-  padding: 4px 7px;
-  font-size: 10px;
-}
-
-.dt-btn--reset:hover {
-  color: rgba(255, 100, 100, 0.9);
-  background: rgba(255, 80, 80, 0.12);
 }
 </style>

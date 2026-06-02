@@ -5,12 +5,16 @@
     modal
     dismissableMask
     style="width: 480px"
+    :pt="{ header: { style: 'border-bottom: 1px solid var(--n-150)' } }"
   >
     <template #header>
-      <span class="modal-icon-header">
-        <i class="pi pi-trophy" style="font-size:18px;color:var(--color-brand-primary)" />
-        <span>Editar reto semanal</span>
-      </span>
+      <div class="modal-header">
+        <span class="modal-icon"><i class="pi pi-trophy" /></span>
+        <div>
+          <div class="modal-title">Editar reto</div>
+          <div class="modal-subtitle">Objetivo del equipo esta semana</div>
+        </div>
+      </div>
     </template>
 
     <div class="er-form">
@@ -107,13 +111,10 @@ function handleGuardar() {
 </script>
 
 <style scoped>
-.modal-icon-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-}
+.modal-header   { display: flex; align-items: flex-start; gap: 12px; }
+.modal-icon     { width: 36px; height: 36px; border-radius: 50%; background: var(--n-100); color: var(--n-600); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.modal-title    { font-size: 15px; font-weight: 700; color: var(--n-900); }
+.modal-subtitle { font-size: 12px; color: var(--n-500); margin-top: 2px; }
 
 .er-form {
   display: flex;

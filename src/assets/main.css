@@ -97,7 +97,20 @@ html, body, #app {
 
 /* ─── PrimeVue overrides (global, scoped below) ─ */
 .p-card { border-radius: var(--card-radius) !important; box-shadow: var(--card-shadow) !important; border: var(--card-border) !important; }
-.p-button.p-button-sm { font-size: 12px !important; padding: 5px 12px !important; }
+/* ── Small button design token — altura y tipografía consistentes en toda la app ── */
+.p-button.p-button-sm {
+  font-size: 12px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+}
+/* Icon spacing inside sm buttons */
+.p-button.p-button-sm .p-button-icon { font-size: 11px !important; }
+.p-button.p-button-sm .p-button-icon-left { margin-right: 5px !important; }
+.p-button.p-button-sm .p-button-icon-right { margin-left: 5px !important; }
 .p-datatable .p-datatable-thead > tr > th { background: var(--n-50) !important; font-size: 11px !important; font-weight: 600 !important; color: var(--n-500) !important; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--n-150) !important; }
 .p-datatable .p-datatable-tbody > tr { cursor: pointer; }
 .p-datatable .p-datatable-tbody > tr:hover > td { background: var(--n-50) !important; }
@@ -111,6 +124,8 @@ html, body, #app {
 .p-inputtext { font-size: 13px !important; }
 .p-dialog .p-dialog-header { border-bottom: none !important; padding-bottom: 8px !important; }
 .p-dialog .p-dialog-content { padding-top: 0 !important; }
+.p-dialog-close-button:focus,
+.p-dialog-close-button:focus-visible { outline: none !important; box-shadow: none !important; }
 
 /* ─── Tag severity — aligned to chart palette ──── */
 :root {
@@ -122,6 +137,22 @@ html, body, #app {
   --p-tag-warn-color:          var(--warning);
   --p-tag-danger-background:   var(--error-bg);
   --p-tag-danger-color:        var(--error);
+}
+
+/* ─── Outlined buttons → neutral (secondary) ─────── */
+/* Aplica a todos los botones outlined sin severidad explícita en todo el prototipo */
+.p-button.p-button-outlined:not(.p-button-danger):not(.p-button-success):not(.p-button-warning):not(.p-button-info) {
+  color: var(--n-600) !important;
+  border-color: var(--n-300) !important;
+  background: transparent !important;
+}
+.p-button.p-button-outlined:not(.p-button-danger):not(.p-button-success):not(.p-button-warning):not(.p-button-info):hover {
+  background: var(--n-100) !important;
+  border-color: var(--n-400) !important;
+  color: var(--n-800) !important;
+}
+.p-button.p-button-outlined:not(.p-button-danger):not(.p-button-success):not(.p-button-warning):not(.p-button-info):active {
+  background: var(--n-150) !important;
 }
 
 /* ─── Button severity ───────────────────────────── */
@@ -185,3 +216,189 @@ html, body, #app {
   gap: 0 !important;
 }
 
+/* ─── Mobile preview (.is-mob) — mirrors @media (max-width:480px) ── */
+/* Sidebar oculto */
+.is-mob .sidebar          { display: none !important; }
+/* Bottom nav visible y anclada al contenedor (no al viewport) */
+.is-mob .bottom-nav {
+  display: flex !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+}
+/* Header: ocultar buscador, mostrar botones mobile */
+.is-mob .search-field     { display: none !important; }
+.is-mob .panel-btn        { display: flex !important; }
+.is-mob .search-btn       { display: flex !important; }
+/* FAB Speed Dial — visible cuando hay preview .is-mob */
+.is-mob .crear-lead-btn  { display: none !important; }
+.is-mob .fab-wrap        { display: block !important; bottom: calc(76px + env(safe-area-inset-bottom)) !important; right: 16px !important; }
+.is-mob .mobile-search    { display: flex !important; flex: 1; }
+/* Right panel como drawer */
+.is-mob .right-panel {
+  position: absolute !important;
+  top: 0; right: 0; bottom: 0;
+  width: 300px !important;
+  height: 100% !important;
+  z-index: 400;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  overflow-y: auto;
+}
+.is-mob .right-panel--mobile-open { transform: translateX(0) !important; }
+.is-mob .rp-icon-strip            { display: none !important; }
+/* Dashboard agente: grid mobile */
+.is-mob .kpi-row          { grid-template-columns: 1fr 1fr !important; }
+.is-mob .kpi-row > :nth-child(5) { grid-column: 1 / -1 !important; }
+.is-mob .row-3col         { grid-template-columns: 1fr !important; }
+.is-mob .row-2col         { grid-template-columns: 1fr !important; }
+/* Bolsa de leads — stacked vertically on mobile */
+.is-mob .bolsa-inner      { flex-direction: column !important; gap: 16px !important; }
+.is-mob .bolsa-donut      { max-width: 140px !important; width: 140px !important; align-self: center !important; }
+.is-mob .bolsa-list       { width: 100% !important; }
+.is-mob .bl-header        { flex-wrap: wrap !important; gap: 6px !important; }
+/* Ventas tipo donut — stacked on mobile */
+.is-mob .ventas-tipo-inner { flex-direction: column !important; gap: 16px !important; }
+.is-mob .ventas-donut-wrap { max-width: 140px !important; width: 140px !important; align-self: center !important; }
+.is-mob .donut-wrap        { max-width: 140px !important; width: 140px !important; align-self: center !important; }
+.is-mob .ventas-tipo-list  { width: 100% !important; }
+/* Manager extra grids */
+.is-mob .dash-row-charts  { grid-template-columns: 1fr !important; }
+.is-mob .dash-row-top     { grid-template-columns: 1fr !important; }
+/* Países: 1 col apilada en mobile preview — resetea separadores 2×2 */
+.is-mob .paises-grid                        { grid-template-columns: 1fr !important; }
+.is-mob .pais-col,
+.is-mob .pais-col:nth-child(odd),
+.is-mob .pais-col:nth-child(even),
+.is-mob .pais-col:nth-child(-n+2),
+.is-mob .pais-col:nth-child(n+3)            { padding: 0 0 14px !important; border-right: none !important; border-bottom: 1px solid var(--n-150) !important; }
+.is-mob .pais-col + .pais-col               { padding-top: 14px !important; }
+.is-mob .pais-col:last-child                { border-bottom: none !important; padding-bottom: 0 !important; }
+/* Notificaciones — botón al header en mobile y tablet vertical (≤900px) */
+.is-mob .notif-filters          { gap: 0 !important; }
+.is-mob .mark-all-btn--filters  { display: none !important; }
+.is-mob .mark-all-btn--header   { display: inline-flex !important; }
+/* Calendario mobile — toolbar + month compact */
+.is-mob .cal-toolbar      { flex-wrap: wrap !important; gap: 6px !important; }
+.is-mob .cal-nav          { flex: 1 !important; }
+.is-mob .cal-label        { min-width: 0 !important; font-size: 13px !important; }
+.is-mob .cal-nav-right    { width: 100% !important; justify-content: space-between !important; }
+/* .cal-nav-right button keeps its label on mobile */
+.is-mob .month-dow        { padding: 6px 4px !important; font-size: 10px !important; }
+.is-mob .month-cell       { min-height: 56px !important; padding: 5px 4px !important; }
+.is-mob .cell-num         { font-size: 12px !important; margin-bottom: 3px !important; }
+.is-mob .today-badge      { width: 20px !important; height: 20px !important; font-size: 10px !important; }
+
+
+/* ── Disabled buttons → neutral grey (not brand orange) ── */
+.p-button:disabled,
+.p-button[disabled],
+.p-button[data-p-disabled="true"] {
+  background: var(--n-150) !important;
+  border-color: var(--n-150) !important;
+  color: var(--n-400) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* PerfilLead topbar-actions: ocultos en mobile preview (acciones viven en FAB) */
+.is-mob .topbar-actions { display: none !important; }
+
+/* EditarPerroModal: rows stack vertical + menús en grid 2x2 (mobile preview) */
+.is-mob .ep-row { flex-direction: column !important; gap: 14px !important; }
+.is-mob .ep-row .ep-field { flex: 1 1 100% !important; width: 100% !important; }
+.is-mob .menus-row { grid-template-columns: repeat(2, 1fr) !important; }
+
+/* ── Modales en mobile · TODOS como bottom sheets ──────────────────────
+   Patrón: el dialog se ancla al borde inferior, ocupa el ancho completo,
+   esquinas superiores redondeadas, altura máxima del 90vh para que el
+   backdrop superior siga visible (dismiss tap). Los bottom-sheets que
+   ya existían (full-bottom-sheet, detail-dialog--bottom) sobrescriben
+   los valores específicos que necesitan. */
+@media (max-width: 480px) {
+  .p-dialog-mask {
+    align-items: flex-end !important;
+    justify-content: stretch !important;
+  }
+  .p-dialog-mask .p-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 90vh !important;
+    /* Drag handle visual: barrita gris arriba */
+    position: relative;
+  }
+  .p-dialog-mask .p-dialog::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--n-200, #e5e7eb);
+    pointer-events: none;
+    z-index: 10;
+  }
+  /* Espacio extra arriba del header para que no choque con la barrita */
+  .p-dialog-mask .p-dialog .p-dialog-header {
+    padding-top: 22px !important;
+  }
+  /* Excepciones: full-bottom-sheet (WhatsApp/Histórico) toma toda la altura */
+  .p-dialog-mask .p-dialog.full-bottom-sheet {
+    max-height: calc(100dvh - 48px) !important;
+    height: calc(100dvh - 48px) !important;
+  }
+}
+/* Equivalente para preview .is-mob */
+.is-mob .p-dialog-mask {
+  align-items: flex-end !important;
+  justify-content: stretch !important;
+}
+.is-mob .p-dialog-mask .p-dialog {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
+  max-height: 90vh !important;
+  position: relative;
+}
+.is-mob .p-dialog-mask .p-dialog::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--n-200, #e5e7eb);
+  pointer-events: none;
+  z-index: 10;
+}
+.is-mob .p-dialog-mask .p-dialog .p-dialog-header {
+  padding-top: 22px !important;
+}
+.is-mob .p-dialog-mask .p-dialog.full-bottom-sheet {
+  max-height: calc(100dvh - 48px) !important;
+  height: calc(100dvh - 48px) !important;
+}
+
+/* ── Select overlay options · focus/hover neutral (no naranja) ── */
+/* Por defecto PrimeVue Aura aplica un tinte brand al .p-focus de las opciones.
+   Para selects con Tags coloreados (como el estado del lead) eso entra en conflicto
+   con el color del tag. Neutralizamos a un gris claro. */
+.p-select-overlay .p-select-option.p-focus,
+.p-select-overlay .p-select-option:hover,
+.p-select-overlay .p-select-option-selected.p-focus,
+.p-select-overlay .p-select-option-selected:hover {
+  background: var(--n-100) !important;
+  color: inherit !important;
+}
+.p-select-overlay .p-select-option-selected {
+  background: var(--n-50) !important;
+}

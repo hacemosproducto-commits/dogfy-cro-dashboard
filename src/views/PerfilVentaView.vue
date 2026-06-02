@@ -96,11 +96,11 @@
               <p class="bold">[{{ venta.lead.nombre }}] [{{ venta.lead.apellido }}]</p>
               <p class="copy-row">
                 [{{ venta.lead.email }}]
-                <Button icon="pi pi-copy" text rounded size="small" class="copy-btn" />
+                <Button :icon="copiedField === 'email' ? 'pi pi-check' : 'pi pi-copy'" text rounded size="small" class="copy-btn" @click="copyText(venta.lead.email, 'email')" />
               </p>
               <p class="copy-row">
                 {{ venta.lead.telefono }}
-                <Button icon="pi pi-copy" text rounded size="small" class="copy-btn" />
+                <Button :icon="copiedField === 'telefono' ? 'pi pi-check' : 'pi pi-copy'" text rounded size="small" class="copy-btn" @click="copyText(venta.lead.telefono, 'telefono')" />
               </p>
               <p>Campaña: <Tag :value="venta.lead.campana" severity="info" /></p>
               <p class="fuente-row">
@@ -245,6 +245,21 @@ import truckIcon from '@/assets/icons/truck.svg'
 
 const auth = useAuthStore()
 const venta = mockPerfilVenta
+
+// ── Copy to clipboard ────────────────────────────────
+const copiedField = ref<string | null>(null)
+function copyText(text: string, field: string) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const el = document.createElement('textarea')
+    el.value = text
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+  })
+  copiedField.value = field
+  setTimeout(() => { copiedField.value = null }, 1800)
+}
 const agenteAsignado = ref<string>(venta.agenteAsignado ? venta.agente : '')
 const agentesOptions = ['Juan Camilo Martinez','Laura Ruiz','Carlos Díaz','Ana Soto','María Pérez','Pablo García']
 const histTab = ref<'Todo' | 'Llamadas' | 'Comentarios'>('Todo')
@@ -357,7 +372,16 @@ function historialIcon(tipo: string) {
 /* ── Lead ── */
 .lead-meta p { font-size: 13px; margin: 4px 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .lead-meta .bold { font-weight: 600; font-size: 14px; }
-.lead-meta .copy-row .copy-btn { padding: 0; width: 22px; height: 22px; }
+:deep(.copy-btn.p-button) {
+  width: 22px !important;
+  height: 22px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  color: var(--n-500) !important;
+  flex-shrink: 0;
+  --p-button-text-primary-hover-background: var(--n-100);
+  --p-button-text-primary-active-background: var(--n-150, var(--n-200));
+}
 .fuente-tag { margin-right: 4px; }
 
 /* ── Envío ── */
@@ -367,7 +391,7 @@ function historialIcon(tipo: string) {
 .field-label { font-size: 13px; font-weight: 500; color: var(--n-700); margin: 4px 0; }
 .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .chip-pv { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; }
-.chip-pv--success { background: var(--success-bg); color: var(--success); }
+.chip-pv--success { background: var(--success-bg); color: #15803d; }
 
 .presu-info { display: flex; align-items: stretch; gap: 0; margin-top: 4px; }
 .presu-info-col { flex: 1; display: flex; flex-direction: column; gap: 7px; padding: 0 16px; }
@@ -377,7 +401,7 @@ function historialIcon(tipo: string) {
 .presu-divider-v { width: 1px; background: var(--n-150); flex-shrink: 0; }
 .presu-dto {
   display: inline-block; padding: 2px 8px; border-radius: 6px;
-  background: var(--success-bg); color: var(--success);
+  background: var(--success-bg); color: #15803d;
   font-size: 12px; font-weight: 600; align-self: flex-start;
 }
 .presu-precio { display: flex; align-items: baseline; gap: 6px; font-size: 15px; }

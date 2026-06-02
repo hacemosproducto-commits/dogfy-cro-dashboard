@@ -1,9 +1,11 @@
 <template>
+  <PasswordGate v-if="!unlocked" @unlocked="unlocked = true" />
+  <template v-else>
   <DevToolbar />
   <!-- Preview wrapper: constrain width when a breakpoint is active -->
   <div
     class="preview-wrap"
-    :class="{ 'preview-wrap--uw': auth.isUwMode }"
+    :class="{ 'preview-wrap--uw': auth.isUwMode, 'is-mob': auth.isMobPreview }"
     :style="{
       ...(auth.previewWidth ? { maxWidth: auth.previewWidth + 'px', width: auth.previewWidth + 'px' } : {}),
       ...(auth.isUwMode ? { '--sidebar-collapsed': '210px', '--rightbar-width': '354px' } : {}),
@@ -23,16 +25,23 @@
         </div>
       </div>
     </div>
+    <AppBottomNav />
   </div>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppRightPanel from '@/components/layout/AppRightPanel.vue'
+import AppBottomNav from '@/components/layout/AppBottomNav.vue'
 import DevToolbar from '@/components/layout/DevToolbar.vue'
+import PasswordGate from '@/components/layout/PasswordGate.vue'
+
+const LS_KEY = 'dogfy_crm_auth'
+const unlocked = ref(localStorage.getItem(LS_KEY) === '1')
 
 const auth = useAuthStore()
 
@@ -112,8 +121,20 @@ const panelOverlay = computed(() =>
 }
 .crm-content--overlay { margin-right: 48px; }
 
-@media (max-width: 767px) {
-  .crm-main { margin-left: var(--sidebar-collapsed); }
-  .content-wrap { padding: 12px; }
+/* Narrow tablet / large phone: collapse the right-panel strip so content
+   isn't squeezed by sidebar (68px) + strip (48px) + padding (32px) at once */
+@media (max-width: 640px) {
+  .crm-content { margin-right: 0 !important; }
+  .content-wrap { padding: 12px 12px; }
 }
+
+@media (max-width: 480px) {
+  .crm-main { margin-left: 0 !important; }
+  .crm-content { margin-right: 0 !important; }
+  .content-wrap { padding: 12px 12px 76px; }
+}
+/* Preview mode: mismas reglas con clase en lugar de media query */
+.is-mob .crm-main    { margin-left: 0 !important; }
+.is-mob .crm-content { margin-right: 0 !important; }
+.is-mob .content-wrap { padding: 12px 12px 76px; }
 </style>

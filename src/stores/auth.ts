@@ -24,6 +24,9 @@ export const useAuthStore = defineStore('auth', () => {
   // UW active when either the preview or real viewport is wide enough
   const isUwMode = computed(() => (previewWidth.value ?? windowWidth.value) >= UW_THRESHOLD)
 
+  // Mobile preview: preview width set to ≤480px
+  const isMobPreview = computed(() => previewWidth.value !== null && previewWidth.value <= 480)
+
   function switchRole(role: Role) {
     currentRole.value = role
   }
@@ -32,10 +35,30 @@ export const useAuthStore = defineStore('auth', () => {
     previewWidth.value = w
   }
 
+  // Mobile right panel drawer
+  const mobilePanelOpen = ref(false)
+  function toggleMobilePanel() { mobilePanelOpen.value = !mobilePanelOpen.value }
+  function closeMobilePanel() { mobilePanelOpen.value = false }
+
+  // Global modal triggers — disparados por FAB SpeedDial, botones contextuales y otros
+  const showCrearLead         = ref(false)
+  const showCrearCita         = ref(false)
+  const showCrearRecordatorio = ref(false)
+  const showAsignarLeads      = ref(false)
+  // Bottom sheets full-screen para perfil-lead / perfil-venta (mobile)
+  const showWhatsappSheet     = ref(false)
+  const showHistorialSheet    = ref(false)
+
   function logout() {
     currentRole.value = 'agente'
     window.location.href = '/'
   }
 
-  return { currentRole, user, switchRole, logout, previewWidth, setPreviewWidth, isUwMode }
+  return {
+    currentRole, user, switchRole, logout,
+    previewWidth, setPreviewWidth, isUwMode, isMobPreview,
+    mobilePanelOpen, toggleMobilePanel, closeMobilePanel,
+    showCrearLead, showCrearCita, showCrearRecordatorio, showAsignarLeads,
+    showWhatsappSheet, showHistorialSheet,
+  }
 })

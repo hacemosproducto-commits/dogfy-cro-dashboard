@@ -5,11 +5,15 @@
     modal
     dismissableMask
     style="width: 440px"
+    :pt="{ header: { style: 'border-bottom: 1px solid var(--n-150)' } }"
   >
     <template #header>
-      <span class="modal-icon-header">
-        <i class="pi pi-user" style="font-size:18px" />
-      </span>
+      <div class="modal-header">
+        <span class="modal-icon"><i class="pi pi-user" /></span>
+        <div>
+          <div class="modal-title">Editar contacto</div>
+        </div>
+      </div>
     </template>
 
     <div class="el-form">
@@ -39,13 +43,13 @@
 
     <template #footer>
       <Button label="Cancelar" severity="secondary" outlined @click="$emit('update:visible', false)" />
-      <Button label="Guardar" @click="handleGuardar" />
+      <Button label="Guardar" :disabled="!canSave" @click="handleGuardar" />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -85,6 +89,11 @@ watch(() => [props.visible, props.lead], () => {
   if (props.visible) form.value = initForm(props.lead)
 })
 
+const canSave = computed(() =>
+  form.value.nombre.trim() !== '' &&
+  form.value.apellido.trim() !== ''
+)
+
 function handleGuardar() {
   emit('save', form.value)
   emit('update:visible', false)
@@ -92,7 +101,10 @@ function handleGuardar() {
 </script>
 
 <style scoped>
-.modal-icon-header { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+.modal-header   { display: flex; align-items: center; gap: 12px; }
+.modal-icon     { width: 36px; height: 36px; border-radius: 50%; background: var(--n-100); color: var(--n-600); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.modal-title    { font-size: 15px; font-weight: 700; color: var(--n-900); }
+.modal-subtitle { font-size: 12px; color: var(--n-500); margin-top: 2px; }
 
 .el-form { display: flex; flex-direction: column; gap: 16px; }
 .el-field { display: flex; flex-direction: column; gap: 6px; }
@@ -103,9 +115,10 @@ function handleGuardar() {
 .el-field :deep(.p-select) { width: 100%; }
 .el-field :deep(.p-iconfield .p-inputtext) { width: 100%; }
 
-.tel-input { display: flex; gap: 8px; }
-.tel-prefix { width: 80px; flex-shrink: 0; }
-.tel-number { flex: 1; }
+.tel-input { display: flex; gap: 6px; align-items: stretch; }
+/* override del width:100% global de .el-field :deep(.p-select) */
+.tel-input :deep(.p-select) { width: 76px !important; flex-shrink: 0; }
+.tel-number { flex: 1; min-width: 0; }
 
 :deep(.p-dialog-footer) { display: flex; gap: 10px; }
 :deep(.p-dialog-footer .p-button) { flex: 1; justify-content: center; }

@@ -19,16 +19,29 @@
           <button class="tab-btn" :class="{ active: filtro === 'No recuperable' }" @click="filtro = 'No recuperable'">Perdidos</button>
           <button class="tab-btn" :class="{ active: filtro === 'Gestionado' }"     @click="filtro = 'Gestionado'">Gestionados</button>
         </div>
-        <Button label="Filtros" icon="pi pi-filter" severity="secondary" outlined size="small" />
+        <span class="spacer" />
+        <FiltrosChips v-model="filtrosActivos" />
+        <Button
+          label="Filtros"
+          icon="pi pi-filter"
+          severity="secondary"
+          :outlined="!erroresFiltrosBadge"
+          size="small"
+          :badge="erroresFiltrosBadge || undefined"
+          @click="showFiltros = true"
+        />
       </div>
 
       <!-- Bulk actions — solo cuando hay selección -->
-      <div v-if="selected.length" class="section-toolbar">
+      <div v-if="selected.length" class="bulk-bar">
+        <span class="bulk-count">
+          <i class="pi pi-check-square" />
+          {{ selected.length }} {{ selected.length === 1 ? 'error' : 'errores' }} seleccionados
+        </span>
         <div class="bulk-actions">
-          <span class="bulk-count">{{ selected.length }} seleccionados</span>
-          <Button label="Marcar recuperable"    icon="pi pi-check-circle" severity="success"   size="small" @click="bulkUpdate('Recuperable')" />
-          <Button label="Marcar perdido"        icon="pi pi-times-circle" severity="contrast"  size="small" @click="bulkUpdate('No recuperable')" />
-          <Button label="Marcar gestionado"     icon="pi pi-check"        severity="secondary" outlined size="small" @click="bulkUpdate('Gestionado')" />
+          <Button label="Marcar recuperable" icon="pi pi-check-circle" size="small" outlined @click="bulkUpdate('Recuperable')" />
+          <Button label="Marcar perdido"     icon="pi pi-times-circle" size="small" outlined @click="bulkUpdate('No recuperable')" />
+          <Button label="Marcar gestionado"  icon="pi pi-check"        size="small" outlined @click="bulkUpdate('Gestionado')" />
         </div>
       </div>
 
@@ -43,7 +56,7 @@
         <Column selectionMode="multiple" headerStyle="width:38px" bodyStyle="width:38px" />
 
         <!-- Punto de estado: color según tab activo -->
-        <Column header="" headerStyle="width:28px" bodyStyle="width:28px; text-align:center">
+        <Column header="" headerStyle="width:18px; padding:0" bodyStyle="width:18px; padding:0 0 0 4px; text-align:left">
           <template #body>
             <span class="status-dot" :class="dotClass" />
           </template>
@@ -108,6 +121,8 @@
       </div>
     </SectionCard>
   </div>
+
+  <FiltrosPanel v-model:visible="showFiltros" modo="errores" @apply="onFiltrosAplicados" />
 </template>
 
 <script setup lang="ts">
@@ -121,14 +136,36 @@ import InfoTooltip from '@/components/ui/InfoTooltip.vue'
 import { mockErroresPago } from '@/data/mock'
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import { useAuthStore } from '@/stores/auth'
+import FiltrosPanel from '@/components/ui/FiltrosPanel.vue'
+import FiltrosChips from '@/components/ui/FiltrosChips.vue'
+import type { FiltrosValue } from '@/components/ui/FiltrosPanel.vue'
 
 const auth = useAuthStore()
 const isAgente = computed(() => auth.currentRole === 'agente')
 
 const filtro = ref('Recuperable')
-const erroresFiltrados = computed(() =>
-  mockErroresPago.filter(e => e.estado === filtro.value)
-)
+
+// Panel filtros
+const showFiltros = ref(false)
+const filtrosActivos = ref<FiltrosValue | null>(null)
+function onFiltrosAplicados(f: FiltrosValue) { filtrosActivos.value = f }
+
+const erroresFiltrosBadge = computed(() => {
+  const f = filtrosActivos.value; if (!f) return ''
+  let c = 0
+  if (f.tiposError.length) c++; if (f.formaPago) c++; if (f.fechaDesde || f.fechaHasta) c++
+  return c > 0 ? String(c) : ''
+})
+
+const erroresFiltrados = computed(() => {
+  let list = mockErroresPago.filter(e => e.estado === filtro.value)
+  const f = filtrosActivos.value
+  if (f) {
+    if (f.tiposError.length) list = list.filter(e => f.tiposError.includes(e.tipo))
+    if (f.formaPago)         list = list.filter(e => e.forma === f.formaPago)
+  }
+  return list
+})
 
 const dotClass = computed(() => {
   if (filtro.value === 'Recuperable')    return 'dot-red'
@@ -154,18 +191,27 @@ function bulkUpdate(nuevoEstado: string) {
 .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
 /* Tabs + filtros en la misma fila */
-.section-tabs-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.section-tabs-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.section-tabs-row .spacer { flex: 1; }
 .section-tabs { display: flex; gap: 4px; }
 
-.section-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-.section-toolbar .spacer { flex: 1; }
-.bulk-actions { display: flex; align-items: center; gap: 8px; padding: 4px 10px; background: var(--brand-subtle, #fdf1ed); border-radius: 8px; }
-.bulk-count { font-size: 12px; font-weight: 600; color: var(--brand, #ef6948); margin-right: 4px; }
+.bulk-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: #F0FDFA;
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 8px;
+}
+.bulk-count {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--n-700);
+  white-space: nowrap;
+}
+.bulk-count i { font-size: 14px; }
+.bulk-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex: 1; }
 
 /* Punto de estado */
 .status-dot {
   display: inline-block;
-  width: 9px; height: 9px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
