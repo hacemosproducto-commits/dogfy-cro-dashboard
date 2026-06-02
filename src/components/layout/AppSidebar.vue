@@ -64,10 +64,7 @@ const allNavItems = [
   { route: '/dashboard',      icon: 'pi pi-home',         label: 'Dashboard',       roles: ['agente', 'team_lead', 'manager'] },
   { route: '/leads',          icon: 'pi pi-users',         label: 'Leads',           roles: ['agente', 'team_lead', 'manager'] },
   { route: '/ventas',         icon: 'pi pi-chart-line',    label: 'Ventas',          roles: ['agente', 'team_lead', 'manager'] },
-  { route: '/errores-pago',   icon: 'pi pi-credit-card',   label: 'Errores de pago', roles: ['agente', 'team_lead', 'manager'] },
   { route: '/agentes',        icon: 'pi pi-sitemap',       label: 'Agentes',         roles: ['team_lead', 'manager'] },
-  { route: '/calendario',     icon: 'pi pi-calendar',      label: 'Agenda',          roles: ['agente', 'team_lead', 'manager'] },
-  { route: '/notificaciones', icon: 'pi pi-bell',          label: 'Notificaciones',  roles: ['agente', 'team_lead', 'manager'] },
   { route: '/exportaciones',  icon: 'pi pi-download',      label: 'Exportaciones',   roles: ['team_lead', 'manager'] },
   { route: '/configuracion',  icon: 'pi pi-cog',           label: 'Configuración',   roles: ['manager'] },
 ]

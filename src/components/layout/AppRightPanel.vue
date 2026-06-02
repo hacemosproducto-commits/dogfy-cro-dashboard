@@ -140,19 +140,6 @@
           </div>
         </SectionCard>
 
-        <SectionCard title="Próximas citas">
-          <template #header>
-            <Button icon="pi pi-plus" text rounded size="small" @click="showCrearCita = true" />
-          </template>
-          <div class="cita-item" v-for="c in mockProximasCitas" :key="c.id" @click="openCita(c)">
-            <span class="cita-dot" />
-            <div>
-              <p class="cita-title">{{ c.titulo }}</p>
-              <p class="item-fecha text-muted">{{ c.fecha }}</p>
-            </div>
-          </div>
-        </SectionCard>
-
         <SectionCard title="Recordatorios">
           <template #header>
             <Button icon="pi pi-plus" text rounded size="small" @click="showCrearRecordatorio = true" />
@@ -200,16 +187,6 @@
           <ProgressBar :value="objMensualpct" style="height:6px;margin-top:8px" />
         </SectionCard>
 
-        <SectionCard class="reto-card">
-          <div class="reto-edit-row">
-            <span class="reto-eyebrow">Reto semanal</span>
-            <Button icon="pi pi-pencil" text rounded size="small" @click="showEditarReto = true" />
-          </div>
-          <p class="reto-title">{{ retoStore.reto.titulo }}</p>
-          <p class="reto-desc">{{ retoStore.reto.descripcion }}</p>
-          <a v-if="retoStore.reto.linkReglas" :href="retoStore.reto.linkReglas" class="reto-link" target="_blank" rel="noopener">Ver reglas →</a>
-        </SectionCard>
-
         <SectionCard title="Recordatorios">
           <template #header>
             <Button icon="pi pi-plus" text rounded size="small" @click="showCrearRecordatorio = true" />
@@ -232,10 +209,7 @@
           </div>
         </SectionCard>
 
-        <SectionCard v-if="showNotificationsWidget" title="Notificaciones">
-          <template #header>
-            <RouterLink to="/notificaciones" class="notif-ver-todas">Ver todas <i class="pi pi-arrow-right" /></RouterLink>
-          </template>
+        <SectionCard v-if="false" title="Notificaciones_placeholder">
           <div class="rec-item" v-for="n in 3" :key="n">
             <i class="pi pi-comments rec-icon" />
             <div>
@@ -544,14 +518,10 @@ const PANEL_ROUTES = [
   'dashboard',
   'leads',
   'ventas',
-  'errores-pago',
   'agentes',
   'detalle-agente',
   'exportaciones',
-  'calendario',
-  'notificaciones',
   'configuracion',
-  'buscar',
   'perfil-lead',
   'perfil-venta',
 ]

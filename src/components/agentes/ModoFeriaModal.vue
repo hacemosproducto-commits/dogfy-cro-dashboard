@@ -32,22 +32,11 @@
         <InputText v-model="eventName" placeholder="Ej. Feria Mascota Madrid 2026" class="w-full" />
       </div>
 
-      <!-- Rango de fechas — siempre visible -->
-      <div class="field-row">
-        <div class="field">
-          <label class="field-label">Desde</label>
-          <DatePicker v-model="startDate" showTime hourFormat="24" dateFormat="dd/mm/yy" :minDate="new Date()" class="w-full" />
-        </div>
-        <div class="field">
-          <label class="field-label">Hasta</label>
-          <DatePicker v-model="endDate" showTime hourFormat="24" dateFormat="dd/mm/yy" :minDate="startDate ?? new Date()" class="w-full" />
-        </div>
-      </div>
-
-      <!-- Resumen calculado -->
-      <div v-if="resumen" class="resumen-box">
-        <i class="pi pi-clock resumen-icon" />
-        <span>{{ resumen }}</span>
+      <!-- Aviso -->
+      <div class="resumen-box">
+        <i class="pi pi-info-circle resumen-icon" />
+        <span v-if="isDeactivating">El agente volverá a recibir leads por goteo al confirmar.</span>
+        <span v-else>El agente dejará de recibir leads hasta que se desactive el modo manualmente.</span>
       </div>
 
     </div>
@@ -72,7 +61,6 @@ import { ref, computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
-import DatePicker from 'primevue/datepicker'
 import { useAgentesOfflineStore } from '@/stores/agentesOffline'
 
 const props = defineProps<{
@@ -87,41 +75,22 @@ const store = useAgentesOfflineStore()
 const isDeactivating = computed(() => store.isOffline(props.agenteId))
 
 const eventName = ref('')
-const startDate = ref<Date | null>(null)
-const endDate   = ref<Date | null>(null)
 
-const computedDates = computed<{ start: Date; end: Date } | null>(() => {
-  if (startDate.value && endDate.value) {
-    return { start: startDate.value, end: endDate.value }
-  }
-  return null
-})
-
-const resumen = computed(() => {
-  if (isDeactivating.value) {
-    const ev = store.getEvent(props.agenteId)
-    if (!ev) return ''
-    return `Offline activo hasta ${store.formatEndDate(ev.endDate)}`
-  }
-  if (!computedDates.value) return ''
-  const { start, end } = computedDates.value
-  return `Modo offline del ${store.formatEndDate(start)} al ${store.formatEndDate(end)}`
-})
-
-const canConfirm = computed(() => {
-  if (isDeactivating.value) return true
-  return computedDates.value !== null
-})
+// V1: sin date picker — el modo se activa/desactiva manualmente
+// Se usa una fecha de fin lejana (1 año) como placeholder interno del store
+const canConfirm = computed(() => true)
 
 function confirm() {
   if (isDeactivating.value) {
     store.desactivarFeria(props.agenteId)
-  } else if (computedDates.value) {
+  } else {
+    const now = new Date()
+    const farFuture = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())
     store.activarFeria({
       agenteId: props.agenteId,
-      eventName: eventName.value || 'Evento offline',
-      startDate: computedDates.value.start,
-      endDate:   computedDates.value.end,
+      eventName: eventName.value || 'Modo offline',
+      startDate: now,
+      endDate:   farFuture,
       activatedBy: props.activatedBy,
     })
   }
@@ -131,8 +100,6 @@ function confirm() {
 function close() {
   visible.value = false
   eventName.value = ''
-  startDate.value = null
-  endDate.value   = null
 }
 </script>
 

@@ -10,41 +10,6 @@
 
         <hr class="sep" />
 
-        <!-- ── Objetivo ── -->
-        <div class="objetivo-row">
-          <div class="objetivo-left">
-            <span class="label-bold">Objetivo [mes actual]:</span>
-            <InputNumber
-              v-model="c.objetivos[CURRENT_MONTH]"
-              :useGrouping="true"
-              locale="es-ES"
-              inputClass="objetivo-inp"
-              @update:model-value="c.hasChanges = true"
-            />
-          </div>
-          <button class="ver-ano-btn" @click="c.verAnio = !c.verAnio">
-            Ver año <i :class="['pi', c.verAnio ? 'pi-chevron-up' : 'pi-chevron-down']" style="font-size:12px" />
-          </button>
-        </div>
-
-        <!-- ── Months grid (expandido) ── -->
-        <Transition name="expand">
-          <div v-if="c.verAnio" class="month-grid">
-            <div v-for="(m, i) in MESES" :key="m" class="month-col" :class="{ 'month-current': i === CURRENT_MONTH, 'month-past': i < CURRENT_MONTH }">
-              <span class="month-label">{{ m }}</span>
-              <InputNumber
-                v-model="c.objetivos[i]"
-                :useGrouping="false"
-                :disabled="i < CURRENT_MONTH"
-                inputClass="month-inp"
-                @update:model-value="c.hasChanges = true"
-              />
-            </div>
-          </div>
-        </Transition>
-
-        <hr class="sep" />
-
         <!-- ── Asignación de leads ── -->
         <div class="section-title">Asignación de leads</div>
 
@@ -68,36 +33,6 @@
             <InputNumber
               v-model="c.tiempoMin"
               :min="1" :max="60"
-              showButtons buttonLayout="horizontal"
-              decrementButtonIcon="pi pi-minus"
-              incrementButtonIcon="pi pi-plus"
-              inputClass="stepper-inp"
-              @update:model-value="c.hasChanges = true"
-            />
-          </span>
-        </div>
-
-        <div class="config-row">
-          <span class="field-label">Límite leads en bloque (TL):</span>
-          <span class="stepper-wrap">
-            <InputNumber
-              v-model="c.limiteTL"
-              :min="1" :max="500"
-              showButtons buttonLayout="horizontal"
-              decrementButtonIcon="pi pi-minus"
-              incrementButtonIcon="pi pi-plus"
-              inputClass="stepper-inp"
-              @update:model-value="c.hasChanges = true"
-            />
-          </span>
-        </div>
-
-        <div class="config-row">
-          <span class="field-label">Límite autoasignación (agente):</span>
-          <span class="stepper-wrap">
-            <InputNumber
-              v-model="c.limiteAgente"
-              :min="1" :max="100"
               showButtons buttonLayout="horizontal"
               decrementButtonIcon="pi pi-minus"
               incrementButtonIcon="pi pi-plus"

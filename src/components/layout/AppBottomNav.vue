@@ -67,22 +67,18 @@ import Dialog from 'primevue/dialog'
 const route = useRoute()
 const auth = useAuthStore()
 
-// 4 ítems primarios fijos para todos los roles + "Más" como 5to slot.
-// Patrón monday.com: Notificaciones es tab dedicado, lo secundario va en "Más".
+// 3 ítems primarios + "Más" como 4to slot (V1: sin Notificaciones ni Agenda)
 const primaryItems = [
-  { route: '/dashboard',      icon: 'pi pi-home',       label: 'Inicio' },
-  { route: '/leads',          icon: 'pi pi-users',      label: 'Leads' },
-  { route: '/ventas',         icon: 'pi pi-chart-line', label: 'Ventas' },
-  { route: '/notificaciones', icon: 'pi pi-bell',       label: 'Avisos' },
+  { route: '/dashboard', icon: 'pi pi-home',       label: 'Inicio' },
+  { route: '/leads',     icon: 'pi pi-users',      label: 'Leads' },
+  { route: '/ventas',    icon: 'pi pi-chart-line', label: 'Ventas' },
 ]
 
 // Secciones secundarias — visibles según rol dentro del bottom sheet "Más"
 const ALL_MORE_ITEMS = [
-  { route: '/calendario',    icon: 'pi pi-calendar',    label: 'Agenda',          roles: ['agente', 'team_lead', 'manager'] },
-  { route: '/errores-pago',  icon: 'pi pi-credit-card', label: 'Errores de pago', roles: ['agente', 'team_lead', 'manager'] },
-  { route: '/agentes',       icon: 'pi pi-sitemap',     label: 'Agentes',         roles: ['team_lead', 'manager'] },
-  { route: '/exportaciones', icon: 'pi pi-download',    label: 'Exportaciones',   roles: ['team_lead', 'manager'] },
-  { route: '/configuracion', icon: 'pi pi-cog',         label: 'Configuración',   roles: ['manager'] },
+  { route: '/agentes',       icon: 'pi pi-sitemap',  label: 'Agentes',       roles: ['team_lead', 'manager'] },
+  { route: '/exportaciones', icon: 'pi pi-download', label: 'Exportaciones', roles: ['team_lead', 'manager'] },
+  { route: '/configuracion', icon: 'pi pi-cog',      label: 'Configuración', roles: ['manager'] },
 ]
 const moreItems = computed(() =>
   ALL_MORE_ITEMS.filter(i => i.roles.includes(auth.currentRole))

@@ -9,14 +9,10 @@ const router = createRouter({
     { path: '/leads/:id', component: () => import('@/views/PerfilLeadView.vue'), name: 'perfil-lead' },
     { path: '/ventas', component: () => import('@/views/VentasView.vue'), name: 'ventas' },
     { path: '/ventas/:id', component: () => import('@/views/PerfilVentaView.vue'), name: 'perfil-venta' },
-    { path: '/calendario', component: () => import('@/views/CalendarioView.vue'), name: 'calendario' },
-    { path: '/errores-pago', component: () => import('@/views/ErroresPagoView.vue'), name: 'errores-pago' },
     { path: '/agentes', component: () => import('@/views/AgentesView.vue'), name: 'agentes' },
     { path: '/agentes/:id', component: () => import('@/views/DetalleAgenteView.vue'), name: 'detalle-agente' },
     { path: '/exportaciones', component: () => import('@/views/ExportacionesView.vue'), name: 'exportaciones' },
-    { path: '/notificaciones', component: () => import('@/views/NotificacionesView.vue'), name: 'notificaciones' },
     { path: '/configuracion', component: () => import('@/views/ConfiguracionView.vue'), name: 'configuracion' },
-    { path: '/buscar', component: () => import('@/views/BuscarView.vue'), name: 'buscar' },
   ]
 })
 

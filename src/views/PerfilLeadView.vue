@@ -61,7 +61,6 @@
 
         <!-- Acciones — siempre en la columna derecha del grid -->
         <div class="topbar-actions">
-          <Button label="Reportar lead falso" severity="secondary" outlined size="small" />
           <Button label="Llamar" icon="pi pi-phone" size="small" class="cta-llamar" />
         </div>
       </div>
@@ -163,7 +162,6 @@
               </p>
             </div>
           </SectionCard>
-          <Button label="Enlazar otro lead" icon="pi pi-user-plus" severity="secondary" outlined size="small" class="add-btn" />
 
           <!-- Card Datos envío -->
           <SectionCard class="card-envio module-card">
@@ -202,12 +200,10 @@
             />
           </SectionCard>
 
-          <!-- Cupón + Código de referidos -->
+          <!-- Cupón -->
           <SectionCard class="card-codigos module-card">
-            <template #header><span class="card-title-row">Cupón y referidos</span></template>
+            <template #header><span class="card-title-row">Cupón</span></template>
 
-            <!-- Cupón -->
-            <div class="codigo-label">Cupón</div>
             <div class="codigo-row">
               <InputText v-model="cuponInput" placeholder="Ej. DOGFY2025" class="codigo-input" />
               <Button icon="pi pi-arrow-right" size="small" />
@@ -222,25 +218,6 @@
                 {{ c }}
                 <i v-if="i > 0" class="pi pi-times remove-x" />
                 <i v-else class="pi pi-lock readonly-icon" title="Solo lectura" />
-              </span>
-            </div>
-
-            <hr class="card-divider" style="margin: 10px 0" />
-
-            <!-- Código de referidos -->
-            <div class="codigo-label">Código de referidos</div>
-            <div class="codigo-row">
-              <InputText v-model="referidoInput" placeholder="Ej. AMIGO-202" class="codigo-input" />
-              <Button icon="pi pi-arrow-right" size="small" />
-            </div>
-            <div class="badge-row">
-              <span
-                v-for="(r, i) in lead.referidos"
-                :key="i"
-                class="chip-pv chip-pv--success"
-              >
-                {{ r }}
-                <i class="pi pi-times remove-x" />
               </span>
             </div>
           </SectionCard>

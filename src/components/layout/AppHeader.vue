@@ -322,17 +322,15 @@ const fabActions = computed(() => {
   const crearLead         = { label: 'Crear lead',         icon: 'pi pi-user-plus',     command: () => { auth.showCrearLead = true } }
   const crearCita         = { label: 'Crear cita',         icon: 'pi pi-calendar-plus', command: () => { auth.showCrearCita = true } }
   const crearRecordatorio = { label: 'Crear recordatorio', icon: 'pi pi-bookmark',      command: () => { auth.showCrearRecordatorio = true } }
-  const quieroLeads       = { label: 'Quiero leads',       icon: 'pi pi-inbox',         command: () => { /* TODO: lógica */ } }
   const asignarLeads      = { label: 'Asignar leads',      icon: 'pi pi-users',         command: () => { auth.showAsignarLeads = true } }
 
-  // ── Perfil lead: incluye "Reportar lead falso" + acciones de gestión ──
+  // ── Perfil lead: acciones de gestión ──
   if (name === 'perfil-lead') {
     return [
-      { label: 'Llamar',              icon: 'pi pi-phone',    command: () => callPhone(MOCK_PHONE) },
-      { label: 'WhatsApp',            icon: 'pi pi-whatsapp', command: () => { auth.showWhatsappSheet = true } },
-      { label: 'Histórico',           icon: 'pi pi-history',  command: () => { auth.showHistorialSheet = true } },
+      { label: 'Llamar',    icon: 'pi pi-phone',    command: () => callPhone(MOCK_PHONE) },
+      { label: 'WhatsApp',  icon: 'pi pi-whatsapp', command: () => { auth.showWhatsappSheet = true } },
+      { label: 'Histórico', icon: 'pi pi-history',  command: () => { auth.showHistorialSheet = true } },
       crearRecordatorio,
-      { label: 'Reportar lead falso', icon: 'pi pi-flag',     command: () => { /* TODO: handler de reportar */ } },
     ]
   }
 
@@ -356,18 +354,12 @@ const fabActions = computed(() => {
 
   // ── Lista de leads: NO mostrar "Asignar leads" (ya está en toolbar) ──
   if (name === 'leads') {
-    const actions = [crearLead, crearCita, crearRecordatorio]
-    if (role === 'agente') actions.push(quieroLeads)
-    return actions
+    return [crearLead, crearCita, crearRecordatorio]
   }
 
   // ── Default por rol (resto de pantallas) ──
   const actions = [crearLead, crearCita, crearRecordatorio]
-  if (role === 'agente') {
-    actions.push(quieroLeads)
-  } else {
-    actions.push(asignarLeads)
-  }
+  if (role !== 'agente') actions.push(asignarLeads)
   return actions
 })
 
