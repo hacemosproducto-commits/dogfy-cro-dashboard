@@ -430,7 +430,7 @@ function goToVenta(id: string) {
 function goToSearch() {
   if (!search.value.trim()) return
   searchFocused.value = false
-  router.push({ path: '/buscar', query: { q: search.value.trim() } })
+  router.push({ path: '/leads', query: { q: search.value.trim() } })
 }
 
 async function toggleSearch() {

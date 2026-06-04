@@ -64,6 +64,7 @@ const allNavItems = [
   { route: '/dashboard',      icon: 'pi pi-home',         label: 'Dashboard',       roles: ['agente', 'team_lead', 'manager'] },
   { route: '/leads',          icon: 'pi pi-users',         label: 'Leads',           roles: ['agente', 'team_lead', 'manager'] },
   { route: '/ventas',         icon: 'pi pi-chart-line',    label: 'Ventas',          roles: ['agente', 'team_lead', 'manager'] },
+  { route: '/chats',          icon: 'pi pi-whatsapp',      label: 'Chats',           roles: ['agente', 'team_lead', 'manager'] },
   { route: '/agentes',        icon: 'pi pi-sitemap',       label: 'Agentes',         roles: ['team_lead', 'manager'] },
   { route: '/exportaciones',  icon: 'pi pi-download',      label: 'Exportaciones',   roles: ['team_lead', 'manager'] },
   { route: '/configuracion',  icon: 'pi pi-cog',           label: 'Configuración',   roles: ['manager'] },

@@ -529,7 +529,6 @@ onMounted(() => {
 })
 onUnmounted(() => _sepRO?.disconnect())
 const cuponInput = ref('')
-const referidoInput = ref('')
 const showEditarPerro  = ref(false)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const perroEditando    = ref<any>(null)

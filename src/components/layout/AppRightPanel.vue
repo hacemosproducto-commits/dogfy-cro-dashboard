@@ -114,113 +114,7 @@
         </SectionCard>
       </template>
 
-      <!-- AGENTE -->
-      <template v-else-if="auth.currentRole === 'agente'">
-        <SectionCard v-if="showCalendarWidget">
-          <template #header>
-            <div class="wcal-nav-row">
-              <button class="wcal-nav" @click="weekOffset--"><i class="pi pi-chevron-left" /></button>
-              <span class="wcal-title">{{ weekRangeLabel }}</span>
-              <button class="wcal-nav" @click="weekOffset++"><i class="pi pi-chevron-right" /></button>
-              <RouterLink to="/calendario" class="wcal-ver-link"><i class="pi pi-arrow-right" /></RouterLink>
-            </div>
-          </template>
-          <div class="week-days">
-            <div
-              v-for="day in weekDays"
-              :key="day.date"
-              class="wday-col"
-              :class="{ 'wday-col--today': day.isToday }"
-              @click="router.push({ path: '/calendario', query: { dia: day.date } })"
-            >
-              <span class="wday-label">{{ day.label }}</span>
-              <span class="wday-num">{{ day.num }}</span>
-              <span class="wday-dot" :class="day.hasEvent ? 'wday-dot--on' : 'wday-dot--off'" />
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Recordatorios">
-          <template #header>
-            <Button icon="pi pi-plus" text rounded size="small" @click="showCrearRecordatorio = true" />
-          </template>
-          <div class="rec-todo-list">
-            <div
-              v-for="r in recordatoriosLocal"
-              :key="r.id"
-              class="rec-todo"
-              :class="{ 'rec-todo--done': r.completado }"
-            >
-              <button class="rec-check" :class="{ 'rec-check--done': r.completado }" @click.stop="toggleRec(r.id)">
-                <i v-if="r.completado" class="pi pi-check" style="font-size:8px" />
-              </button>
-              <div class="rec-body" @click="openRec(r)">
-                <p class="rec-titulo">{{ r.titulo }}</p>
-                <p class="rec-meta">{{ r.fechaStr }}<span v-if="r.lead"> · {{ r.lead }}</span></p>
-              </div>
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard v-if="showNotificationsWidget" title="Notificaciones">
-          <template #header>
-            <RouterLink to="/notificaciones" class="notif-ver-todas">Ver todas <i class="pi pi-arrow-right" /></RouterLink>
-          </template>
-          <div class="rec-item" v-for="n in 3" :key="n">
-            <i class="pi pi-comments rec-icon" />
-            <div>
-              <p class="rec-texto">[mensaje de whatsapp...]</p>
-              <p class="item-fecha text-muted">Lunes, 16 feb · 10:00</p>
-            </div>
-          </div>
-        </SectionCard>
-      </template>
-
-      <!-- TEAM LEAD -->
-      <template v-else-if="auth.currentRole === 'team_lead'">
-        <SectionCard>
-          <div class="obj-top">
-            <span class="obj-val">{{ mockKpisTL.ventasMes.actual.toLocaleString('es-ES') }}/{{ mockKpisTL.ventasMes.objetivo.toLocaleString('es-ES') }}</span>
-            <span class="obj-pct">{{ objMensualpct }}%</span>
-          </div>
-          <p class="obj-label">Objetivo mensual</p>
-          <ProgressBar :value="objMensualpct" style="height:6px;margin-top:8px" />
-        </SectionCard>
-
-        <SectionCard title="Recordatorios">
-          <template #header>
-            <Button icon="pi pi-plus" text rounded size="small" @click="showCrearRecordatorio = true" />
-          </template>
-          <div class="rec-todo-list">
-            <div
-              v-for="r in recordatoriosLocal"
-              :key="r.id"
-              class="rec-todo"
-              :class="{ 'rec-todo--done': r.completado }"
-            >
-              <button class="rec-check" :class="{ 'rec-check--done': r.completado }" @click.stop="toggleRec(r.id)">
-                <i v-if="r.completado" class="pi pi-check" style="font-size:8px" />
-              </button>
-              <div class="rec-body" @click="openRec(r)">
-                <p class="rec-titulo">{{ r.titulo }}</p>
-                <p class="rec-meta">{{ r.fechaStr }}<span v-if="r.lead"> · {{ r.lead }}</span></p>
-              </div>
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard v-if="false" title="Notificaciones_placeholder">
-          <div class="rec-item" v-for="n in 3" :key="n">
-            <i class="pi pi-comments rec-icon" />
-            <div>
-              <p class="rec-texto">[mensaje de whatsapp...]</p>
-              <p class="item-fecha text-muted">Lunes, 16 feb · 10:00</p>
-            </div>
-          </div>
-        </SectionCard>
-      </template>
-
-      <!-- MANAGER -->
+      <!-- V1: sin widgets por rol — panel solo en perfil lead/venta (WhatsApp) -->
       <template v-else>
         <SectionCard title="Objetivos mes">
           <div class="obj-row" v-for="o in mockObjetivosPaises" :key="o.pais">
@@ -266,25 +160,12 @@
           </div>
         </SectionCard>
 
-        <SectionCard v-if="showNotificationsWidget" title="Notificaciones">
-          <template #header>
-            <RouterLink to="/notificaciones" class="notif-ver-todas">Ver todas <i class="pi pi-arrow-right" /></RouterLink>
-          </template>
-          <div class="rec-item" v-for="n in 3" :key="n">
-            <i class="pi pi-comments rec-icon" />
-            <div>
-              <p class="rec-texto">[mensaje de whatsapp...]</p>
-              <p class="item-fecha text-muted">Lunes, 16 feb · 10:00</p>
-            </div>
-          </div>
-        </SectionCard>
       </template>
 
     </div>
 
     <CrearCitaModal v-model:visible="showCrearCita" />
     <CrearRecordatorioModal v-model:visible="showCrearRecordatorio" @save="addRecordatorio" />
-    <EditarRetoModal v-model:visible="showEditarReto" :reto="retoStore.reto" @save="retoStore.updateReto" />
 
   <!-- ── Cita detail dialog ── -->
   <Dialog
@@ -408,7 +289,6 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useRetoStore } from '@/stores/reto'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import DatePicker from 'primevue/datepicker'
@@ -417,12 +297,10 @@ import ProgressBar from 'primevue/progressbar'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import CrearCitaModal from '@/components/ui/CrearCitaModal.vue'
 import CrearRecordatorioModal from '@/components/ui/CrearRecordatorioModal.vue'
-import EditarRetoModal from '@/components/ui/EditarRetoModal.vue'
 import { mockProximasCitas, mockObjetivosPaises, mockLeadsPaises, mockPerfilLead, mockKpisTL } from '@/data/mock'
 import { CHART_COLORS } from '@/theme/palette'
 
 const auth = useAuthStore()
-const retoStore = useRetoStore()
 const route  = useRoute()
 const router = useRouter()
 
@@ -514,14 +392,8 @@ function aplazarRec(_tipo: '1h' | 'manana' | 'custom') {
 // ── Pages where the right panel is visible ───────
 // Same composition per role across these screens.
 // Hidden on: /leads/:id (perfil detail), /configuracion
+// V1: panel solo en ficha de lead/venta (WhatsApp) — igual que el CRM actual
 const PANEL_ROUTES = [
-  'dashboard',
-  'leads',
-  'ventas',
-  'agentes',
-  'detalle-agente',
-  'exportaciones',
-  'configuracion',
   'perfil-lead',
   'perfil-venta',
 ]
@@ -544,7 +416,6 @@ const showCrearRecordatorio = computed({
   get: () => auth.showCrearRecordatorio,
   set: (v) => { auth.showCrearRecordatorio = v },
 })
-const showEditarReto = ref(false)
 
 // ── Recordatorios (to-do list reactivo) ───────────
 const recordatoriosLocal = ref<Recordatorio[]>([
@@ -588,9 +459,7 @@ function histIcon(tipo: string) {
 // /calendario: hide the weekly-calendar widget (agente-only card)
 const objMensualpct = computed(() => Math.round(mockKpisTL.ventasMes.actual / mockKpisTL.ventasMes.objetivo * 100))
 
-const showCalendarWidget      = computed(() => route.name !== 'calendario')
-// /notificaciones: hide the notifications widget (redundant on that page)
-const showNotificationsWidget = computed(() => route.name !== 'notificaciones')
+const showCalendarWidget = computed(() => route.name !== 'calendario')
 
 // ── TV mode: real viewport ≤1024px OR preview toolbar ≤1024px ──
 const isTvMode = computed(() =>
@@ -608,14 +477,9 @@ const stripIcons = computed(() => {
                                        ['pi-flag', 'pi-globe', 'pi-bookmark']
 
   // Drop calendar icon on /calendario (agente only)
-  const withCalendar = showCalendarWidget.value
+  return showCalendarWidget.value
     ? base
     : base.filter(i => i !== 'pi-calendar')
-
-  // Append bell for notifications, unless we're on /notificaciones
-  return showNotificationsWidget.value
-    ? [...withCalendar, 'pi-bell']
-    : withCalendar
 })
 
 // ── Week calendar ─────────────────────────────────

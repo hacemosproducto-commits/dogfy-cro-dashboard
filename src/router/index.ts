@@ -9,6 +9,7 @@ const router = createRouter({
     { path: '/leads/:id', component: () => import('@/views/PerfilLeadView.vue'), name: 'perfil-lead' },
     { path: '/ventas', component: () => import('@/views/VentasView.vue'), name: 'ventas' },
     { path: '/ventas/:id', component: () => import('@/views/PerfilVentaView.vue'), name: 'perfil-venta' },
+    { path: '/chats', component: () => import('@/views/ChatsView.vue'), name: 'chats' },
     { path: '/agentes', component: () => import('@/views/AgentesView.vue'), name: 'agentes' },
     { path: '/agentes/:id', component: () => import('@/views/DetalleAgenteView.vue'), name: 'detalle-agente' },
     { path: '/exportaciones', component: () => import('@/views/ExportacionesView.vue'), name: 'exportaciones' },
