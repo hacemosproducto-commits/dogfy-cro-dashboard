@@ -2,7 +2,6 @@
   <span
     class="agent-avatar-wrap"
     :class="`size-${size}`"
-    :title="nombre"
     v-tooltip.top="nombre"
   >
     <span class="agent-avatar-circle">{{ ini }}</span>

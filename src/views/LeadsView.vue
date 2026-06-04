@@ -62,7 +62,7 @@
         <Column v-if="showMiEquipoColumns" selectionMode="multiple" headerStyle="width:28px;padding-right:0" bodyStyle="width:28px;padding-right:0" />
         <Column v-if="showMiEquipoColumns" header="Agente" headerStyle="padding-left:6px" bodyStyle="padding-left:6px" style="min-width:84px">
           <template #body="{ data }">
-            <span class="agente-cell" :title="data.agente">
+            <span class="agente-cell" v-tooltip.top="data.agente">
               <span class="agente-avatar" aria-hidden="true">
                 <img v-if="data.avatar" :src="data.avatar" :alt="data.agente" />
                 <i v-else class="pi pi-user" />
@@ -350,7 +350,7 @@ function goToLead(event: { data: { id: string } }) {
 .tel-input { display: flex; gap: 6px; }
 .tel-input .tel-prefix { width: 76px; flex-shrink: 0; }
 .tel-input .tel-number { flex: 1; }
-.agente-cell { display: inline-flex; align-items: center; gap: 8px; cursor: help; }
+.agente-cell { display: inline-flex; align-items: center; gap: 8px; cursor: default; }
 .agente-avatar { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #e6eaf2; color: #6b7280; overflow: hidden; flex-shrink: 0; }
 .agente-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .agente-avatar .pi-user { font-size: 13px; }

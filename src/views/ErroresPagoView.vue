@@ -108,7 +108,7 @@
         <!-- Agente — solo Team Lead y Manager -->
         <Column v-if="!isAgente" header="Agente" style="min-width:130px">
           <template #body="{ data }">
-            <span class="agente-cell" :title="data.agente">
+            <span class="agente-cell" v-tooltip.top="data.agente">
               <span class="agente-avatar"><i class="pi pi-user" /></span>
               <span class="agente-name">{{ data.agente }}</span>
             </span>
