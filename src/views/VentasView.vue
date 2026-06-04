@@ -49,7 +49,7 @@
         <Column field="fecha"    header="Fecha"     sortable style="min-width:140px" />
         <Column v-if="showAgenteCol" header="Agente" style="min-width:90px">
           <template #body="{ data }">
-            <span class="agente-cell" :title="data.agente">
+            <span class="agente-cell" v-tooltip.top="data.agente">
               <span class="agente-avatar"><i class="pi pi-user" /></span>
               <span class="agente-iniciales">{{ data.agenteIni }}</span>
             </span>
@@ -149,7 +149,7 @@ const { displayed, sentinel, hasMore } = useInfiniteScroll(filtered, 20)
 .section-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
 .section-toolbar .spacer { flex: 1; }
 
-.agente-cell { display: inline-flex; align-items: center; gap: 8px; cursor: help; }
+.agente-cell { display: inline-flex; align-items: center; gap: 8px; cursor: default; }
 .agente-avatar {
   width: 26px; height: 26px; border-radius: 50%; background: #e6eaf2; color: #6b7280;
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
