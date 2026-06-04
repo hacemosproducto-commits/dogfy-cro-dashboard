@@ -27,7 +27,6 @@
     <SectionCard>
       <div class="section-toolbar">
         <!-- "+ Quiero leads" se trasladó al FAB SpeedDial -->
-        <Button v-if="showTeamActions" label="Listas de difusión" icon="pi pi-comments" severity="secondary" outlined size="small" @click="showLista = true" />
         <Button v-if="showTeamActions" label="+ Asignar leads" size="small" @click="auth.showAsignarLeads = true" />
         <span class="spacer" />
         <!-- Chip filtro por estado (desde dashboard) -->
@@ -103,98 +102,6 @@
   <!-- Panel filtros -->
   <FiltrosPanel v-model:visible="showFiltros" modo="leads" @apply="onFiltrosAplicados" />
 
-  <!-- Modal Lista de difusión -->
-  <Dialog
-    v-model:visible="showLista"
-    modal
-    dismissableMask
-    :style="{ width: '540px' }"
-    :pt="{ header: { style: 'padding: 20px 24px 0' }, content: { style: 'padding: 0 24px 24px' }, footer: { style: 'padding: 0 24px 20px' } }"
-  >
-    <template #header>
-      <div class="lista-dialog-header">
-        <div class="lista-dialog-icon"><i class="pi pi-comments" /></div>
-        <div>
-          <p class="lista-dialog-title">Nueva lista de difusión</p>
-          <p class="lista-dialog-sub">Los mensajes se enviarán por WhatsApp</p>
-        </div>
-      </div>
-    </template>
-
-    <div class="lista-body">
-      <!-- Nombre -->
-      <div class="lista-group">
-        <label class="lista-label">Nombre de la lista</label>
-        <InputText v-model="nuevaLista.nombre" placeholder="p.ej. Recuperación mayo 2026" style="width:100%" />
-      </div>
-
-      <!-- Mensaje -->
-      <div class="lista-group">
-        <div class="lista-label-row">
-          <label class="lista-label">Mensaje</label>
-          <span class="lista-char-count" :class="{ 'lista-char-count--warn': nuevaLista.mensaje.length > 900 }">
-            {{ nuevaLista.mensaje.length }}/1000
-          </span>
-        </div>
-        <div class="lista-templates">
-          <button
-            v-for="tpl in listaTplNames"
-            :key="tpl.label"
-            class="lista-tpl-chip"
-            @click="nuevaLista.mensaje = tpl.texto"
-          >{{ tpl.label }}</button>
-        </div>
-        <Textarea
-          v-model="nuevaLista.mensaje"
-          :maxlength="1000"
-          :autoResize="true"
-          :rows="4"
-          placeholder="Escribe el mensaje que recibirán los leads…"
-          style="width:100%; resize:none"
-        />
-      </div>
-
-      <!-- Preview WhatsApp -->
-      <Transition name="lista-fade">
-        <div v-if="nuevaLista.mensaje.trim()" class="wa-preview-wrap">
-          <p class="wa-preview-label"><i class="pi pi-whatsapp" /> Vista previa</p>
-          <div class="wa-preview-screen">
-            <div class="wa-bubble-out">
-              <span class="wa-bubble-text">{{ nuevaLista.mensaje }}</span>
-              <span class="wa-bubble-time">{{ listaNow }}</span>
-            </div>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- Destinatarios -->
-      <div class="lista-group lista-group--dest">
-        <label class="lista-label">Destinatarios</label>
-        <div v-if="selected.length" class="dest-chips-wrap">
-          <span v-for="l in selected.slice(0, 5)" :key="l.id" class="dest-chip">
-            <span class="dest-ini">{{ l.nombre.split(' ').map((w: string) => w[0]).slice(0, 2).join('') }}</span>
-            <span class="dest-name">{{ l.nombre.split(' ')[0] }}</span>
-          </span>
-          <span v-if="selected.length > 5" class="dest-more">+{{ selected.length - 5 }} más</span>
-          <span class="dest-total">{{ selected.length }} leads</span>
-        </div>
-        <div v-else class="dest-empty">
-          <i class="pi pi-info-circle" />
-          Selecciona leads en la tabla antes de crear la lista
-        </div>
-      </div>
-    </div>
-
-    <template #footer>
-      <Button label="Cancelar" severity="secondary" outlined @click="showLista = false" />
-      <Button
-        label="Enviar lista"
-        icon="pi pi-send"
-        :disabled="!nuevaLista.nombre.trim() || !nuevaLista.mensaje.trim() || !selected.length"
-        @click="showLista = false"
-      />
-    </template>
-  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -204,9 +111,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
 import Select from 'primevue/select'
-import Textarea from 'primevue/textarea'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import CrearLeadModal from '@/components/leads/CrearLeadModal.vue'
 import FiltrosPanel from '@/components/ui/FiltrosPanel.vue'
@@ -276,18 +181,7 @@ const filtered = computed(() => {
 
 const { displayed, sentinel, hasMore } = useInfiniteScroll(filtered, 20)
 
-const showLista = ref(false)
-// showAsignar removido — ahora se usa auth.showAsignarLeads (global desde AppHeader)
 const selected = ref<typeof mockLeads>([])
-const nuevaLista = ref({ nombre: '', mensaje: '' })
-
-const listaTplNames = [
-  { label: 'Recuperación', texto: '¡Hola! Te escribimos desde Dogfy para recordarte que tienes un plan de alimentación pendiente para tu mascota. ¿Podemos ayudarte a retomarlo? 🐾' },
-  { label: 'Seguimiento',  texto: 'Hola, ¿cómo estás? Hace unos días hablamos sobre la nutrición de tu perro. ¿Tienes alguna duda que podamos resolver?' },
-  { label: 'Oferta',       texto: '🎉 ¡Tenemos una oferta especial para ti! Esta semana puedes empezar el plan de alimentación de Dogfy con un descuento exclusivo. ¿Te interesa?' },
-]
-
-const listaNow = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
 
 function onFiltrosAplicados(f: FiltrosValue) {
   filtrosActivos.value = f
@@ -360,50 +254,6 @@ function goToLead(event: { data: { id: string } }) {
 
 :deep(.tag-formulario) { background: #ede9fe; color: #6d28d9; }
 
-/* ── Lista de difusión modal ──────────────────────── */
-.lista-dialog-header { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--n-100); margin-bottom: 20px; }
-.lista-dialog-icon { width: 40px; height: 40px; border-radius: 50%; background: #ecf9f1; color: #25d366; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.lista-dialog-title { font-size: 15px; font-weight: 700; color: var(--n-900); }
-.lista-dialog-sub { font-size: 12px; color: var(--n-400); margin-top: 2px; }
-
-.lista-body { display: flex; flex-direction: column; gap: 18px; }
-.lista-group { display: flex; flex-direction: column; gap: 6px; }
-.lista-label { font-size: 12px; font-weight: 600; color: var(--n-700); }
-.lista-label-row { display: flex; align-items: center; justify-content: space-between; }
-.lista-char-count { font-size: 11px; color: var(--n-400); }
-.lista-char-count--warn { color: var(--error); }
-
-.lista-templates { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-.lista-tpl-chip {
-  background: var(--brand-subtle, #fdf1ed); color: var(--brand); border: 1px solid #f5c5b4;
-  border-radius: 99px; padding: 3px 10px; font-size: 11px; font-weight: 500;
-  cursor: pointer; transition: background .12s;
-}
-.lista-tpl-chip:hover { background: #fae3da; }
-
-/* WhatsApp preview */
-.wa-preview-wrap { background: #f0f0f0; border-radius: 12px; overflow: hidden; }
-.wa-preview-label { font-size: 11px; font-weight: 600; color: #25d366; padding: 10px 14px 6px; display: flex; align-items: center; gap: 5px; }
-.wa-preview-label .pi { font-size: 12px; }
-.wa-preview-screen { background: #e5ddd5; padding: 12px 14px 14px; display: flex; justify-content: flex-end; }
-.wa-bubble-out { max-width: 80%; background: #dcf8c6; border-radius: 12px 2px 12px 12px; padding: 8px 12px 6px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,.1); }
-.wa-bubble-text { font-size: 13px; color: #111; line-height: 1.5; word-break: break-word; display: block; }
-.wa-bubble-time { font-size: 10px; color: #667781; display: block; text-align: right; margin-top: 4px; }
-
-/* Destinatarios */
-.lista-group--dest { padding: 14px; background: var(--n-50); border-radius: 10px; border: 1px solid var(--n-150); }
-.dest-chips-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.dest-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--n-0); border: 1px solid var(--n-200); border-radius: 99px; padding: 3px 10px 3px 6px; font-size: 12px; }
-.dest-ini { width: 20px; height: 20px; border-radius: 50%; background: var(--brand-subtle); color: var(--brand); font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.dest-name { color: var(--n-700); font-weight: 500; }
-.dest-more { font-size: 12px; color: var(--n-500); padding: 3px 8px; background: var(--n-100); border-radius: 99px; }
-.dest-total { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--n-600); }
-.dest-empty { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--n-400); }
-.dest-empty .pi { color: var(--n-300); }
-
-/* Fade transition for preview */
-.lista-fade-enter-active, .lista-fade-leave-active { transition: opacity .2s, transform .2s; }
-.lista-fade-enter-from, .lista-fade-leave-to { opacity: 0; transform: translateY(-4px); }
 
 /* Chip de filtro activo */
 .filter-chip {
