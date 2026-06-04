@@ -7,8 +7,8 @@
       </div>
     </div>
 
-    <!-- ── KPIs (Personal / Mi equipo) ── -->
-    <div v-if="activeTab !== 'Ranking'" class="kpi-row">
+    <!-- ── KPIs ── -->
+    <div class="kpi-row">
       <KpiCard :valor="String(kpis.hoy.valor)"    label="Ventas de hoy"        :comparativa="kpis.hoy.delta"    tendencia="up" />
       <KpiCard :valor="String(kpis.ayer.valor)"   label="Ventas de ayer"       :comparativa="kpis.ayer.delta"   tendencia="up" />
       <KpiCard :valor="String(kpis.semana.valor)" label="Ventas de la semana"  :comparativa="kpis.semana.delta" tendencia="up" />
@@ -29,8 +29,8 @@
       />
     </div>
 
-    <!-- ── Tabla principal (Personal / Mi equipo) ── -->
-    <SectionCard v-if="activeTab !== 'Ranking'">
+    <!-- ── Tabla principal ── -->
+    <SectionCard>
       <div class="section-toolbar">
         <span class="spacer" />
         <FiltrosChips v-model="filtrosActivos" />
@@ -67,29 +67,6 @@
       </div>
     </SectionCard>
 
-    <!-- ── Ranking: 4 columnas por país ── -->
-    <SectionCard v-else>
-      <div class="ranking-grid">
-        <div v-for="col in mockRankingPaises" :key="col.pais" class="ranking-col">
-          <div class="ranking-col-header">
-            <span class="ranking-pais">{{ col.flag }} {{ col.pais }}</span>
-            <span class="ranking-total">{{ col.total }}</span>
-          </div>
-          <div class="ranking-table">
-            <div class="ranking-row ranking-row--head">
-              <span class="ranking-cell ranking-cell--name">Agente</span>
-              <span class="ranking-cell">Hoy</span>
-              <span class="ranking-cell">Mes</span>
-            </div>
-            <div v-for="(a, i) in col.agentes" :key="i" class="ranking-row">
-              <span class="ranking-cell ranking-cell--name" v-tooltip.top="a.nombre">{{ a.nombre }}</span>
-              <span class="ranking-cell">{{ a.hoy }}</span>
-              <span class="ranking-cell">{{ a.mes }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </SectionCard>
   </div>
 
   <FiltrosPanel v-model:visible="showFiltros" modo="ventas" @apply="onFiltrosAplicados" />
@@ -103,7 +80,7 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import KpiCard from '@/components/ui/KpiCard.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
-import { mockVentas, mockKpisVentasAgente, mockKpisVentasTL, mockRankingPaises } from '@/data/mock'
+import { mockVentas, mockKpisVentasAgente, mockKpisVentasTL } from '@/data/mock'
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import { useAuthStore } from '@/stores/auth'
 import FiltrosPanel from '@/components/ui/FiltrosPanel.vue'
@@ -119,9 +96,9 @@ function goToVenta(event: { data: { id: string } }) {
   router.push(`/ventas/${event.data.id}`)
 }
 
-// Tabs por rol — agente solo Personal/Ranking; team_lead/manager: Personal/Mi equipo/Ranking
+// Tabs por rol — agente no tiene tabs; TL/Manager: Personal/Mi equipo
 const tabs = computed<string[]>(() =>
-  role.value === 'agente' ? ['Personal', 'Ranking'] : ['Personal', 'Mi equipo', 'Ranking']
+  role.value === 'agente' ? [] : ['Personal', 'Mi equipo']
 )
 const activeTab = ref('Personal')
 watch(role, () => { activeTab.value = 'Personal' })
