@@ -13,41 +13,28 @@
       <KpiCard :valor="`${paisData.crGeneral}%`"                   label="CR general"          comparativa="+0.4% vs ayer"     tendencia="up" />
     </div>
 
-    <!-- Bolsa + mini stats -->
-    <div class="dash-row-2">
-      <SectionCard title="Bolsa de leads" class="bolsa-card">
-        <div class="bolsa-inner">
-          <div class="bolsa-donut">
-            <Chart type="doughnut" :data="bolsaDonut" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="bolsa-center">{{ paisData.leadsActivos.toLocaleString('es-ES') }}<br><small>leads</small></div>
-          </div>
-          <div class="bolsa-list">
-            <div class="bolsa-row" v-for="item in bolsaItems" :key="item.label">
-              <div class="bl-header">
-                <span class="bl-dot" :style="{ background: item.color }" />
-                <span class="bl-label">{{ item.label }}</span>
-                <span class="bl-count">{{ item.count.toLocaleString() }}</span>
-                <span class="bl-trend" :class="item.trendUp ? 'bl-trend--up' : 'bl-trend--down'">{{ item.trend }}</span>
-              </div>
-              <div class="bl-bar-track">
-                <div class="bl-bar-fill" :style="{ width: item.pct + '%', background: item.color }" />
-              </div>
+    <!-- Bolsa de leads (ancho completo) -->
+    <SectionCard title="Bolsa de leads" class="bolsa-card">
+      <div class="bolsa-inner">
+        <div class="bolsa-donut">
+          <Chart type="doughnut" :data="bolsaDonut" :options="donutOpts" style="width:100%;height:100%" />
+          <div class="bolsa-center">{{ paisData.leadsActivos.toLocaleString('es-ES') }}<br><small>leads</small></div>
+        </div>
+        <div class="bolsa-list">
+          <div class="bolsa-row" v-for="item in bolsaItems" :key="item.label">
+            <div class="bl-header">
+              <span class="bl-dot" :style="{ background: item.color }" />
+              <span class="bl-label">{{ item.label }}</span>
+              <span class="bl-count">{{ item.count.toLocaleString() }}</span>
+              <span class="bl-trend" :class="item.trendUp ? 'bl-trend--up' : 'bl-trend--down'">{{ item.trend }}</span>
+            </div>
+            <div class="bl-bar-track">
+              <div class="bl-bar-fill" :style="{ width: item.pct + '%', background: item.color }" />
             </div>
           </div>
         </div>
-      </SectionCard>
-      <div class="mini-stats">
-        <SectionCard class="mini-stat-card">
-          <span class="stat-big">{{ paisData.mediaFresh }}</span>
-          <p class="stat-label">Media leads fresh / persona</p>
-        </SectionCard>
-        <SectionCard class="mini-stat-card">
-          <span class="stat-big">{{ paisData.pendientes }}</span>
-          <p class="stat-label">Leads nuevos fresh</p>
-          <p class="stat-trend trend-up">↑ +2% vs sem. anterior</p>
-        </SectionCard>
       </div>
-    </div>
+    </SectionCard>
 
     <!-- Gráficos barras -->
     <div class="dash-row-charts">
@@ -87,34 +74,6 @@
       <Chart type="line" :data="lineData" :options="lineOpts" style="height:260px" />
     </SectionCard>
 
-    <!-- Top cupones + campañas -->
-    <div class="dash-row-top">
-      <SectionCard title="Top cupones aplicados">
-        <template #header>
-          <Select v-model="periodoTop" :options="['Anual','Mensual']" style="font-size:12px" />
-        </template>
-        <div class="top-row" v-for="(item, i) in topCupones" :key="i">
-          <span class="top-label">{{ item.label }}</span>
-          <div class="top-bar-track">
-            <div class="top-bar-fill" :style="{ width: item.pct + '%', background: item.color }" />
-          </div>
-          <span class="top-count">{{ item.count.toLocaleString() }}</span>
-        </div>
-      </SectionCard>
-      <SectionCard title="Top campañas">
-        <template #header>
-          <Select v-model="periodoTopC" :options="['Anual','Mensual']" style="font-size:12px" />
-        </template>
-        <div class="top-row" v-for="(item, i) in topCupones" :key="i">
-          <span class="top-label">{{ item.label }}</span>
-          <div class="top-bar-track">
-            <div class="top-bar-fill" :style="{ width: item.pct + '%', background: item.color }" />
-          </div>
-          <span class="top-count">{{ item.count.toLocaleString() }}</span>
-        </div>
-      </SectionCard>
-    </div>
-
     <!-- KPIs por país -->
     <SectionCard class="paises-card">
       <div class="paises-grid">
@@ -143,8 +102,6 @@ import { CHART_COLORS, CHART_AREA_FILL, CHART_PREV_COLOR, createMetaPattern } fr
 const periodoVentas = ref('Día')
 const periodoTipo = ref('Día')
 const periodoHistorico = ref('Anual')
-const periodoTop = ref('Anual')
-const periodoTopC = ref('Anual')
 const periodos = ['Día', 'Semana', 'Mes', 'Anual']
 
 const paises = ['España', 'Francia', 'Italia', 'Alemania']
@@ -213,13 +170,6 @@ const lineOpts = {
   }
 }
 
-const topCupones = [
-  { label: 'CATA20',  count: 3085, pct: 100, color: CHART_COLORS[0] },
-  { label: 'TEAM30',  count: 656,  pct: 21,  color: CHART_COLORS[1] },
-  { label: 'VERANO',  count: 456,  pct: 15,  color: CHART_COLORS[2] },
-  { label: 'WELCOME', count: 112,  pct: 4,   color: CHART_COLORS[3] },
-]
-
 function paisFields(p: typeof mockKpisPaises[0]) {
   return {
     'Ventas hoy':     p.ventas,
@@ -242,11 +192,7 @@ function paisFields(p: typeof mockKpisPaises[0]) {
 
 .manager-header { display: flex; justify-content: flex-end; }
 .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.dash-row-2 { display: grid; grid-template-columns: 3fr 1fr; gap: 10px; }
-.mini-stats { display: flex; flex-direction: column; gap: 10px; }
-.mini-stat-card { flex: 1; }
 .dash-row-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.dash-row-top { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 /* Stat mini */
 .stat-big { font-size: 28px; font-weight: 700; color: var(--n-900); display: block; margin-bottom: 4px; }

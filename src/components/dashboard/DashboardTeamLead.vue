@@ -77,71 +77,35 @@
       </SectionCard>
     </div>
 
-    <!-- Actividad + Ventas tipo -->
-    <div class="dash-row-3">
-      <SectionCard title="Actividad del día" class="actividad-card">
-        <div class="act-row" v-for="item in actividadItems" :key="item.label">
-          <span class="act-label">{{ item.label }}</span>
-          <span class="act-val">{{ item.val }}</span>
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Ventas por tipo" class="ventas-tipo-card">
-        <div class="ventas-tipo-inner">
-          <div class="ventas-tipo-list">
-            <div class="vt-row" v-for="vt in ventasTipoItems" :key="vt.label">
-              <span class="vt-dot" :style="{ background: vt.color }" />
-              <span class="vt-label">{{ vt.label }}</span>
-              <span class="vt-val">{{ vt.val }}</span>
-            </div>
-            <div class="vt-divider" />
-            <div class="vt-row vt-total"><span class="vt-label">Ventas totales</span><span class="vt-val">{{ ventasTipoTotal }}</span></div>
+    <!-- Ventas por tipo (ancho completo) -->
+    <SectionCard title="Ventas por tipo" class="ventas-tipo-card">
+      <div class="ventas-tipo-inner">
+        <div class="ventas-tipo-list">
+          <div class="vt-row" v-for="vt in ventasTipoItems" :key="vt.label">
+            <span class="vt-dot" :style="{ background: vt.color }" />
+            <span class="vt-label">{{ vt.label }}</span>
+            <span class="vt-val">{{ vt.val }}</span>
           </div>
-          <div class="ventas-donut-wrap">
-            <Chart type="doughnut" :data="ventasDonut" :options="donutOpts" style="width:100%;height:100%" />
-            <div class="donut-center">{{ ventasTipoTotal }}<br><small>ventas</small></div>
-          </div>
+          <div class="vt-divider" />
+          <div class="vt-row vt-total"><span class="vt-label">Ventas totales</span><span class="vt-val">{{ ventasTipoTotal }}</span></div>
         </div>
-      </SectionCard>
-    </div>
+        <div class="ventas-donut-wrap">
+          <Chart type="doughnut" :data="ventasDonut" :options="donutOpts" style="width:100%;height:100%" />
+          <div class="donut-center">{{ ventasTipoTotal }}<br><small>ventas</small></div>
+        </div>
+      </div>
+    </SectionCard>
 
-    <!-- Equipo barras + Top ventas -->
-    <div class="dash-row-4">
-      <SectionCard title="Tu equipo" class="equipo-chart-card">
-        <template #header>
-          <Select v-model="periodoEquipo" :options="['Día','Semana','Mes']" style="font-size:12px" />
-        </template>
-        <div class="equipo-chart-wrap" ref="equipoChartWrap">
-          <Chart ref="equipoChartRef" type="bar" :data="equipoBarData" :options="barOpts" style="height:240px" />
-          <div ref="labelTip" class="label-tip" style="display:none" />
-        </div>
-      </SectionCard>
-      <SectionCard title="Top ventas" class="top-ventas-card">
-        <template #header>
-          <i
-            class="pi pi-info-circle tv-info-icon"
-            v-tooltip.top="'Ranking combinado: 50% ventas + 50% CR normalizados. Un CR alto con pocas ventas no alcanza el top.'"
-          />
-        </template>
-        <!-- Column headers -->
-        <div class="tv-header">
-          <span class="tv-h-name">Agente</span>
-          <span class="tv-h-stat">Vtas</span>
-          <span class="tv-h-stat">CR</span>
-        </div>
-        <RouterLink
-          v-for="(a, idx) in topVentasRanked" :key="a.id"
-          :to="`/agentes/${a.id}`"
-          class="tv-row"
-        >
-          <span class="tv-rank">{{ idx + 1 }}</span>
-          <AgentAvatar :nombre="a.nombre" :ini="a.ini" size="sm" />
-          <span class="tv-name" v-tooltip.top="a.nombre">{{ a.nombre }}</span>
-          <span class="tv-stat-num">{{ a.total }}</span>
-          <span class="tv-stat-num tv-cr">{{ a.cr }}%</span>
-        </RouterLink>
-      </SectionCard>
-    </div>
+    <!-- Tu equipo (ancho completo) -->
+    <SectionCard title="Tu equipo" class="equipo-chart-card">
+      <template #header>
+        <Select v-model="periodoEquipo" :options="['Día','Semana','Mes']" style="font-size:12px" />
+      </template>
+      <div class="equipo-chart-wrap" ref="equipoChartWrap">
+        <Chart ref="equipoChartRef" type="bar" :data="equipoBarData" :options="barOpts" style="height:240px" />
+        <div ref="labelTip" class="label-tip" style="display:none" />
+      </div>
+    </SectionCard>
 
     <!-- Histórico -->
     <SectionCard title="Overview de ventas" class="historico-card">
@@ -167,7 +131,6 @@ import MultiSelect from 'primevue/multiselect'
 import Button from 'primevue/button'
 import KpiCard from '@/components/ui/KpiCard.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
-import AgentAvatar from '@/components/ui/AgentAvatar.vue'
 import DashboardAgente from '@/components/dashboard/DashboardAgente.vue'
 import AsignarLeadsModal from '@/components/leads/AsignarLeadsModal.vue'
 import { mockAgentes, mockHistoricoVentas, mockEquipoBarras, mockKpisTL, mockRankingPaises } from '@/data/mock'
@@ -350,14 +313,6 @@ const agenteMetrics = [
   { label: 'Formulario',      val: 507, to: { path: '/leads', query: { estado: 'Formulario' } } },
   { label: 'Ventas día',      val: 12,  to: '/ventas' },
   { label: 'Ventas mes',      val: 45,  to: '/ventas' },
-  { label: 'Errores de pago', val: 3,   to: '/errores-pago', error: true },
-]
-
-const actividadItems = [
-  { label: 'Llamadas realizadas', val: '33' },
-  { label: 'Tiempo total',        val: '3h 43m 21s' },
-  { label: 'Tiempo medio',        val: '12m 14s' },
-  { label: 'PUCR equipo',         val: '5m 19s' },
 ]
 
 const ventasTipoItems = [
@@ -370,17 +325,6 @@ const ventasTipoTotal = ventasTipoItems.reduce((s, i) => s + i.val, 0)
 const ventasDonut = {
   datasets: [{ data: ventasTipoItems.map(i => i.val), backgroundColor: CHART_COLORS.slice(0, 3), borderWidth: 0, hoverOffset: 2 }]
 }
-
-// Top ventas: agentes España ordenados por score combinado (50% ventas + 50% CR normalizados)
-const topVentasRanked = computed(() => {
-  const espana = mockAgentes.filter(a => a.pais === 'España')
-  const maxTotal = Math.max(...espana.map(a => a.total))
-  const maxCr    = Math.max(...espana.map(a => a.cr))
-  return espana
-    .map(a => ({ ...a, score: (a.total / maxTotal) * 50 + (a.cr / maxCr) * 50 }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5)
-})
 
 // Abreviar nombre: "Juan Martín" → "Juan M."
 function abbrev(nombre: string) {
