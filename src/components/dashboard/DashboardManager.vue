@@ -42,7 +42,11 @@
         <template #header>
           <Select v-model="periodoVentas" :options="periodos" style="font-size:12px" />
         </template>
-        <Chart type="bar" :data="ventasBarData" :options="barOpts" style="height:240px" />
+        <div class="chart-scroll-wrap">
+          <div :style="{ minWidth: ventasMinWidth }">
+            <Chart type="bar" :data="ventasBarData" :options="barOpts" style="height:240px" />
+          </div>
+        </div>
       </SectionCard>
       <SectionCard title="Ventas por tipo">
         <template #header>
@@ -137,12 +141,13 @@ const ventasDonut = computed(() => ({
 }))
 
 const ventasBarData = computed(() => ({
-  labels: ['Feb', 'Mar', 'Abr', 'May'],
+  labels: ['Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr', 'May'],
   datasets: [
     { label: 'Ventas', data: paisData.value.barVentas, backgroundColor: CHART_COLORS[0], borderRadius: 4, borderSkipped: false },
-    { label: 'Meta',   data: Array(4).fill(paisData.value.barMeta), backgroundColor: createMetaPattern('white', '#BFDBFE'), borderWidth: 0, borderRadius: 4, borderSkipped: false },
+    { label: 'Meta',   data: Array(12).fill(paisData.value.barMeta), backgroundColor: createMetaPattern('white', '#BFDBFE'), borderWidth: 0, borderRadius: 4, borderSkipped: false },
   ]
 }))
+const ventasMinWidth = computed(() => `${Math.max(ventasBarData.value.labels.length * 80, 300)}px`)
 const barOpts = {
   responsive: true,
   maintainAspectRatio: false,
@@ -193,6 +198,7 @@ function paisFields(p: typeof mockKpisPaises[0]) {
 .manager-header { display: flex; justify-content: flex-end; }
 .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .dash-row-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chart-scroll-wrap { overflow-x: auto; }
 
 /* Stat mini */
 .stat-big { font-size: 28px; font-weight: 700; color: var(--n-900); display: block; margin-bottom: 4px; }

@@ -14,7 +14,7 @@
 | Rama | Propósito | Vercel URL |
 |------|-----------|-----------|
 | `v2-ideal` | Visión completa: todas las mejoras UX **+** features nuevas. Es la rama principal de desarrollo del prototipo. | https://dogfy-crm-sales.vercel.app |
-| `v1-ux-only` | Solo mejoras de UX sobre el CRM actual — sin features nuevas. Misma funcionalidad que el staging, mejor experiencia visual. URL independiente pendiente de configurar. | — |
+| `v1-ux-only` | Solo mejoras de UX sobre el CRM actual — sin features nuevas. Misma funcionalidad que el staging, mejor experiencia visual. | https://dogfy-crm-v1-ux.vercel.app |
 
 - Para retomar trabajo en V2: trabaja en la rama `v2-ideal`
 - Para retomar trabajo en V1: trabaja en la rama `v1-ux-only`
@@ -755,7 +755,7 @@ const showAsignarLeads      = ref(false)
 | `CrearCitaModal` | `AppRightPanel.vue` | Tiene @save que afecta widget de próximas citas |
 | `CrearRecordatorioModal` | `AppRightPanel.vue` | Tiene @save que añade a `recordatoriosLocal` |
 
-Los modales de cita/recordatorio están en `AppRightPanel.vue` (que se monta en las 13 rutas de `PANEL_ROUTES` — siempre disponible) y los widgets `+` los disparan via computed setters al `auth` store. Esto permite que el FAB y los widgets compartan **una sola instancia** de cada modal:
+Los modales de cita/recordatorio están en `AppRightPanel.vue` (que se monta en las 2 rutas de `PANEL_ROUTES` — solo ficha de lead y venta) y los widgets `+` los disparan via computed setters al `auth` store. Esto permite que el FAB y los widgets compartan **una sola instancia** de cada modal:
 
 ```ts
 // En AppRightPanel.vue
@@ -870,15 +870,14 @@ El `padding-bottom` también arregla que el bottom nav (60px) ocultaba el final 
 Lista de `route.name` válidos para que el `<aside v-if="showPanel">` se renderice:
 
 ```ts
+// V1: panel solo en ficha de lead/venta (mismo comportamiento que V0/staging)
 const PANEL_ROUTES = [
-  'dashboard', 'leads', 'ventas', 'errores-pago',
-  'agentes', 'detalle-agente', 'exportaciones',
-  'calendario', 'notificaciones', 'configuracion',
-  'buscar', 'perfil-lead', 'perfil-venta',
+  'perfil-lead',
+  'perfil-venta',
 ]
 ```
 
-**Importante:** cualquier ruta nueva debe añadirse aquí si quiere tener el panel disponible. Si una ruta no está en la lista, en mobile el botón de panel no abre nada (el overlay aparece pero el aside no renderiza).
+**V2 amplía esto a 13 rutas** — en V1 el panel lateral solo aparece en las fichas de lead y venta (igual que el CRM actual). Si una ruta no está en la lista, el botón de panel no tiene efecto.
 
 ### Bolsa de leads (DashboardTeamLead + DashboardManager)
 - En desktop: donut + lista en horizontal (`flex-direction: row`)
@@ -900,7 +899,7 @@ toggleMobilePanel() / closeMobilePanel()
 ## Notificaciones (`src/views/NotificacionesView.vue`)
 
 ### Filtros y acciones
-- Tabs: Todos / Chats / Citas / Recordatorios / Errores de pago
+- Filtro tipo (tabs): Todos / Chats / Citas / Recordatorios / Errores de pago  *(V1: tabs separados — sin cambio respecto a producción)*
 - Scroll horizontal en mobile (tabs `overflow-x: auto`)
 - "Marcar todas como leídas":
   - **≤ 900px:** aparece en el header de la vista
@@ -1223,29 +1222,15 @@ Selector visual de sabores ("Pollo · Pavo · Buey · Salmón") con pills toggle
 
 Gemelas `.is-mob` en `main.css` para preview mode.
 
-### Override de gramaje — visualización unificada
+### Gramaje — solo lectura
 
-Cuando un perro tiene un override del gramaje (valor ajustado distinto al calculado por el algoritmo), se muestra en dos lugares con el **mismo tratamiento visual**:
+En V1, el gramaje lo determina exclusivamente el algoritmo a partir de los datos del perro. **No existe override manual.** El valor se muestra directamente:
 
-| Lugar | Componente |
-|---|---|
-| Card del perro (perro-section) | `.gr-delta-chip` — pill azul informativo "Δ -100g vs algoritmo" junto al valor + asterisco |
-| Tabla del presupuesto (gr-cell) | `.gr-delta` — pill azul "-100g vs alg." debajo del input editable |
-
-**Color único: cian informativo** (`#CFFAFE` bg / `#0e7490` texto, `border-radius: 6px`).
-
-**Razón:** un override no es un error ni una alarma — puede ser la decisión correcta para ese perro específico. El radio de 6px iguala el del badge de cupones/descuentos para coherencia visual.
-
-```css
-.gr-delta-chip,
-.gr-delta--up,
-.gr-delta--down {
-  background: #CFFAFE;
-  color: #0e7490;
-  border-radius: 6px;
-}
-.gr-delta--neutral { background: var(--n-100); color: var(--n-500); border-radius: 6px; }
+```html
+{{ isMixto ? Math.round(parseInt(perro.gDia) / 2) + 'g/día' : perro.gDia }}
 ```
+
+El override de gramaje (`.gr-delta-chip`, `.gr-override-wrap`, `InputNumber`, `overrideEnabled`, `displayGr`) existe en V2 pero fue eliminado de V1 porque no está disponible en el CRM de producción actual.
 
 ### Presupuesto — Plan mixto
 El toggle Plan completo / Plan mixto es funcional:
@@ -1287,6 +1272,62 @@ El botón "+ Crear lead" vive en `AppHeader` (visible en toda la sección `/lead
 ```css
 .reto-card { background: #FEF9C3 !important; border-color: #fde68a !important; }
 ```
+
+---
+
+---
+
+## V1 — Decisiones de scope
+
+Esta rama replica la funcionalidad del CRM de producción con mejoras visuales. Las siguientes features fueron **intencionalmente eliminadas** porque no están disponibles en producción aún. No reintroducirlas sin decisión explícita.
+
+### Features eliminadas de V1
+
+| Feature | Dónde existía | Razón de eliminación |
+|---|---|---|
+| Override de gramaje por perro | `PerfilLeadView` — InputNumber + botón reset | El gramaje lo da el algoritmo; override no disponible en producción |
+| Pago con Bizum | `PerfilLeadView` — botón en presu-actions | No disponible en producción |
+| Patologías incompatibles / bloqueo de venta | `PerfilLeadView` — `leadIncompatible`, `PATOLOGIAS_INCOMPATIBLES`, aviso "Venta bloqueada" | No disponible en producción; todas las patologías son informativas |
+| Cupón pre-relleno "campaña track" / "pregrabado agente" | `mock.ts` — `cuponesAplicados` | El agente los introduce manualmente cada vez |
+| Columna "Fix" con InfoTooltip en ErroresPago | `ErroresPagoView` — columna con resolución Stripe | Feature nueva (guía de resolución) |
+| v-tooltip en celdas de agente (tabla leads, errores) | `LeadsView`, `ErroresPagoView` | Tooltips eliminados como patrón general en V1 |
+| Indicador de errores de pago en dashboard | `DashboardAgente`, `DashboardTeamLead` | No hay forma de mostrarlo en producción aún |
+| Columna icono de error en tabla de leads | `LeadsView` | Idem |
+
+### PerfilLeadView — estado simplificado (V1)
+
+- **Patologías:** texto plano inline (`Patologías: nombre1, nombre2`), sin chips ni InfoTooltip
+- **Cupones:** todos eliminables (sin lock), el agente los introduce cada vez
+- **Botones de pago:** Enviar presupuesto · Formulario de pago · Pago con tarjeta · (TPV si modo feria) — sin Bizum
+- **Presupuesto:** gramaje directo del algoritmo, sin override; toast de confirmación al enviar
+- **Venta bloqueada:** eliminada — la venta nunca se bloquea por patologías en V1
+
+### Historial — tipo `errorPago`
+
+El historial del panel derecho (`AppRightPanel.vue`) soporta un nuevo tipo de entrada para errores de pago provenientes de Stripe. Mismo patrón arquitectónico que las llamadas de Ringover (evento automático de sistema externo, no entrada manual del agente).
+
+**Entrada en `mock.ts`:**
+```ts
+{ tipo: 'errorPago', texto: 'Error de pago · Tarjeta · payment_intent_authentication_failure', fecha: '8/6/2026, 15:28' }
+```
+
+**`histIcon` mapping:**
+```ts
+errorPago: 'pi pi-credit-card'
+```
+
+**Visual:** `.hist-item--error` → icono y texto en `var(--color-error)` / `var(--color-error-dark)`.
+
+**Tab filtering** (ahora funcional — antes decorativo):
+```ts
+const historialFiltrado = computed(() => {
+  if (histTab.value === 'Llamadas')    return items.filter(i => i.tipo === 'llamada')
+  if (histTab.value === 'Comentarios') return items.filter(i => i.tipo === 'comentario')
+  return items  // 'Todo': todos los tipos incluyendo errorPago, whatsapp, recordatorio
+})
+```
+
+El errorPago **solo aparece en el tab "Todo"** — no tiene tab propio. La arquitectura está preparada para que V2 consuma datos reales de Stripe en el mismo slot.
 
 ---
 

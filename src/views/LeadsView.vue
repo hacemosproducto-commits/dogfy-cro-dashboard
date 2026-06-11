@@ -70,22 +70,17 @@
             </span>
           </template>
         </Column>
-        <Column field="estado" header="Estado" sortable style="min-width:130px">
+        <Column field="estado" header="Estado" style="min-width:130px">
           <template #body="{ data }">
             <Tag :value="data.estado" :severity="estadoSeverity(data.estado)" :class="{ 'tag-formulario': data.estado === 'Formulario' }" />
           </template>
         </Column>
         <Column field="telefono" header="Teléfono" style="min-width:120px" />
         <Column field="email" header="Email" style="min-width:240px" />
-        <Column field="cupon" header="Cupón" sortable style="min-width:120px" />
-        <Column field="campana" header="Campaña" sortable style="min-width:140px" />
+        <Column field="cupon" header="Cupón" style="min-width:120px" />
+        <Column field="campana" header="Campaña" style="min-width:140px" />
         <Column v-if="showMiEquipoColumns" field="grDia" header="Gr/día" style="min-width:80px" />
         <Column v-if="showMiEquipoColumns" field="importe" header="Importe" style="min-width:90px" />
-        <Column header="" headerStyle="width:28px;padding:0" bodyStyle="width:28px;padding:0;text-align:center">
-          <template #body="{ data }">
-            <i v-if="data.errorPago" class="pi pi-exclamation-circle error-icon" title="Error de pago" />
-          </template>
-        </Column>
       </DataTable>
 
       <div ref="sentinel" class="infinite-sentinel">
@@ -171,10 +166,10 @@ const filtered = computed(() => {
   if (f) {
     if (f.estados.length)
       list = list.filter(l => f.estados.some(e => l.estado.toLowerCase().includes(e.toLowerCase())))
-    if (f.campana)
-      list = list.filter(l => l.campana === f.campana)
-    if (f.cupon)
-      list = list.filter(l => (l.cupon ?? '').toLowerCase().includes(f.cupon.toLowerCase()))
+    if (f.pais)
+      list = list.filter(l => (l as any).pais === f.pais)
+    if (f.agente)
+      list = list.filter(l => l.agente === f.agente)
   }
   return list
 })
@@ -190,7 +185,7 @@ function onFiltrosAplicados(f: FiltrosValue) {
 const hasFiltrosActivos = computed(() => {
   const f = filtrosActivos.value
   if (!f) return false
-  return f.estados.length > 0 || f.planes.length > 0 || !!f.campana || !!f.cupon
+  return f.estados.length > 0 || !!f.pais || !!f.agente
 })
 
 const filtrosBadge = computed(() => {
@@ -198,8 +193,8 @@ const filtrosBadge = computed(() => {
   if (!f) return ''
   let c = 0
   if (f.estados.length) c++
-  if (f.campana) c++
-  if (f.cupon) c++
+  if (f.pais) c++
+  if (f.agente) c++
   return c > 0 ? String(c) : ''
 })
 
@@ -231,7 +226,6 @@ function goToLead(event: { data: { id: string } }) {
 .tab-btn.active { background: var(--color-brand-primary-light); color: var(--color-brand-primary); font-weight: 600; }
 .section-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
 .section-toolbar .spacer { flex: 1; }
-.error-icon { color: var(--color-error-dark); font-size: 14px; }
 .crear-form { display: flex; flex-direction: column; gap: 12px; }
 .form-row { display: flex; flex-direction: column; gap: 4px; }
 .form-row label { font-size: 12px; font-weight: 500; color: var(--color-neutral-dark); }

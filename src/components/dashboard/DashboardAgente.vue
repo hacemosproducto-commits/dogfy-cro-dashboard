@@ -35,7 +35,6 @@
         class="leads-activos-card"
         :total="115"
         :estados="leadsEstados"
-        :erroresPago="3"
       />
     </div>
 

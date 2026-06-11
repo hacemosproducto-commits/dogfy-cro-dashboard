@@ -57,7 +57,7 @@
             <button class="pill" :class="{ active: histTab === 'Comentarios' }" @click="histTab = 'Comentarios'">Comentarios</button>
           </div>
           <div class="hist-list">
-            <div v-for="(item, i) in mockPerfilLead.historial" :key="i" class="hist-item">
+            <div v-for="(item, i) in historialFiltrado" :key="i" class="hist-item" :class="{ 'hist-item--error': item.tipo === 'errorPago' }">
               <i :class="histIcon(item.tipo)" class="hist-icon" />
               <div class="hist-body">
                 <p class="hist-text">{{ item.texto }}</p>
@@ -103,7 +103,7 @@
             <Button icon="pi pi-plus" size="small" />
           </div>
           <div class="hist-list">
-            <div v-for="(item, i) in mockPerfilLead.historial" :key="i" class="hist-item">
+            <div v-for="(item, i) in historialFiltrado" :key="i" class="hist-item" :class="{ 'hist-item--error': item.tipo === 'errorPago' }">
               <i :class="histIcon(item.tipo)" class="hist-icon" />
               <div class="hist-body">
                 <p class="hist-text">{{ item.texto }}</p>
@@ -447,13 +447,21 @@ const histTab = ref<'Todo' | 'Llamadas' | 'Comentarios'>('Todo')
 const nuevoComentario = ref('')
 function histIcon(tipo: string) {
   const map: Record<string, string> = {
-    whatsapp: 'pi pi-comment',
+    whatsapp: 'pi pi-whatsapp',
     llamada: 'pi pi-phone',
     comentario: 'pi pi-comment',
     recordatorio: 'pi pi-flag',
+    errorPago: 'pi pi-credit-card',
   }
   return map[tipo] ?? 'pi pi-circle'
 }
+
+const historialFiltrado = computed(() => {
+  const items = mockPerfilLead.historial
+  if (histTab.value === 'Llamadas')    return items.filter(i => i.tipo === 'llamada')
+  if (histTab.value === 'Comentarios') return items.filter(i => i.tipo === 'comentario')
+  return items
+})
 
 // ── Pages that exclude specific widgets ──────────
 // /calendario: hide the weekly-calendar widget (agente-only card)
@@ -888,6 +896,8 @@ watch(() => auth.currentRole,   () => { weekOffset.value = 0 })
 .hist-body { flex: 1; min-width: 0; }
 .hist-text { font-size: 12px; margin: 0; color: var(--n-700); }
 .hist-fecha { font-size: 11px; color: var(--n-500); margin: 2px 0 0; }
+.hist-item--error .hist-icon { color: var(--color-error, #ef4444); }
+.hist-item--error .hist-text { color: var(--color-error-dark, #b91c1c); }
 
 /* ══════════════════════════════════════════
    Perfil-lead: panel más ancho + WA al 60vh

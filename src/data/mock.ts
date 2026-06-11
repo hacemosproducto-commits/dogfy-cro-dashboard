@@ -123,6 +123,8 @@ export const mockAgentes = [
   { id:'8',  pais:'España',   nombre:'David Fernández', ini:'DF', avatar:'', total:55, cr:3.3,  llamadasDia:48, tiempoLlamada:'4m 15s', fresh:7,  freshCr:2.8, recuperados:10, recuperadosCr:3.9,  pausados:6, pausadosCr:2.5, noGestionados:45, noContesta1:34, noContesta2:15, enCita:3,  formulario:5,  ventasDias:7,  ventasMes:55, pendientes:1, noContesta:75,  cita:4  },
   { id:'9',  pais:'España',   nombre:'Elena Torres',    ini:'ET', avatar:'', total:28, cr:8.5,  llamadasDia:20, tiempoLlamada:'9m 10s', fresh:9,  freshCr:7.2, recuperados:4,  recuperadosCr:10.1, pausados:2, pausadosCr:7.9, noGestionados:7,  noContesta1:5,  noContesta2:2,  enCita:8,  formulario:12, ventasDias:9,  ventasMes:28, pendientes:1,  noContesta:11,  cita:11 },
   { id:'10', pais:'España',   nombre:'Roberto Vega',    ini:'RV', avatar:'', total:42, cr:4.9,  llamadasDia:36, tiempoLlamada:'5m 37s', fresh:9,  freshCr:4.1, recuperados:7,  recuperadosCr:5.7,  pausados:4, pausadosCr:4.0, noGestionados:22, noContesta1:16, noContesta2:7,  enCita:5,  formulario:9,  ventasDias:8,  ventasMes:42, pendientes:1,  noContesta:35,  cita:8  },
+  { id:'21', pais:'España',   nombre:'Marta Lozano',    ini:'ML', avatar:'', total:36, cr:7.2,  llamadasDia:28, tiempoLlamada:'7m 45s', fresh:9,  freshCr:6.1, recuperados:5,  recuperadosCr:8.3,  pausados:3, pausadosCr:5.9, noGestionados:11, noContesta1:8,  noContesta2:3,  enCita:8,  formulario:12, ventasDias:9,  ventasMes:36, pendientes:1,  noContesta:16,  cita:11 },
+  { id:'22', pais:'España',   nombre:'Iñaki Ortega',    ini:'IO', avatar:'', total:47, cr:4.6,  llamadasDia:40, tiempoLlamada:'5m 05s', fresh:8,  freshCr:3.9, recuperados:8,  recuperadosCr:5.3,  pausados:5, pausadosCr:3.7, noGestionados:30, noContesta1:22, noContesta2:10, enCita:4,  formulario:7,  ventasDias:8,  ventasMes:47, pendientes:1,  noContesta:52,  cita:6  },
   { id:'11', pais:'Francia',  nombre:'Nuria López',     ini:'NL', avatar:'', total:35, cr:6.7,  llamadasDia:29, tiempoLlamada:'6m 52s', fresh:8,  freshCr:5.8, recuperados:5,  recuperadosCr:7.8,  pausados:3, pausadosCr:5.4, noGestionados:13, noContesta1:9,  noContesta2:3,  enCita:7,  formulario:11, ventasDias:9,  ventasMes:35, pendientes:1,  noContesta:20,  cita:10 },
   { id:'12', pais:'Francia',  nombre:'Marcos Jiménez',  ini:'MJ', avatar:'', total:29, cr:5.8,  llamadasDia:24, tiempoLlamada:'7m 18s', fresh:6,  freshCr:4.9, recuperados:4,  recuperadosCr:6.8,  pausados:2, pausadosCr:4.5, noGestionados:16, noContesta1:12, noContesta2:5,  enCita:6,  formulario:9,  ventasDias:7,  ventasMes:29, pendientes:1,  noContesta:26,  cita:8  },
   { id:'13', pais:'Francia',  nombre:'Claudia Ramos',   ini:'CR', avatar:'', total:48, cr:3.6,  llamadasDia:41, tiempoLlamada:'4m 55s', fresh:8,  freshCr:3.0, recuperados:9,  recuperadosCr:4.2,  pausados:5, pausadosCr:3.1, noGestionados:36, noContesta1:26, noContesta2:11, enCita:4,  formulario:6,  ventasDias:8,  ventasMes:48, pendientes:1, noContesta:55,  cita:5  },
@@ -136,9 +138,9 @@ export const mockAgentes = [
 ]
 
 export const mockEquipoBarras = {
-  labels: ['Juan M.','Laura R.','Carlos D.','Ana S.','María P.','Pablo G.','Sara M.','David F.'],
-  ventas: [12000,18000,8000,22000,5000,15000,10000,19000],
-  meta:   [15000,15000,15000,15000,15000,15000,15000,15000],
+  labels: ['Juan M.','Laura R.','Carlos D.','Ana S.','María P.','Pablo G.','Sara M.','David F.','Elena T.','Roberto V.','Marta L.','Iñaki O.'],
+  ventas: [12000,18000,8000,22000,5000,15000,10000,19000,11000,14000,9500,17500],
+  meta:   [15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000],
 }
 
 export const mockObjetivoMensual = { actual: 749, objetivo: 2430 }
@@ -182,7 +184,8 @@ export const mockKpisPaises = [
     leadsActivos: 3085,   // 618+856+368+1243
     pendientes: 618, noContesta: 856, cita: 368, formulario: 1243,
     ventasTipo: [38, 28, 21],   // 38+28+21 = 87
-    barVentas: [4850, 5210, 4920, 2149], barMeta: 5430,
+    // Jun25→May26 (último mes parcial)
+    barVentas: [4200, 4500, 4750, 5100, 4700, 3900, 4600, 4900, 4850, 5210, 4920, 2149], barMeta: 5430,
   },
   {
     pais: 'Francia', flag: '🇫🇷',
@@ -192,7 +195,7 @@ export const mockKpisPaises = [
     leadsActivos: 656,    // 134+192+62+268
     pendientes: 134, noContesta: 192, cita: 62, formulario: 268,
     ventasTipo: [14, 11, 7],    // 14+11+7 = 32
-    barVentas: [1050, 1120, 980, 749], barMeta: 1245,
+    barVentas: [850, 920, 980, 1050, 980, 800, 960, 1010, 1050, 1120, 980, 749], barMeta: 1245,
   },
   {
     pais: 'Italia', flag: '🇮🇹',
@@ -202,7 +205,7 @@ export const mockKpisPaises = [
     leadsActivos: 456,    // 96+142+34+184
     pendientes: 96, noContesta: 142, cita: 34, formulario: 184,
     ventasTipo: [20, 15, 10],   // 20+15+10 = 45
-    barVentas: [1850, 2100, 1920, 1249], barMeta: 2430,
+    barVentas: [1600, 1700, 1820, 1950, 1800, 1520, 1750, 1880, 1850, 2100, 1920, 1249], barMeta: 2430,
   },
   {
     pais: 'Alemania', flag: '🇩🇪',
@@ -212,7 +215,7 @@ export const mockKpisPaises = [
     leadsActivos: 112,    // 22+32+10+48
     pendientes: 22, noContesta: 32, cita: 10, formulario: 48,
     ventasTipo: [1, 1, 1],      // 1+1+1 = 3
-    barVentas: [280, 310, 265, 119], barMeta: 400,
+    barVentas: [220, 240, 255, 280, 270, 215, 255, 275, 280, 310, 265, 119], barMeta: 400,
   },
 ]
 
@@ -272,7 +275,7 @@ export const mockPerfilLead = {
       patologias: [
         { nombre: 'Alergias alimentarias', incompatible: false },
         { nombre: 'Diabetes',            incompatible: false },
-        { nombre: 'Insuficiencia renal', incompatible: true  },
+        { nombre: 'Insuficiencia renal', incompatible: false },
       ],
     },
     {
@@ -298,7 +301,7 @@ export const mockPerfilLead = {
   ],
   fechaEntrega: '27 / 07 / 2022',
   empresaEnvio: 'GLS',
-  cuponesAplicados: ['campaña track', 'cupón pregrabado de agente'],
+  cuponesAplicados: [],
   referidos: ['AMIGO-202'],
   presupuesto: {
     plan: 'Mensualidad' as 'Prueba' | 'Mensualidad',
@@ -316,12 +319,13 @@ export const mockPerfilLead = {
     notas: 'Dejar con el portero si no hay nadie',
   },
   historial: [
-    { tipo: 'whatsapp',   texto: '[mensaje de whatsapp...]',         fecha: 'Lunes, 16 de feb. 10:00 am', entrante: true  },
-    { tipo: 'whatsapp',   texto: '[mensaje de whatsapp...]',         fecha: 'Lunes, 16 de feb. 10:00 am', entrante: false },
-    { tipo: 'recordatorio', texto: 'Avisar renovación para lorem ip…', fecha: 'Lunes, 16 de feb. 10:00 am', entrante: false },
-    { tipo: 'whatsapp',   texto: '[mensaje de whatsapp...]',         fecha: 'Lunes, 16 de feb. 10:00 am', entrante: true  },
-    { tipo: 'recordatorio', texto: 'Avisar renovación para lorem ip…', fecha: 'Lunes, 16 de feb. 10:00 am', entrante: false },
-    { tipo: 'recordatorio', texto: 'Avisar renovación para lorem ip…', fecha: 'Lunes, 16 de feb. 10:00 am', entrante: false },
+    { tipo: 'errorPago',    texto: 'Error de pago · Tarjeta · payment_intent_authentication_failure', fecha: '8/6/2026, 15:28' },
+    { tipo: 'llamada',      texto: 'Llamada saliente · 4 min 32 s',  fecha: '8/6/2026, 11:05' },
+    { tipo: 'comentario',   texto: 'Cliente interesado, pide llamar la semana que viene', fecha: '7/6/2026, 17:42' },
+    { tipo: 'whatsapp',     texto: '[mensaje de whatsapp...]',        fecha: '7/6/2026, 10:00', entrante: true  },
+    { tipo: 'llamada',      texto: 'Llamada saliente · Sin respuesta', fecha: '6/6/2026, 09:30' },
+    { tipo: 'whatsapp',     texto: '[mensaje de whatsapp...]',        fecha: '5/6/2026, 16:20', entrante: false },
+    { tipo: 'recordatorio', texto: 'Avisar renovación para lorem ip…', fecha: '4/6/2026, 10:00' },
   ],
 }
 

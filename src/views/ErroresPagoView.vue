@@ -88,27 +88,10 @@
           </template>
         </Column>
 
-        <!-- Fix — tooltip con solución -->
-        <Column header="Fix" headerStyle="width:60px" bodyStyle="width:60px; text-align:center">
-          <template #body="{ data }">
-            <InfoTooltip>
-              <button class="fix-btn" title="Ver solución">
-                <i class="pi pi-info-circle" />
-              </button>
-              <template #content>
-                <p class="itip-title">{{ data.motivoError }} <code class="itip-code">{{ data.codigoStripe }}</code></p>
-                <hr class="itip-sep" />
-                <p class="itip-row">{{ data.solucionResumen }}</p>
-                <a :href="data.solucionDocUrl" target="_blank" rel="noopener" class="itip-link">Ver doc completa de Stripe →</a>
-              </template>
-            </InfoTooltip>
-          </template>
-        </Column>
-
         <!-- Agente — solo Team Lead y Manager -->
         <Column v-if="!isAgente" header="Agente" style="min-width:130px">
           <template #body="{ data }">
-            <span class="agente-cell" v-tooltip.top="data.agente">
+            <span class="agente-cell">
               <span class="agente-avatar"><i class="pi pi-user" /></span>
               <span class="agente-name">{{ data.agente }}</span>
             </span>
@@ -132,7 +115,6 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import KpiCard from '@/components/ui/KpiCard.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
-import InfoTooltip from '@/components/ui/InfoTooltip.vue'
 import { mockErroresPago } from '@/data/mock'
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import { useAuthStore } from '@/stores/auth'
@@ -241,12 +223,4 @@ function bulkUpdate(nuevoEstado: string) {
 .infinite-sentinel { height: 32px; display: flex; align-items: center; justify-content: center; }
 .infinite-loading { font-size: 12px; color: var(--n-400); }
 
-/* Fix button — trigger for InfoTooltip */
-.fix-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 50%; border: none;
-  background: transparent; cursor: pointer;
-  color: var(--n-400, #9ca3af); transition: color 0.15s, background 0.15s;
-}
-.fix-btn:hover { color: var(--brand, #ef6948); background: var(--brand-subtle, #fdf1ed); }
 </style>

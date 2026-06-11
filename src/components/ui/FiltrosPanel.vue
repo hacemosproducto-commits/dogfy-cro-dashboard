@@ -8,7 +8,7 @@
   >
     <div class="filtros-body">
 
-      <!-- ── ESTADO ─────────────────────────── -->
+      <!-- ── ESTADO (leads — todos los roles) ── -->
       <section v-if="modo === 'leads'" class="filtros-section">
         <p class="filtros-section-label">Estado</p>
         <div class="check-grid">
@@ -19,73 +19,34 @@
         </div>
       </section>
 
+      <!-- ── PAÍS (leads — TL / Manager) ── -->
+      <section v-if="modo === 'leads' && role !== 'agente'" class="filtros-section">
+        <p class="filtros-section-label">País</p>
+        <Select
+          v-model="local.pais"
+          :options="['España', 'Francia', 'Italia', 'Alemania']"
+          placeholder="Todos los países"
+          showClear
+          class="filtros-select"
+        />
+      </section>
+
+      <!-- ── AGENTE (leads — TL / Manager) ── -->
+      <section v-if="modo === 'leads' && role !== 'agente'" class="filtros-section">
+        <p class="filtros-section-label">Agente</p>
+        <Select
+          v-model="local.agente"
+          :options="agenteNombres"
+          placeholder="Todos los agentes"
+          showClear
+          class="filtros-select"
+        />
+      </section>
+
+      <!-- ── RANGO DE FECHAS (ventas) ── -->
       <section v-if="modo === 'ventas'" class="filtros-section">
-        <p class="filtros-section-label">Plan</p>
-        <div class="check-grid">
-          <label class="check-row">
-            <Checkbox v-model="local.planes" value="Prueba" />
-            <span class="check-badge badge--prueba">Prueba</span>
-          </label>
-          <label class="check-row">
-            <Checkbox v-model="local.planes" value="Mensualidad" />
-            <span class="check-badge badge--mens">Mensualidad</span>
-          </label>
-        </div>
-      </section>
-
-      <section v-if="modo === 'errores'" class="filtros-section">
-        <p class="filtros-section-label">Tipo de error</p>
-        <div class="check-grid">
-          <label class="check-row">
-            <Checkbox v-model="local.tiposError" value="Recuperable" />
-            <span class="check-label check-label--warn">Recuperable</span>
-          </label>
-          <label class="check-row">
-            <Checkbox v-model="local.tiposError" value="No recuperable" />
-            <span class="check-label check-label--danger">No recuperable</span>
-          </label>
-        </div>
-      </section>
-
-      <!-- ── CAMPAÑA ────────────────────────── -->
-      <section class="filtros-section">
-        <p class="filtros-section-label">Campaña</p>
-        <Select
-          v-model="local.campana"
-          :options="campanaOpts"
-          placeholder="Todas las campañas"
-          showClear
-          class="filtros-select"
-        />
-      </section>
-
-      <!-- ── CUPÓN / REFERIDO (leads + ventas) -->
-      <section v-if="modo !== 'errores'" class="filtros-section">
-        <p class="filtros-section-label">Cupón / Referido</p>
-        <InputText
-          v-model="local.cupon"
-          placeholder="Ej: BIENVENIDA10"
-          class="filtros-input"
-        />
-      </section>
-
-      <!-- ── FORMA DE PAGO (errores) ─────────── -->
-      <section v-if="modo === 'errores'" class="filtros-section">
-        <p class="filtros-section-label">Forma de pago</p>
-        <Select
-          v-model="local.formaPago"
-          :options="formasPagoOpts"
-          placeholder="Todas"
-          showClear
-          class="filtros-select"
-        />
-      </section>
-
-      <!-- ── RANGO DE FECHAS Y HORA (ventas + errores) -->
-      <section v-if="modo !== 'leads'" class="filtros-section">
-        <p class="filtros-section-label">Rango de fecha y hora</p>
+        <p class="filtros-section-label">Periodo</p>
         <div class="date-range">
-          <!-- Desde -->
           <div class="date-block">
             <span class="date-block-title">Desde</span>
             <div class="date-time-row">
@@ -97,16 +58,8 @@
                 iconDisplay="input"
                 class="filtros-date filtros-date--date"
               />
-              <DatePicker
-                v-model="local.horaDesde"
-                timeOnly
-                placeholder="00:00"
-                hourFormat="24"
-                class="filtros-date filtros-date--time"
-              />
             </div>
           </div>
-          <!-- Hasta -->
           <div class="date-block">
             <span class="date-block-title">Hasta</span>
             <div class="date-time-row">
@@ -118,42 +71,7 @@
                 iconDisplay="input"
                 class="filtros-date filtros-date--date"
               />
-              <DatePicker
-                v-model="local.horaHasta"
-                timeOnly
-                placeholder="23:59"
-                hourFormat="24"
-                class="filtros-date filtros-date--time"
-              />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── IMPORTE (ventas) ───────────────── -->
-      <section v-if="modo === 'ventas'" class="filtros-section">
-        <p class="filtros-section-label">Importe</p>
-        <div class="range-row">
-          <div class="range-field">
-            <label class="date-label">Mínimo (€)</label>
-            <InputNumber
-              v-model="local.importeMin"
-              placeholder="0"
-              :min="0"
-              :inputStyle="{ width: '100%' }"
-              class="filtros-number"
-            />
-          </div>
-          <div class="range-sep">—</div>
-          <div class="range-field">
-            <label class="date-label">Máximo (€)</label>
-            <InputNumber
-              v-model="local.importeMax"
-              placeholder="999"
-              :min="0"
-              :inputStyle="{ width: '100%' }"
-              class="filtros-number"
-            />
           </div>
         </div>
       </section>
@@ -188,10 +106,10 @@ import Drawer from 'primevue/drawer'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Select from 'primevue/select'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
 import DatePicker from 'primevue/datepicker'
 import Tag from 'primevue/tag'
+import { useAuthStore } from '@/stores/auth'
+import { mockAgentes } from '@/data/mock'
 
 export interface FiltrosValue {
   estados:    string[]
@@ -200,6 +118,8 @@ export interface FiltrosValue {
   campana:    string
   cupon:      string
   formaPago:  string
+  pais:       string
+  agente:     string
   fechaDesde: Date | null
   fechaHasta: Date | null
   horaDesde:  Date | null
@@ -218,6 +138,9 @@ const emit = defineEmits<{
 
 const visible = defineModel<boolean>('visible', { default: false })
 
+const auth = useAuthStore()
+const role = computed(() => auth.currentRole)
+
 // ── Opciones ──────────────────────────────────────
 const estadoLeadsOpts = [
   { value: 'Pendiente',      label: 'Pendiente',    sev: 'success'   },
@@ -228,13 +151,7 @@ const estadoLeadsOpts = [
   { value: 'Venta',          label: 'Venta',        sev: 'success'   },
 ]
 
-const campanaOpts = computed(() =>
-  props.modo === 'leads' || props.modo === 'ventas'
-    ? ['Black Friday 2025', 'Halloween 2025', 'Verano 2025', 'Navidad 2024', 'San Valentín 2025']
-    : ['Black Friday 2025', 'Halloween 2025', 'Verano 2025']
-)
-
-const formasPagoOpts = ['Visa', 'Mastercard', 'PayPal', 'Apple Pay']
+const agenteNombres = computed(() => mockAgentes.map((a: any) => a.nombre))
 
 // ── Estado local ──────────────────────────────────
 function emptyFilters(): FiltrosValue {
@@ -245,6 +162,8 @@ function emptyFilters(): FiltrosValue {
     campana:    '',
     cupon:      '',
     formaPago:  '',
+    pais:       '',
+    agente:     '',
     fechaDesde: null,
     fechaHasta: null,
     horaDesde:  null,
@@ -260,24 +179,18 @@ watch(visible, v => { if (v) local.value = emptyFilters() })
 
 const hasActiveFilters = computed(() => {
   const f = local.value
-  return f.estados.length > 0 || f.planes.length > 0 || f.tiposError.length > 0
-    || !!f.campana || !!f.cupon || !!f.formaPago
+  return f.estados.length > 0
+    || !!f.pais || !!f.agente
     || f.fechaDesde !== null || f.fechaHasta !== null
-    || f.horaDesde !== null  || f.horaHasta !== null
-    || f.importeMin !== null || f.importeMax !== null
 })
 
 const activeCount = computed(() => {
   const f = local.value
   let c = 0
-  if (f.estados.length)    c++
-  if (f.planes.length)     c++
-  if (f.tiposError.length) c++
-  if (f.campana)           c++
-  if (f.cupon)             c++
-  if (f.formaPago)         c++
-  if (f.fechaDesde || f.fechaHasta || f.horaDesde || f.horaHasta) c++
-  if (f.importeMin !== null || f.importeMax !== null) c++
+  if (f.estados.length)            c++
+  if (f.pais)                      c++
+  if (f.agente)                    c++
+  if (f.fechaDesde || f.fechaHasta) c++
   return c
 })
 

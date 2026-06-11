@@ -80,22 +80,7 @@
             <div class="perro-section">
               <p class="perro-line perro-line--gr">
                 <span class="perro-plan-label">{{ isMixto ? 'Plan mixto' : 'Plan completo' }}:</span>
-                <template v-if="perroGrData(perro.nombre).active">
-                  <span class="gr-override-wrap">
-                    {{ isMixto ? Math.round(perroGrData(perro.nombre).valor / 2) : perroGrData(perro.nombre).valor }}g/día<span class="gr-asterisk-badge">*
-                      <span class="gr-asterisk-tip">
-                        <strong>Override activo</strong>
-                        <span>Ajustado: {{ isMixto ? Math.round(perroGrData(perro.nombre).valor / 2) : perroGrData(perro.nombre).valor }}g/día</span>
-                        <span>Algoritmo: {{ isMixto ? Math.round(perroGrData(perro.nombre).algo / 2) : perroGrData(perro.nombre).algo }}g/día</span>
-                        <span>Δ {{ perroGrData(perro.nombre).delta > 0 ? '+' : '' }}{{ isMixto ? Math.round(perroGrData(perro.nombre).delta / 2) : perroGrData(perro.nombre).delta }}g</span>
-                      </span>
-                    </span>
-                    <span class="gr-delta-chip">
-                      Δ {{ perroGrData(perro.nombre).delta > 0 ? '+' : '' }}{{ isMixto ? Math.round(perroGrData(perro.nombre).delta / 2) : perroGrData(perro.nombre).delta }}g vs algoritmo
-                    </span>
-                  </span>
-                </template>
-                <template v-else>{{ isMixto ? Math.round(parseInt(perro.gDia) / 2) + 'g/día' : perro.gDia }}</template>
+                {{ isMixto ? Math.round(parseInt(perro.gDia) / 2) + 'g/día' : perro.gDia }}
               </p>
               <p class="perro-line">Menús: {{ perro.menus.join(', ') }}</p>
             </div>
@@ -108,33 +93,10 @@
             <hr class="card-divider" />
             <div class="perro-section">
               <p class="perro-line">Actividad: {{ capitalize(perro.nivelActividad) }} · Esterilizado: {{ perro.esterilizado }}</p>
-              <p class="perro-line bold">Patologías:</p>
-              <div class="patologias">
-                <InfoTooltip
-                  v-for="(p, i) in perro.patologias"
-                  :key="i"
-                >
-                  <Tag
-                    :value="p.nombre"
-                    :severity="p.incompatible ? 'danger' : 'info'"
-                    :icon="p.incompatible ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"
-                  />
-                  <template #content>
-                    <template v-if="p.incompatible">
-                      <p class="itip-title itip-title--error">⚠ Incompatible con Dogfy</p>
-                      <hr class="itip-sep" />
-                      <p class="itip-row">{{ incompatReason(p.nombre) }}</p>
-                      <p class="itip-row">La fórmula estándar no puede adaptarse a esta patología.</p>
-                      <a href="https://help.dogfydiet.com/patologias" target="_blank" rel="noopener" class="itip-link">Ver más en Help Center →</a>
-                    </template>
-                    <template v-else>
-                      <p class="itip-title" style="color: var(--n-800)">✓ Compatible con Dogfy</p>
-                      <hr class="itip-sep" />
-                      <p class="itip-row">{{ compatReason(p.nombre) }}</p>
-                    </template>
-                  </template>
-                </InfoTooltip>
-              </div>
+              <p class="perro-line">
+                <span class="perro-patologias-label">Patologías:</span>
+                {{ perro.patologias.length ? perro.patologias.map(p => p.nombre).join(', ') : 'Ninguna' }}
+              </p>
             </div>
           </SectionCard>
           <Button label="Añade otro perro" icon="pi pi-plus-circle" severity="secondary" outlined size="small" class="add-btn" @click="openNuevoPerro" />
@@ -212,12 +174,10 @@
               <span
                 v-for="(c, i) in lead.cuponesAplicados"
                 :key="i"
-                class="chip-pv"
-                :class="i === 0 ? 'chip-pv--readonly' : 'chip-pv--success'"
+                class="chip-pv chip-pv--success"
               >
                 {{ c }}
-                <i v-if="i > 0" class="pi pi-times remove-x" />
-                <i v-else class="pi pi-lock readonly-icon" title="Solo lectura" />
+                <i class="pi pi-times remove-x" />
               </span>
             </div>
           </SectionCard>
@@ -267,49 +227,14 @@
               <tbody>
                 <tr v-for="(it, i) in lead.presupuesto.items" :key="i">
                   <td>{{ it.perro }}</td>
-                  <td>
-                    <template v-if="overrideEnabled">
-                      <div class="gr-cell">
-                        <div class="gr-input-row">
-                          <InputNumber
-                            :modelValue="getGr(i)"
-                            @update:modelValue="setGr(i, $event)"
-                            :min="1" :max="9999"
-                            inputClass="gr-inp"
-                            suffix="g"
-                          />
-                          <span
-                            class="gr-chain"
-                            :class="{ 'gr-chain--override': displayGr[i] !== displayAlgo[i] }"
-                            :title="displayGr[i] !== displayAlgo[i] ? 'Override activo: ' + displayGr[i] + 'g (alg: ' + displayAlgo[i] + 'g)' : 'Sigue el algoritmo: ' + displayAlgo[i] + 'g'"
-                          >
-                            <i class="pi pi-link" />
-                          </span>
-                        </div>
-                        <span
-                          v-if="displayGr[i] !== displayAlgo[i]"
-                          :class="['gr-delta', displayGr[i] > displayAlgo[i] ? 'gr-delta--up' : 'gr-delta--down']"
-                        >{{ displayGr[i] > displayAlgo[i] ? '+' : '' }}{{ displayGr[i] - displayAlgo[i] }}g vs alg.</span>
-                      </div>
-                    </template>
-                    <template v-else>{{ displayGr[i] }}g</template>
-                  </td>
+                  <td>{{ isMixto ? Math.round(parseInt(it.grDia) / 2) + 'g' : it.grDia }}</td>
                   <td>{{ isMixto ? halveQty(it.cantidad) : it.cantidad }}</td>
                   <td>{{ isMixto ? halveTamano(it.tamano) : it.tamano }}</td>
                   <td>{{ isMixto ? fmtEur(parseEur(it.base) / 2) : it.base }}</td>
                 </tr>
                 <tr class="total-row">
                   <td>Total:</td>
-                  <td>
-                    <template v-if="overrideEnabled">
-                      <span>{{ displayGrTotal }}g</span>
-                      <span v-if="displayGrTotal !== displayAlgo.reduce((s,v)=>s+v,0)"
-                            :class="['gr-delta', 'gr-delta--neutral']">
-                        (alg: {{ displayAlgo.reduce((s,v)=>s+v,0) }}g)
-                      </span>
-                    </template>
-                    <template v-else>{{ isMixto ? Math.round(parseInt(lead.presupuesto.total.grDia) / 2) + 'g' : lead.presupuesto.total.grDia }}</template>
-                  </td>
+                  <td>{{ isMixto ? Math.round(parseInt(lead.presupuesto.total.grDia) / 2) + 'g' : lead.presupuesto.total.grDia }}</td>
                   <td>{{ isMixto ? halveQty(lead.presupuesto.total.cantidad) : lead.presupuesto.total.cantidad }}</td>
                   <td>{{ isMixto ? halveTamano(lead.presupuesto.total.tamano) : lead.presupuesto.total.tamano }}</td>
                   <td>{{ isMixto ? fmtEur(parseEur(lead.presupuesto.total.base) / 2) : lead.presupuesto.total.base }}</td>
@@ -318,18 +243,10 @@
             </table>
 
             <!-- Acciones comerciales centralizadas dentro del Presupuesto -->
-            <div v-if="leadIncompatible" class="incompat-notice">
-              <i class="pi pi-ban" />
-              <div>
-                <span class="incompat-notice-title">Venta bloqueada</span>
-                <span class="incompat-notice-sub">Uno o más perros tienen una patología incompatible con Dogfy Diet.</span>
-              </div>
-            </div>
             <div class="presu-actions">
-              <Button label="Enviar presupuesto" class="full-btn cta-primary" :disabled="leadIncompatible" @click="handleEnviarPresupuesto" />
-              <Button label="Formulario de pago" severity="secondary" outlined class="full-btn" :disabled="leadIncompatible" />
-              <Button label="Pago con tarjeta" severity="secondary" outlined class="full-btn" :disabled="leadIncompatible" />
-              <Button label="Bizum" severity="secondary" outlined class="full-btn" :disabled="leadIncompatible" />
+              <Button label="Enviar presupuesto" class="full-btn cta-primary" @click="handleEnviarPresupuesto" />
+              <Button label="Formulario de pago" severity="secondary" outlined class="full-btn" />
+              <Button label="Pago con tarjeta" severity="secondary" outlined class="full-btn" />
               <!-- TPV: solo visible cuando el agente está en modo feria -->
               <Button
                 v-if="isAgenteEnFeria"
@@ -338,7 +255,6 @@
                 severity="warning"
                 outlined
                 class="full-btn tpv-btn"
-                :disabled="leadIncompatible"
               />
             </div>
 
@@ -415,7 +331,7 @@
 import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
+
 import Tag from 'primevue/tag'
 import Select from 'primevue/select'
 import SelectButton from 'primevue/selectbutton'
@@ -424,7 +340,7 @@ import Toast from 'primevue/toast'
 import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
 import SectionCard from '@/components/ui/SectionCard.vue'
-import InfoTooltip from '@/components/ui/InfoTooltip.vue'
+
 import CrearLeadModal from '@/components/leads/CrearLeadModal.vue'
 import EditarPerroModal from '@/components/leads/EditarPerroModal.vue'
 import EditarLeadModal from '@/components/leads/EditarLeadModal.vue'
@@ -614,70 +530,6 @@ const presuMensual = computed(() => {
   const prec = parseEur(m.precio)
   return { ...m, precioOriginal: fmtEur(orig / 2), precio: fmtEur(prec / 2) + ' ' }
 })
-// Display gramaje efectivo en tabla (grOverride × factor)
-const displayGr = computed(() =>
-  grOverrides.value.map(v => isMixto.value ? Math.round(v / 2) : v)
-)
-const displayGrTotal = computed(() =>
-  displayGr.value.reduce((s, v) => s + v, 0)
-)
-// Display valor del algoritmo (también ajustado al factor mixto)
-const displayAlgo = computed(() =>
-  grAlgo.value.map(v => isMixto.value ? Math.round(v / 2) : v)
-)
-
-// Getters/setters para el InputNumber — en mixto muestra mitad y guarda el doble
-function getGr(i: number): number {
-  return displayGr.value[i]
-}
-function setGr(i: number, val: number | null) {
-  if (val == null) return
-  grOverrides.value[i] = isMixto.value ? val * 2 : val
-}
-
-// ── Override de gramaje ───────────────────────────
-// TODO: conectar al config de país cuando exista store global
-const overrideEnabled = ref(true)  // demo: true; en prod leer de ConfiguracionView store
-
-const grAlgo = ref<number[]>(lead.presupuesto.items.map(it => parseInt(it.grDia)))
-const grOverrides = ref<number[]>([...grAlgo.value])
-
-// ── Gramaje override por perro — para sincronizar la card del perro con el presupuesto ──
-function perroGrData(nombre: string): { active: boolean; valor: number; algo: number; delta: number } {
-  const idx = lead.presupuesto.items.findIndex(it => it.perro === nombre)
-  if (idx === -1 || !overrideEnabled.value) return { active: false, valor: 0, algo: 0, delta: 0 }
-  const algo  = grAlgo.value[idx]
-  const valor = grOverrides.value[idx]
-  return { active: valor !== algo, valor, algo, delta: valor - algo }
-}
-
-// ── Razones de incompatibilidad por patología ─────
-const INCOMPAT_REASONS: Record<string, string> = {
-  'Insuficiencia renal':   'El exceso de proteína animal acelera el daño glomerular.',
-  'Enfermedad renal':      'El exceso de proteína animal acelera el daño glomerular.',
-  'Insuficiencia hepática':'El hígado no puede metabolizar la carga proteica estándar.',
-  'Pancreatitis':          'La grasa animal en la fórmula puede desencadenar episodios agudos.',
-}
-function incompatReason(nombre: string): string {
-  return INCOMPAT_REASONS[nombre] ?? 'Esta patología presenta contraindicaciones directas con nuestra fórmula.'
-}
-
-// ── Razones de compatibilidad por patología ────────
-const COMPAT_REASONS: Record<string, string> = {
-  'Diabetes':             'Sin cereales ni azúcares añadidos — ayuda a estabilizar la glucemia y reduce los picos de insulina.',
-  'Artritis':             'La proteína de alta digestibilidad y los omega-3 apoyan la salud articular y reducen la inflamación.',
-  'Obesidad':             'Gramaje ajustado al peso objetivo del perro. Control preciso de calorías sin dieta de golpe.',
-  'Epilepsia':            'La dieta no interfiere con la medicación antiepiléptica. Coordinamos con el veterinario si es necesario.',
-  'Alergias alimentarias':'Excluimos los alérgenos identificados y formulamos con proteínas alternativas seguras.',
-}
-function compatReason(nombre: string): string {
-  return COMPAT_REASONS[nombre] ?? 'Esta condición es compatible con nuestra fórmula. Adaptamos el plan si el veterinario lo recomienda.'
-}
-
-// ── Incompatibilidad global del lead ──────────────
-const leadIncompatible = computed(() =>
-  lead.perros.some(dog => dog.patologias.some((p: { incompatible: boolean }) => p.incompatible))
-)
 
 // Edición:
 //  - Estado: editable para TODOS los roles
@@ -732,7 +584,7 @@ function cancelNoInteresa() {
 
 // ── Helpers para perros nuevos / editados ─────────
 const MESES_LOCAL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
-const PATOLOGIAS_INCOMPATIBLES = new Set(['Insuficiencia renal', 'Insuficiencia hepática', 'Pancreatitis'])
+
 
 function calcEdad(cumplMes: string, cumplAno: string): string {
   const mesIdx = MESES_LOCAL.indexOf(cumplMes)
@@ -788,7 +640,7 @@ function handleSavePerro(formData: any) {
       cumplAno:      formData.cumplAno || '',
       patologias:    (formData.patologias as string[]).map(n => ({
         nombre: n,
-        incompatible: PATOLOGIAS_INCOMPATIBLES.has(n),
+        incompatible: false,
       })),
     }
     lead.perros.push(newPerro)
@@ -837,8 +689,6 @@ function handleDeletePerro() {
   const presIdx = lead.presupuesto.items.findIndex(it => it.perro === perroNombre)
   if (presIdx !== -1) {
     lead.presupuesto.items.splice(presIdx, 1)
-    grAlgo.value.splice(presIdx, 1)
-    grOverrides.value.splice(presIdx, 1)
   }
   lead.perros.splice(idx, 1)
   showEditarPerro.value = false
@@ -846,37 +696,25 @@ function handleDeletePerro() {
 
 // ── Enviar presupuesto ────────────────────────────
 function handleEnviarPresupuesto() {
-  // Construye el payload final aplicando los overrides de gramaje
-  const itemsFinales = lead.presupuesto.items.map((it, i) => ({
-    perro:    it.perro,
-    grDia:    overrideEnabled.value ? grOverrides.value[i] : parseInt(it.grDia),
-    grAlgo:   grAlgo.value[i],
-    override: overrideEnabled.value && grOverrides.value[i] !== grAlgo.value[i],
-    cantidad: it.cantidad,
-    tamano:   it.tamano,
-    base:     it.base,
-  }))
   const payload = {
     leadId:    lead.id,
     plan:      planTipo.value,
     cupon:     lead.cuponesAplicados,
     referidos: lead.referidos,
-    items:     itemsFinales,
-    overrides: itemsFinales.filter(it => it.override).map(it => ({
-      perro: it.perro, grFinal: it.grDia, grAlgo: it.grAlgo,
-      delta: it.grDia - it.grAlgo,
+    items:     lead.presupuesto.items.map(it => ({
+      perro:    it.perro,
+      grDia:    parseInt(it.grDia),
+      cantidad: it.cantidad,
+      tamano:   it.tamano,
+      base:     it.base,
     })),
   }
   // TODO: llamar a la API real con el payload
   console.info('[Presupuesto] payload enviado:', payload)
-
-  const hasOverrides = payload.overrides.length > 0
   toast.add({
     severity: 'success',
     summary: 'Presupuesto enviado',
-    detail: hasOverrides
-      ? `${planTipo.value} · ${payload.overrides.map(o => `${o.perro}: ${o.grFinal}g (${o.delta > 0 ? '+' : ''}${o.delta}g vs alg.)`).join(' · ')}`
-      : `${planTipo.value} · gramaje según algoritmo`,
+    detail:  `${planTipo.value} · gramaje según algoritmo`,
     life: 5000,
   })
 }
@@ -1005,50 +843,9 @@ function handleEnviarPresupuesto() {
   background: var(--n-100) !important;
 }
 
-/* ── Override gramaje — asterisco + chip delta en card perro ── */
-.gr-override-wrap {
-  display: inline-flex; align-items: baseline; gap: 6px; position: relative;
-  flex-wrap: wrap;
-}
-/* Línea de gramaje — flex para label + valor inline */
+/* Línea de gramaje */
 .perro-line--gr { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 .perro-plan-label { font-size: 12px; color: var(--n-500); font-weight: 500; flex-shrink: 0; }
-
-/* Chip delta visible — azul informativo (override no es necesariamente malo, puede ser
-   la decisión correcta para ese perro específico) */
-.gr-delta-chip {
-  display: inline-flex; align-items: center;
-  background: #CFFAFE; color: #0e7490;
-  font-size: 11px; font-weight: 600;
-  padding: 2px 8px; border-radius: 6px;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-.gr-asterisk-badge {
-  position: relative; display: inline-block;
-  font-size: 11px; font-weight: 700; color: var(--brand, #ef6948);
-  top: -3px; cursor: default; line-height: 1;
-}
-.gr-asterisk-tip {
-  display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0; transform: none;
-  width: 170px;
-  background: #fff;
-  border: 1px solid var(--n-200);
-  border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.10);
-  padding: 8px 10px;
-  flex-direction: column; gap: 3px;
-  z-index: 300; pointer-events: none;
-  white-space: normal; text-align: left;
-}
-.gr-asterisk-badge:hover .gr-asterisk-tip { display: flex; }
-.gr-asterisk-tip strong { font-size: 11px; color: var(--brand, #ef6948); }
-.gr-asterisk-tip span   { font-size: 11px; color: var(--n-600); line-height: 1.5; }
-
-/* patologias: wrap uses InfoTooltip component (see InfoTooltip.vue for shared styles) */
 
 /* ── Perro card ── */
 .svg-icon { width: 18px; height: 18px; vertical-align: middle; }
@@ -1056,16 +853,7 @@ function handleEnviarPresupuesto() {
 .perro-line { font-size: 13px; color: var(--n-700, #2b2b2b); margin: 0; line-height: 1.6; }
 .perro-line.bold { font-weight: 600; margin-top: 4px; }
 .card-divider { border: none; border-top: 1px solid var(--n-150, #ebedf2); margin: 8px 0; }
-.patologias { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.incompat-notice {
-  display: flex; align-items: flex-start; gap: 10px;
-  background: #fff1f0; border-radius: 8px; padding: 10px 12px;
-  color: #c8452a; margin-bottom: 8px;
-}
-.incompat-notice .pi { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-.incompat-notice > div { display: flex; flex-direction: column; gap: 2px; }
-.incompat-notice-title { font-size: 13px; font-weight: 700; }
-.incompat-notice-sub   { font-size: 12px; line-height: 1.4; }
+.perro-patologias-label { font-weight: 600; margin-right: 2px; }
 
 /* ── Lead card ── */
 .lead-meta p { font-size: 13px; margin: 4px 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -1108,8 +896,6 @@ function handleEnviarPresupuesto() {
 /* Chips PrimeVue-like para cupones / referidos */
 .chip-pv { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
 .chip-pv--success { background: var(--success-bg); color: #15803d; }
-.chip-pv--readonly { background: var(--n-100); color: var(--n-500); cursor: not-allowed; }
-.readonly-icon { font-size: 10px; opacity: 0.6; }
 
 /* ── Presupuesto ── */
 .highlight-card { }
@@ -1142,16 +928,6 @@ function handleEnviarPresupuesto() {
 .full-btn { width: 100%; }
 .cta-primary { background: var(--brand) !important; border-color: var(--brand) !important; color: #fff !important; }
 
-/* Disabled override — aplica a todos los botones de acción cuando la venta está bloqueada */
-.presu-actions :deep(.p-button:disabled),
-.presu-actions :deep(.p-button[data-p-disabled="true"]) {
-  background: var(--n-100) !important;
-  border-color: var(--n-200) !important;
-  color: var(--n-400) !important;
-  opacity: 1 !important;
-  cursor: not-allowed !important;
-  pointer-events: none;
-}
 .tpv-btn { border-color: var(--warning) !important; color: var(--warning) !important; }
 .tpv-btn:hover { background: var(--warning-bg) !important; }
 .feria-notice {
@@ -1161,37 +937,6 @@ function handleEnviarPresupuesto() {
   background: var(--warning-bg); border-radius: 6px;
 }
 
-/* Gramaje override — icono de cadena por fila */
-.gr-cell { display: flex; flex-direction: column; gap: 3px; }
-.gr-input-row { display: flex; align-items: center; gap: 6px; }
-.gr-input-row :deep(.gr-inp) { width: 68px; font-size: 12px; padding: 4px 6px; }
-
-/* Cadena: intacta = algoritmo, rota = override */
-.gr-chain {
-  position: relative;
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 18px; height: 18px; flex-shrink: 0;
-  color: var(--n-300);
-  transition: color 0.15s;
-  cursor: default;
-}
-.gr-chain--override { color: var(--brand, #ef6948); }
-.gr-chain--override::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  width: 16px; height: 1.5px;
-  background: var(--brand, #ef6948);
-  border-radius: 1px;
-}
-
-/* Delta de override en tabla presupuesto — mismo color azul informativo que el chip de la card.
-   No diferenciamos +/- porque el override puede ser una decisión válida en ambos sentidos. */
-.gr-delta { font-size: 10px; font-weight: 600; align-self: flex-start; padding: 2px 7px; border-radius: 6px; line-height: 1.4; }
-.gr-delta--up,
-.gr-delta--down    { background: #CFFAFE; color: #0e7490; }
-.gr-delta--neutral { background: var(--n-100); color: var(--n-500); font-weight: 400; }
 
 /* ── Add btn ── */
 .add-btn { align-self: flex-start; }

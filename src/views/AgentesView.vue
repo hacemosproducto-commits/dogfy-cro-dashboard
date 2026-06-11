@@ -23,23 +23,6 @@
     <!-- Tabla Mi equipo -->
     <SectionCard v-if="tab === 'equipo'" class="table-card">
 
-      <!-- Bulk action bar — visible cuando hay selección -->
-      <Transition name="bulk-bar">
-        <div v-if="selectedIds.size > 0" class="bulk-bar">
-          <span class="bulk-count">
-            <i class="pi pi-check-square" />
-            {{ selectedIds.size }} {{ selectedIds.size === 1 ? 'agente' : 'agentes' }} seleccionados
-          </span>
-          <div class="bulk-actions">
-            <Button label="Asignar leads"  icon="pi pi-users"        size="small" outlined @click="openBulkAsignar" />
-            <Button label="Disponible"     icon="pi pi-check-circle" size="small" outlined @click="setBulkDisponible(true)" />
-            <Button label="No disponible"  icon="pi pi-ban"          size="small" outlined @click="setBulkDisponible(false)" />
-            <Button label="Modo offline"   icon="pi pi-power-off"    size="small" outlined @click="showBulkOffline = true" />
-          </div>
-          <Button icon="pi pi-times" text rounded size="small" class="bulk-clear" title="Limpiar selección" @click="selectedIds.clear(); selectedIds = new Set(selectedIds)" />
-        </div>
-      </Transition>
-
       <div class="section-toolbar">
         <span class="table-hint">Scroll horizontal para ver todas las métricas</span>
         <span class="spacer" />
@@ -65,29 +48,7 @@
         removable-sort
         @sort="onSort"
         @row-click="goToAgente"
-        @row-contextmenu="onRowContextMenu"
-        contextMenu
       >
-        <!-- ── Checkbox column ── -->
-        <Column frozen style="width:44px; padding-right:0">
-          <template #header>
-            <Checkbox
-              :modelValue="allSelected"
-              :binary="true"
-              @update:modelValue="toggleSelectAll"
-              @click.stop
-            />
-          </template>
-          <template #body="{ data }">
-            <Checkbox
-              :modelValue="selectedIds.has(data.id)"
-              :binary="true"
-              @update:modelValue="toggleSelect(data.id)"
-              @click.stop
-            />
-          </template>
-        </Column>
-
         <!-- ── Columnas fijas ── -->
         <Column field="nombre" header="Agente" frozen style="min-width:200px" sortable>
           <template #body="{ data }">
@@ -98,7 +59,6 @@
                   class="presence-dot"
                   :class="{
                     'presence-dot--offline': offlineStore.isOffline(data.id),
-                    'presence-dot--away':    !offlineStore.isOffline(data.id) && noDisponibles.has(data.id),
                   }"
                 />
               </div>
@@ -143,88 +103,20 @@
 
   </div>
 
-  <!-- Modal Asignar leads (individual o bulk) -->
-  <AsignarLeadsModal
-    v-model:visible="showAsignacion"
-    :preselectAgenteIds="bulkAsignarIds"
-  />
+  <!-- Modal Asignar leads -->
+  <AsignarLeadsModal v-model:visible="showAsignacion" />
 
   <!-- Panel filtros agentes -->
   <FiltrosAgentesPanel v-model:visible="showFiltros" @apply="onFiltrosAplicados" />
-
-  <!-- Context menu (right-click en fila) -->
-  <ContextMenu ref="cm" :model="contextMenuItems" />
-
-  <!-- Modal bulk offline -->
-  <Dialog
-    v-model:visible="showBulkOffline"
-    modal
-    :style="{ width: '480px', maxWidth: '95vw' }"
-    :pt="{ header: { style: 'border-bottom: 1px solid var(--n-150)' } }"
-  >
-    <template #header>
-      <div class="modal-header">
-        <span class="modal-icon-offline">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
-            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-            <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/>
-            <path d="M2 7h20"/>
-            <path d="M22 7v3a2 2 0 0 1-2 2 2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>
-          </svg>
-        </span>
-        <div>
-          <div class="modal-title">Modo offline</div>
-          <div class="modal-subtitle">{{ selectedIds.size }} agentes seleccionados</div>
-        </div>
-      </div>
-    </template>
-
-    <div class="bulk-offline-body">
-      <div class="field">
-        <label class="field-label">Nombre del evento <span class="optional">(opcional)</span></label>
-        <InputText v-model="bulkEventName" placeholder="Ej. Feria Mascota Madrid 2026" class="w-full" />
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label class="field-label">Desde</label>
-          <DatePicker v-model="bulkStart" showTime hourFormat="24" dateFormat="dd/mm/yy" :minDate="new Date()" class="w-full" />
-        </div>
-        <div class="field">
-          <label class="field-label">Hasta</label>
-          <DatePicker v-model="bulkEnd" showTime hourFormat="24" dateFormat="dd/mm/yy" :minDate="bulkStart ?? new Date()" class="w-full" />
-        </div>
-      </div>
-      <div v-if="bulkStart && bulkEnd" class="resumen-box">
-        <i class="pi pi-clock" />
-        <span>Modo offline del {{ fmtDate(bulkStart) }} al {{ fmtDate(bulkEnd) }}</span>
-      </div>
-    </div>
-
-    <template #footer>
-      <Button label="Cancelar" severity="secondary" outlined @click="showBulkOffline = false" />
-      <Button
-        label="Activar modo offline"
-        icon="pi pi-power-off"
-        :disabled="!bulkStart || !bulkEnd"
-        @click="confirmBulkOffline"
-      />
-    </template>
-  </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AgentAvatar from '@/components/ui/AgentAvatar.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
-import Checkbox from 'primevue/checkbox'
-import Dialog from 'primevue/dialog'
-import ContextMenu from 'primevue/contextmenu'
-import InputText from 'primevue/inputtext'
-import DatePicker from 'primevue/datepicker'
 import KpiCard from '@/components/ui/KpiCard.vue'
 import SectionCard from '@/components/ui/SectionCard.vue'
 import AsignarLeadsModal from '@/components/leads/AsignarLeadsModal.vue'
@@ -245,107 +137,7 @@ function goToAgente(e: { data: { id: string } }) {
   router.push(`/agentes/${e.data.id}`)
 }
 
-// ── Multi-select ──────────────────────────────────
-let selectedIds = reactive(new Set<string>())
-
-const allSelected = computed(() =>
-  sortedAgentes.value.length > 0 &&
-  sortedAgentes.value.every(a => selectedIds.has(a.id))
-)
-
-function toggleSelect(id: string) {
-  if (selectedIds.has(id)) selectedIds.delete(id)
-  else selectedIds.add(id)
-}
-
-function toggleSelectAll(val: boolean) {
-  if (val) sortedAgentes.value.forEach(a => selectedIds.add(a.id))
-  else selectedIds.clear()
-}
-
-// ── Disponibilidad (mock state) ───────────────────
-const noDisponibles = reactive(new Set<string>())
-
-function setBulkDisponible(disponible: boolean) {
-  selectedIds.forEach(id => {
-    if (disponible) noDisponibles.delete(id)
-    else noDisponibles.add(id)
-  })
-  selectedIds.clear()
-}
-
-// ── Bulk Asignar leads ────────────────────────────
 const showAsignacion = ref(false)
-const bulkAsignarIds = ref<string[]>([])
-
-function openBulkAsignar() {
-  bulkAsignarIds.value = [...selectedIds]
-  showAsignacion.value = true
-}
-
-// ── Context menu (right-click) ────────────────────
-const cm = ref<InstanceType<typeof ContextMenu> | null>(null)
-
-function onRowContextMenu(e: any) {
-  // If the right-clicked row isn't in the selection, replace selection with just it
-  if (!selectedIds.has(e.data.id)) {
-    selectedIds.clear()
-    selectedIds.add(e.data.id)
-  }
-  cm.value?.show(e.originalEvent)
-}
-
-const contextMenuItems = computed(() => [
-  {
-    label: 'Asignar leads',
-    icon: 'pi pi-users',
-    command: () => openBulkAsignar(),
-  },
-  {
-    label: 'Marcar disponible',
-    icon: 'pi pi-check-circle',
-    command: () => setBulkDisponible(true),
-  },
-  {
-    label: 'Marcar no disponible',
-    icon: 'pi pi-ban',
-    command: () => setBulkDisponible(false),
-  },
-  { separator: true },
-  {
-    label: 'Modo offline',
-    icon: 'pi pi-power-off',
-    command: () => { showBulkOffline.value = true },
-  },
-])
-
-// ── Bulk Offline ──────────────────────────────────
-const showBulkOffline = ref(false)
-const bulkEventName   = ref('')
-const bulkStart       = ref<Date | null>(null)
-const bulkEnd         = ref<Date | null>(null)
-
-function confirmBulkOffline() {
-  if (!bulkStart.value || !bulkEnd.value) return
-  selectedIds.forEach(id => {
-    offlineStore.activarFeria({
-      agenteId: id,
-      eventName: bulkEventName.value || 'Evento offline',
-      startDate: bulkStart.value!,
-      endDate:   bulkEnd.value!,
-      activatedBy: 'team_lead',
-    })
-  })
-  showBulkOffline.value = false
-  bulkEventName.value = ''
-  bulkStart.value = null
-  bulkEnd.value   = null
-  selectedIds.clear()
-}
-
-function fmtDate(d: Date): string {
-  return offlineStore.formatEndDate(d)
-}
 
 // ── Sorting ───────────────────────────────────────
 const sortField = ref<string>('')
@@ -409,25 +201,6 @@ const sortedAgentes = computed(() => {
 .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .table-card { display: flex; flex-direction: column; }
 
-/* ── Bulk action bar ───────────────────────────── */
-.bulk-bar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  background: #F0FDFA;
-  border-radius: 8px; padding: 8px 12px; margin-bottom: 10px;
-}
-.bulk-count {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 600; color: var(--n-700);
-  white-space: nowrap;
-}
-.bulk-count i { font-size: 14px; }
-.bulk-actions { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
-.bulk-clear   { margin-left: auto; flex-shrink: 0; }
-
-/* Transition */
-.bulk-bar-enter-active, .bulk-bar-leave-active { transition: all 0.2s ease; }
-.bulk-bar-enter-from, .bulk-bar-leave-to { opacity: 0; transform: translateY(-6px); }
-
 /* ── Table ─────────────────────────────────────── */
 .section-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
 .section-toolbar .spacer { flex: 1; }
@@ -466,27 +239,4 @@ const sortedAgentes = computed(() => {
 }
 :deep(.agentes-table .p-datatable-tbody > tr) { cursor: pointer; }
 
-/* ── Bulk offline modal ────────────────────────── */
-.modal-header  { display: flex; align-items: flex-start; gap: 12px; }
-.modal-icon-offline {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--n-100); color: var(--n-600);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.modal-title    { font-size: 15px; font-weight: 700; color: var(--n-900); }
-.modal-subtitle { font-size: 12px; color: var(--n-500); margin-top: 2px; }
-
-.bulk-offline-body { display: flex; flex-direction: column; gap: 16px; padding-top: 16px; }
-.field      { display: flex; flex-direction: column; gap: 6px; }
-.field-label { font-size: 12px; font-weight: 600; color: var(--n-600); }
-.optional    { font-weight: 400; color: var(--n-400); }
-.w-full      { width: 100%; }
-.field-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.resumen-box {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--warning-bg); border: 1px solid #f0d080;
-  border-radius: 8px; padding: 10px 12px;
-  font-size: 12px; color: var(--warning); font-weight: 500;
-}
 </style>

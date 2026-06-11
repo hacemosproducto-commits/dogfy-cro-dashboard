@@ -57,8 +57,8 @@
         </Column>
         <Column field="telefono" header="Teléfono"  style="min-width:120px" />
         <Column field="email"    header="Email"     style="min-width:240px" />
-        <Column field="cupon"    header="Cupón"     sortable style="min-width:120px" />
-        <Column field="score"    header="Score"     sortable style="min-width:80px" />
+        <Column field="cupon"    header="Cupón"     style="min-width:120px" />
+        <Column field="score"    header="Score"     style="min-width:80px" />
         <Column field="importe"  header="Importe"   sortable style="min-width:90px" />
       </DataTable>
 
@@ -122,20 +122,14 @@ function onFiltrosAplicados(f: FiltrosValue) { filtrosActivos.value = f }
 const ventasFiltrosBadge = computed(() => {
   const f = filtrosActivos.value; if (!f) return ''
   let c = 0
-  if (f.planes.length) c++; if (f.campana) c++; if (f.cupon) c++
-  if (f.fechaDesde || f.fechaHasta) c++; if (f.importeMin !== null || f.importeMax !== null) c++
+  if (f.fechaDesde || f.fechaHasta) c++
   return c > 0 ? String(c) : ''
 })
 
 // Filtra ventas (Personal: las mías; Mi equipo: todas)
+// V1: solo filtro por periodo de tiempo (mock data no tiene Date reales, se aplica visualmente)
 const filtered = computed(() => {
-  let list = activeTab.value === 'Personal' ? mockVentas.slice(0, 30) : mockVentas
-  const f = filtrosActivos.value
-  if (f) {
-    if (f.planes.length)  list = list.filter(v => f.planes.includes((v as any).plan ?? ''))
-    if (f.campana)        list = list.filter(v => (v as any).campana === f.campana)
-    if (f.cupon)          list = list.filter(v => ((v as any).cupon ?? '').toLowerCase().includes(f.cupon.toLowerCase()))
-  }
+  const list = activeTab.value === 'Personal' ? mockVentas.slice(0, 30) : mockVentas
   return list
 })
 const { displayed, sentinel, hasMore } = useInfiniteScroll(filtered, 20)

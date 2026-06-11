@@ -37,16 +37,10 @@ const chips = computed(() => {
 
   if (f.estados.length)
     list.push({ key: 'estados', label: f.estados.length === 1 ? f.estados[0] : `Estado (${f.estados.length})` })
-  if (f.planes.length)
-    list.push({ key: 'planes', label: f.planes.length === 1 ? f.planes[0] : `Plan (${f.planes.length})` })
-  if (f.tiposError.length)
-    list.push({ key: 'tiposError', label: f.tiposError.length === 1 ? f.tiposError[0] : `Tipo (${f.tiposError.length})` })
-  if (f.campana)
-    list.push({ key: 'campana', label: f.campana })
-  if (f.cupon)
-    list.push({ key: 'cupon', label: `Cupón: ${f.cupon}` })
-  if (f.formaPago)
-    list.push({ key: 'formaPago', label: f.formaPago })
+  if (f.pais)
+    list.push({ key: 'pais', label: `País: ${f.pais}` })
+  if (f.agente)
+    list.push({ key: 'agente', label: f.agente })
 
   // Fecha/hora: un solo chip compacto
   const desde = [fmt(f.fechaDesde), fmt(f.horaDesde)].filter(Boolean).join(' ')
@@ -68,20 +62,14 @@ const chips = computed(() => {
 function remove(key: string) {
   if (!props.modelValue) return
   const f = { ...props.modelValue }
-  if (key === 'estados')    f.estados    = []
-  if (key === 'planes')     f.planes     = []
-  if (key === 'tiposError') f.tiposError = []
-  if (key === 'campana')    f.campana    = ''
-  if (key === 'cupon')      f.cupon      = ''
-  if (key === 'formaPago')  f.formaPago  = ''
-  if (key === 'fechas')     { f.fechaDesde = null; f.fechaHasta = null; f.horaDesde = null; f.horaHasta = null }
-  if (key === 'importe')    { f.importeMin = null; f.importeMax = null }
+  if (key === 'estados') f.estados = []
+  if (key === 'pais')    f.pais    = ''
+  if (key === 'agente')  f.agente  = ''
+  if (key === 'fechas')  { f.fechaDesde = null; f.fechaHasta = null; f.horaDesde = null; f.horaHasta = null }
 
   // Si quedan filtros activos emitir el objeto; si no, emitir null
-  const hasAny = f.estados.length || f.planes.length || f.tiposError.length
-    || f.campana || f.cupon || f.formaPago
-    || f.fechaDesde || f.fechaHasta || f.horaDesde || f.horaHasta
-    || f.importeMin !== null || f.importeMax !== null
+  const hasAny = f.estados.length || !!f.pais || !!f.agente
+    || f.fechaDesde || f.fechaHasta
   emit('update:modelValue', hasAny ? f : null)
 }
 </script>
