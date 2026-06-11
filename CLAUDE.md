@@ -14,7 +14,7 @@
 | Rama | Propósito | Vercel URL |
 |------|-----------|-----------|
 | `v2-ideal` | Visión completa: todas las mejoras UX **+** features nuevas. Es la rama principal de desarrollo del prototipo. | https://dogfy-crm-sales.vercel.app |
-| `v1-ux-only` | Solo mejoras de UX sobre el CRM actual — sin features nuevas. Misma funcionalidad que el staging, mejor experiencia visual. URL independiente pendiente de configurar. | — |
+| `v1-ux-only` | Solo mejoras de UX sobre el CRM actual — sin features nuevas. Misma funcionalidad que el staging, mejor experiencia visual. | https://dogfy-crm-v1-ux.vercel.app |
 
 - Para retomar trabajo en V2: trabaja en la rama `v2-ideal`
 - Para retomar trabajo en V1: trabaja en la rama `v1-ux-only`
@@ -899,12 +899,62 @@ toggleMobilePanel() / closeMobilePanel()
 
 ## Notificaciones (`src/views/NotificacionesView.vue`)
 
-### Filtros y acciones
-- Tabs: Todos / Chats / Citas / Recordatorios / Errores de pago
-- Scroll horizontal en mobile (tabs `overflow-x: auto`)
+### Filtro unificado (V2)
+
+En V2 los filtros de tipo y de lectura se fusionaron en **un único grupo de pills** en lugar de dos filas separadas:
+
+```ts
+const filtros = ['Todos', 'No leídos', 'Chats', 'Citas', 'Recordatorios', 'Errores de pago']
+const filtroActivo = ref('Todos')
+```
+
+Lógica de filtrado:
+```ts
+const tipoMap: Record<string, TipoNotif | null> = {
+  'Chats': 'chat', 'Citas': 'cita',
+  'Recordatorios': 'recordatorio', 'Errores de pago': 'error',
+}
+const notificacionesFiltradas = computed(() => {
+  let list = notificaciones.value
+  if (filtroActivo.value === 'No leídos') {
+    list = list.filter(n => !n.leida)
+  } else {
+    const tipo = tipoMap[filtroActivo.value]
+    if (tipo) list = list.filter(n => n.tipo === tipo)
+  }
+  if (filtroAgente.value) list = list.filter(n => n.agente === filtroAgente.value)
+  return list
+})
+```
+
+Template del filtro:
+```html
+<div class="notif-filters">
+  <div class="filter-pills">
+    <button v-for="f in filtros" :key="f" class="filter-pill"
+      :class="{ active: filtroActivo === f }" @click="filtroActivo = f">{{ f }}</button>
+  </div>
+  <span class="filters-spacer" />
+  <Select v-if="role !== 'agente'" v-model="filtroAgente" :options="agentesDisponibles"
+    placeholder="Agente" showClear class="agente-select" />
+  <button class="mark-all-btn mark-all-btn--filters" @click="marcarTodasLeidas">
+    Marcar todas como leídas
+  </button>
+</div>
+```
+
+CSS clave: `.filter-pills` (flex, gap 4px), `.filter-pill` (pill button neutro), `.filter-pill.active` (fondo brand).
+
+Responsive: a ≤900px `.mark-all-btn--filters` se oculta y `.mark-all-btn--header` aparece en el header de la vista.
+
+> **V1 mantiene tabs separados** (comportamiento de producción actual). El filtro unificado es exclusivo de V2.
+
+### Filtros y acciones (resumen)
+- Filtro: un único grupo de pills `Todos | No leídos | Chats | Citas | Recordatorios | Errores de pago`
+- Selector de agente (Team Lead / Manager): `<Select>` con `showClear` a la derecha de los pills
 - "Marcar todas como leídas":
   - **≤ 900px:** aparece en el header de la vista
-  - **> 900px:** aparece junto a los tabs (`.mark-all-btn--filters`)
+  - **> 900px:** aparece en la fila de filtros (`.mark-all-btn--filters`)
 
 ### Dialog de detalle
 - **< 900px:** bottom sheet (`position="bottom"`, `border-radius: 16px 16px 0 0`)
@@ -1287,6 +1337,26 @@ El botón "+ Crear lead" vive en `AppHeader` (visible en toda la sección `/lead
 ```css
 .reto-card { background: #FEF9C3 !important; border-color: #fde68a !important; }
 ```
+
+---
+
+## V2 — Diferencias respecto a V1
+
+V2 es la visión completa del CRM (UX + features nuevas). Las siguientes features existen en V2 pero **no en V1** (`v1-ux-only`):
+
+| Feature | Archivo | Notas |
+|---|---|---|
+| Override de gramaje por perro | `PerfilLeadView` | InputNumber + botón reset + `.gr-delta-chip` |
+| Pago con Bizum | `PerfilLeadView` | Botón en `presu-actions` |
+| Patologías incompatibles / bloqueo de venta | `PerfilLeadView` | `leadIncompatible`, `PATOLOGIAS_INCOMPATIBLES`, aviso "Venta bloqueada" |
+| Cupón pre-relleno (campaña track / pregrabado) | `mock.ts` | `cuponesAplicados` con cupón locked |
+| Columna "Fix" con InfoTooltip en ErroresPago | `ErroresPagoView` | Resolución de errores Stripe |
+| Filtro unificado en Notificaciones | `NotificacionesView` | Pills único vs. dos filas separadas |
+| Historial con tipo `errorPago` | `AppRightPanel` + `mock.ts` | V1 también lo tiene — arquitectura compartida |
+
+**URLs de deploy:**
+- V1: https://dogfy-crm-v1-ux.vercel.app
+- V2: https://dogfy-crm-sales.vercel.app
 
 ---
 

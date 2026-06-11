@@ -112,7 +112,11 @@
           <Select v-model="periodoEquipo" :options="['Día','Semana','Mes']" style="font-size:12px" />
         </template>
         <div class="equipo-chart-wrap" ref="equipoChartWrap">
-          <Chart ref="equipoChartRef" type="bar" :data="equipoBarData" :options="barOpts" style="height:240px" />
+          <div class="equipo-chart-scroll" ref="equipoScroll">
+            <div :style="{ minWidth: equipoMinWidth }">
+              <Chart ref="equipoChartRef" type="bar" :data="equipoBarData" :options="barOpts" style="height:240px" />
+            </div>
+          </div>
           <div ref="labelTip" class="label-tip" style="display:none" />
         </div>
       </SectionCard>
@@ -250,12 +254,15 @@ const periodoHistorico = ref('Anual')
 const showAsignacion = ref(false)
 
 // ── Equipo chart: agentes reales de España (primeros 8) ──────────────────────
-const espanaChartAgentes = mockAgentes.filter(a => a.pais === 'España').slice(0, 8)
+const espanaChartAgentes = mockAgentes.filter(a => a.pais === 'España').slice(0, 12)
 
 // Template refs para interactividad en x-axis labels
 const equipoChartRef  = ref<InstanceType<typeof Chart> | null>(null)
 const equipoChartWrap = ref<HTMLElement | null>(null)
+const equipoScroll    = ref<HTMLElement | null>(null)
 const labelTip        = ref<HTMLElement | null>(null)
+
+const equipoMinWidth = `${Math.max(espanaChartAgentes.length * 80, 400)}px`
 
 // Tolerancia horizontal (px) para detectar clic/hover sobre un tick
 const TICK_HIT_PX = 36
@@ -284,11 +291,12 @@ function onCanvasMove(e: MouseEvent) {
   if (idx >= 0) {
     _canvas.style.cursor = 'pointer'
     const chartInst = equipoChartRef.value?.getChart?.() as any
-    const tickX = chartInst?.scales?.x?.getPixelForTick(idx) ?? 0
-    const tickY = (chartInst?.chartArea?.bottom ?? 0) + 22
+    const tickX      = chartInst?.scales?.x?.getPixelForTick(idx) ?? 0
+    const scrollLeft = equipoScroll.value?.scrollLeft ?? 0
+    const tickY      = (chartInst?.chartArea?.bottom ?? 0) + 22
     labelTip.value.textContent = espanaChartAgentes[idx].nombre
     labelTip.value.style.display = 'block'
-    labelTip.value.style.left    = tickX + 'px'
+    labelTip.value.style.left    = (tickX - scrollLeft) + 'px'
     labelTip.value.style.top     = tickY + 'px'
   } else {
     _canvas.style.cursor = ''
@@ -524,6 +532,7 @@ const lineOpts = {
 
 /* Equipo chart */
 .equipo-chart-wrap { position: relative; }
+.equipo-chart-scroll { overflow-x: auto; }
 .label-tip {
   position: absolute;
   transform: translateX(-50%);

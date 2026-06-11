@@ -4,12 +4,25 @@
       <h2 class="view-title">Notificaciones</h2>
       <button class="mark-all-btn mark-all-btn--header" @click="marcarTodasLeidas">Marcar todas como leídas</button>
     </div>
+    <!-- ── Filtros unificados ── -->
     <div class="notif-filters">
-      <div class="notif-tabs">
-        <button v-for="f in filtros" :key="f" class="tab-btn" :class="{ active: filtroActivo === f }" @click="filtroActivo = f">
-          {{ f }}
-        </button>
+      <div class="filter-pills">
+        <button
+          v-for="f in filtros" :key="f"
+          class="filter-pill" :class="{ active: filtroActivo === f }"
+          @click="filtroActivo = f"
+        >{{ f }}</button>
       </div>
+      <span class="filters-spacer" />
+      <!-- Agente (TL / Manager) -->
+      <Select
+        v-if="role !== 'agente'"
+        v-model="filtroAgente"
+        :options="agentesDisponibles"
+        placeholder="Agente"
+        showClear
+        class="agente-select"
+      />
       <button class="mark-all-btn mark-all-btn--filters" @click="marcarTodasLeidas">Marcar todas como leídas</button>
     </div>
     <SectionCard>
@@ -155,9 +168,13 @@ import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import DatePicker from 'primevue/datepicker'
+import Select from 'primevue/select'
 import SectionCard from '@/components/ui/SectionCard.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
+const role = computed(() => auth.currentRole)
 
 type TipoNotif = 'chat' | 'cita' | 'recordatorio' | 'error'
 
@@ -170,10 +187,19 @@ interface Notif {
   hecho?: boolean      // recordatorios completados
   leadId?: string      // chat, cita, error
   phone?: string       // error de pago → llamar
+  agente?: string      // para filtro por agente (TL/Manager)
 }
 
-const filtros = ['Todos', 'Chats', 'Citas', 'Recordatorios', 'Errores de pago']
+// Un único eje de filtrado: tipo + estado de lectura unificados
+const filtros = ['Todos', 'No leídos', 'Chats', 'Citas', 'Recordatorios', 'Errores de pago']
 const filtroActivo = ref('Todos')
+
+// ── Filtro por agente (TL / Manager) ──
+const filtroAgente = ref('')
+const agentesDisponibles = computed(() => {
+  const nombres = new Set(notificaciones.value.map(n => n.agente).filter(Boolean) as string[])
+  return [...nombres].sort()
+})
 
 const iconMap: Record<TipoNotif, string> = {
   chat:         'pi pi-comments',
@@ -193,8 +219,7 @@ const tagSeverity: Record<TipoNotif, string> = {
   recordatorio: 'secondary',
   error:        'danger',
 }
-const filtroMap: Record<string, TipoNotif | null> = {
-  'Todos':           null,
+const tipoMap: Record<string, TipoNotif | null> = {
   'Chats':           'chat',
   'Citas':           'cita',
   'Recordatorios':   'recordatorio',
@@ -202,32 +227,38 @@ const filtroMap: Record<string, TipoNotif | null> = {
 }
 
 const notificaciones = ref<Notif[]>([
-  { id: 1,  tipo: 'chat',         texto: 'María García te ha enviado un mensaje por WhatsApp',           fecha: 'Hoy · 10:00',        leida: false, leadId: '1'  },
-  { id: 2,  tipo: 'cita',         texto: 'Cita confirmada con el papá de Spike para el martes 18',       fecha: 'Hoy · 09:55',        leida: false, leadId: '2'  },
-  { id: 3,  tipo: 'error',        texto: 'Error de pago detectado — Lead #4 · insufficient_funds',       fecha: 'Hoy · 09:30',        leida: false, leadId: '4',  phone: '+34 699 652 338' },
-  { id: 4,  tipo: 'recordatorio', texto: 'Avisar renovación a Carlos García antes de las 12:00',         fecha: 'Hoy · 09:15',        leida: false },
-  { id: 5,  tipo: 'chat',         texto: 'Carlos López ha respondido a tu mensaje',                      fecha: 'Hoy · 09:00',        leida: false, leadId: '5'  },
-  { id: 6,  tipo: 'error',        texto: 'Error de pago — Lead #11 · card_declined · 3 intentos',        fecha: 'Hoy · 08:47',        leida: false, leadId: '11', phone: '+34 611 223 344' },
-  { id: 7,  tipo: 'cita',         texto: 'Recordatorio: cita con Ana Soto en 30 minutos',                fecha: 'Hoy · 08:30',        leida: true,  leadId: '7'  },
-  { id: 8,  tipo: 'recordatorio', texto: 'Seguimiento post-venta pendiente — Spike Premium',             fecha: 'Hoy · 08:00',        leida: true  },
-  { id: 9,  tipo: 'chat',         texto: 'Nuevo mensaje de Laura Martínez — lleva 2h sin respuesta',     fecha: 'Ayer · 19:42',       leida: true,  leadId: '9'  },
-  { id: 10, tipo: 'cita',         texto: 'Cita cancelada por el cliente — Beatriz Ruiz (martes 18)',     fecha: 'Ayer · 18:10',       leida: true,  leadId: '10' },
-  { id: 11, tipo: 'error',        texto: 'Error de pago resuelto — Lead #7 · marcado como gestionado',  fecha: 'Ayer · 17:55',       leida: true,  leadId: '7',  phone: '+34 622 334 455' },
-  { id: 12, tipo: 'recordatorio', texto: 'Enviar presupuesto Plan B a Ana Soto',                         fecha: 'Ayer · 16:30',       leida: true  },
-  { id: 13, tipo: 'chat',         texto: 'Pedro Jiménez ha leído tu mensaje pero no ha respondido',      fecha: 'Ayer · 15:00',       leida: true,  leadId: '13' },
-  { id: 14, tipo: 'cita',         texto: 'Nueva cita creada con la mamá de Rocky — jue 20 a las 11:00', fecha: 'Ayer · 13:20',       leida: true,  leadId: '14' },
-  { id: 15, tipo: 'error',        texto: 'Error de pago detectado — Lead #23 · do_not_honor',            fecha: 'Ayer · 11:05',       leida: true,  leadId: '23', phone: '+34 633 445 566' },
-  { id: 16, tipo: 'recordatorio', texto: 'Llamar a cliente VIP antes del mediodía — prioridad alta',     fecha: 'Lun 16 feb · 10:00', leida: true  },
-  { id: 17, tipo: 'chat',         texto: 'Sofía Castro pregunta por el estado de su pedido',              fecha: 'Lun 16 feb · 09:30', leida: true,  leadId: '17' },
-  { id: 18, tipo: 'cita',         texto: 'Cita reprogramada — Pablo Moreno de lunes a miércoles 19',     fecha: 'Lun 16 feb · 08:55', leida: true,  leadId: '18' },
-  { id: 19, tipo: 'error',        texto: 'Error de pago — Lead #31 · expired_card · requiere acción',    fecha: 'Lun 16 feb · 08:15', leida: true,  leadId: '31', phone: '+34 644 556 677' },
-  { id: 20, tipo: 'recordatorio', texto: 'Renovación pendiente — contrato Lead #8 vence esta semana',    fecha: 'Lun 16 feb · 08:00', leida: true  },
+  { id: 1,  tipo: 'chat',         texto: 'María García te ha enviado un mensaje por WhatsApp',           fecha: 'Hoy · 10:00',        leida: false, leadId: '1',  agente: 'Juan C.'  },
+  { id: 2,  tipo: 'cita',         texto: 'Cita confirmada con el papá de Spike para el martes 18',       fecha: 'Hoy · 09:55',        leida: false, leadId: '2',  agente: 'Laura R.' },
+  { id: 3,  tipo: 'error',        texto: 'Error de pago detectado — Lead #4 · insufficient_funds',       fecha: 'Hoy · 09:30',        leida: false, leadId: '4',  phone: '+34 699 652 338', agente: 'Carlos D.' },
+  { id: 4,  tipo: 'recordatorio', texto: 'Avisar renovación a Carlos García antes de las 12:00',         fecha: 'Hoy · 09:15',        leida: false, agente: 'Juan C.' },
+  { id: 5,  tipo: 'chat',         texto: 'Carlos López ha respondido a tu mensaje',                      fecha: 'Hoy · 09:00',        leida: false, leadId: '5',  agente: 'Ana S.'   },
+  { id: 6,  tipo: 'error',        texto: 'Error de pago — Lead #11 · card_declined · 3 intentos',        fecha: 'Hoy · 08:47',        leida: false, leadId: '11', phone: '+34 611 223 344', agente: 'Laura R.' },
+  { id: 7,  tipo: 'cita',         texto: 'Recordatorio: cita con Ana Soto en 30 minutos',                fecha: 'Hoy · 08:30',        leida: true,  leadId: '7',  agente: 'Carlos D.' },
+  { id: 8,  tipo: 'recordatorio', texto: 'Seguimiento post-venta pendiente — Spike Premium',             fecha: 'Hoy · 08:00',        leida: true,  agente: 'Juan C.'  },
+  { id: 9,  tipo: 'chat',         texto: 'Nuevo mensaje de Laura Martínez — lleva 2h sin respuesta',     fecha: 'Ayer · 19:42',       leida: true,  leadId: '9',  agente: 'María T.' },
+  { id: 10, tipo: 'cita',         texto: 'Cita cancelada por el cliente — Beatriz Ruiz (martes 18)',     fecha: 'Ayer · 18:10',       leida: true,  leadId: '10', agente: 'Ana S.'   },
+  { id: 11, tipo: 'error',        texto: 'Error de pago resuelto — Lead #7 · marcado como gestionado',  fecha: 'Ayer · 17:55',       leida: true,  leadId: '7',  phone: '+34 622 334 455', agente: 'Juan C.' },
+  { id: 12, tipo: 'recordatorio', texto: 'Enviar presupuesto Plan B a Ana Soto',                         fecha: 'Ayer · 16:30',       leida: true,  agente: 'Laura R.' },
+  { id: 13, tipo: 'chat',         texto: 'Pedro Jiménez ha leído tu mensaje pero no ha respondido',      fecha: 'Ayer · 15:00',       leida: true,  leadId: '13', agente: 'Carlos D.' },
+  { id: 14, tipo: 'cita',         texto: 'Nueva cita creada con la mamá de Rocky — jue 20 a las 11:00', fecha: 'Ayer · 13:20',       leida: true,  leadId: '14', agente: 'María T.' },
+  { id: 15, tipo: 'error',        texto: 'Error de pago detectado — Lead #23 · do_not_honor',            fecha: 'Ayer · 11:05',       leida: true,  leadId: '23', phone: '+34 633 445 566', agente: 'Ana S.' },
+  { id: 16, tipo: 'recordatorio', texto: 'Llamar a cliente VIP antes del mediodía — prioridad alta',     fecha: 'Lun 16 feb · 10:00', leida: true,  agente: 'Juan C.'  },
+  { id: 17, tipo: 'chat',         texto: 'Sofía Castro pregunta por el estado de su pedido',              fecha: 'Lun 16 feb · 09:30', leida: true,  leadId: '17', agente: 'Laura R.' },
+  { id: 18, tipo: 'cita',         texto: 'Cita reprogramada — Pablo Moreno de lunes a miércoles 19',     fecha: 'Lun 16 feb · 08:55', leida: true,  leadId: '18', agente: 'Carlos D.' },
+  { id: 19, tipo: 'error',        texto: 'Error de pago — Lead #31 · expired_card · requiere acción',    fecha: 'Lun 16 feb · 08:15', leida: true,  leadId: '31', phone: '+34 644 556 677', agente: 'María T.' },
+  { id: 20, tipo: 'recordatorio', texto: 'Renovación pendiente — contrato Lead #8 vence esta semana',    fecha: 'Lun 16 feb · 08:00', leida: true,  agente: 'Ana S.'   },
 ])
 
 const notificacionesFiltradas = computed(() => {
-  const tipo = filtroMap[filtroActivo.value]
-  if (!tipo) return notificaciones.value
-  return notificaciones.value.filter(n => n.tipo === tipo)
+  let list = notificaciones.value
+  if (filtroActivo.value === 'No leídos') {
+    list = list.filter(n => !n.leida)
+  } else {
+    const tipo = tipoMap[filtroActivo.value]
+    if (tipo) list = list.filter(n => n.tipo === tipo)
+  }
+  if (filtroAgente.value) list = list.filter(n => n.agente === filtroAgente.value)
+  return list
 })
 
 // ── Responsive dialog position ─────────────────────────
@@ -320,17 +351,25 @@ function marcarTodasLeidas() {
 .view-title { font-size: 20px; font-weight: 700; }
 .mark-all-btn--header { display: none; }
 
-/* Filtros */
-.notif-filters { display: flex; align-items: center; gap: 8px; }
-.notif-tabs {
-  flex: 1; min-width: 0;
-  display: flex; align-items: center; gap: 2px;
-  overflow-x: auto; scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+/* ── Filtros unificados ── */
+.notif-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Grupos de pills */
+.filter-pills { display: flex; gap: 2px; background: var(--n-100); border-radius: 8px; padding: 2px; flex-shrink: 0; }
+.filter-pill {
+  padding: 5px 10px; border-radius: 6px; border: none; background: transparent;
+  font-size: 12px; font-weight: 500; color: var(--n-500); cursor: pointer;
+  transition: background .12s, color .12s; white-space: nowrap;
 }
-.notif-tabs::-webkit-scrollbar { display: none; }
-.tab-btn { flex-shrink: 0; background: none; border: none; padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--n-600); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-.tab-btn.active { background: var(--brand-subtle); color: var(--brand); font-weight: 600; }
+.filter-pill:hover  { background: var(--n-0); color: var(--n-700); }
+.filter-pill.active { background: var(--n-0); color: var(--n-900); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+/* Espaciador flexible empuja agente-select y mark-all a la derecha */
+.filters-spacer { flex: 1; min-width: 8px; }
+
+/* Agente select */
+.agente-select { min-width: 160px; flex-shrink: 0; }
+:deep(.agente-select.p-select) { font-size: 13px; }
 
 .mark-all-btn {
   flex-shrink: 0; font-size: 12px; font-weight: 500;
@@ -340,11 +379,11 @@ function marcarTodasLeidas() {
 }
 .mark-all-btn:hover { background: var(--n-50); border-color: var(--n-300); }
 
-/* Tablet vertical + mobile: button moves to header row */
+/* Tablet vertical + mobile: mark-all sube al header */
 @media (max-width: 900px) {
-  .notif-filters         { gap: 0; }
   .mark-all-btn--filters { display: none; }
   .mark-all-btn--header  { display: inline-flex; }
+  .filters-spacer        { display: none; }
 }
 
 /* Feed */
