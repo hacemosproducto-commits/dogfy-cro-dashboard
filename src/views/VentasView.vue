@@ -58,7 +58,6 @@
         <Column field="telefono" header="Teléfono"  style="min-width:120px" />
         <Column field="email"    header="Email"     style="min-width:240px" />
         <Column field="cupon"    header="Cupón"     style="min-width:120px" />
-        <Column field="score"    header="Score"     style="min-width:80px" />
         <Column field="importe"  header="Importe"   sortable style="min-width:90px" />
       </DataTable>
 
