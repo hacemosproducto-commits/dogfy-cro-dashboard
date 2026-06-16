@@ -130,6 +130,11 @@
           <SectionCard class="card-compra module-card">
             <template #header>
               <span class="card-title-row"><i class="pi pi-box" /> Datos de la compra</span>
+              <Tag
+                :value="venta.perro.plan"
+                :severity="venta.perro.plan === 'Plan completo' ? 'success' : 'warn'"
+                class="plan-badge"
+              />
             </template>
 
             <div class="compra-fechas">
@@ -352,6 +357,7 @@ function historialIcon(tipo: string) {
 .module-card { padding: 12px 14px !important; border-radius: 10px; }
 .card-title-row { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--n-800); }
 .card-edit { margin-left: auto; }
+.plan-badge { margin-left: auto; font-size: 11px; }
 .svg-icon { width: 18px; height: 18px; vertical-align: middle; }
 
 /* ── Perro ── */
