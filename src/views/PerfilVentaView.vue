@@ -46,43 +46,73 @@
               <Button icon="pi pi-pencil" text rounded size="small" class="card-edit" @click="showEditarPerro = true" />
             </template>
             <div class="perro-section">
-              <!-- Solo gr/día — igual que en detalle de lead -->
-              <p class="perro-line">{{ venta.perro.gDia }}</p>
-              <p class="perro-line">Menús: {{ venta.perro.menus.map(m => `[${m}]`).join(', ') }}</p>
+              <span class="ps-stitle">Nutrición</span>
+              <div class="ps-nutri-row">
+                <div class="ps-gr-hero">
+                  <span class="ps-gr-num">{{ isMixto ? Math.round(parseInt(venta.perro.gDia) / 2) : parseInt(venta.perro.gDia) }}</span>
+                  <span class="ps-gr-unit">g/día</span>
+                </div>
+                <span class="ps-plan-pill" :class="isMixto ? 'ps-plan-pill--mixto' : 'ps-plan-pill--completo'">
+                  {{ isMixto ? 'Plan mixto' : 'Plan completo' }}
+                </span>
+              </div>
+              <div class="ps-inline-row">
+                <span class="ps-key">Tipo</span>
+                <span class="ps-val">{{ venta.perro.tipoComida }}</span>
+              </div>
+              <div class="ps-menus-row">
+                <span class="ps-key">Menús</span>
+                <div class="ps-chips">
+                  <span v-for="m in venta.perro.menus" :key="m" class="ps-chip">{{ m }}</span>
+                </div>
+              </div>
             </div>
             <hr class="card-divider" />
             <div class="perro-section">
-              <p class="perro-line">[{{ venta.perro.sexo }}] · [{{ venta.perro.raza }}]</p>
-              <p class="perro-line">[{{ venta.perro.etapa }}] · [{{ venta.perro.edad }}]</p>
-              <p class="perro-line">[{{ venta.perro.peso }}] · [{{ venta.perro.forma }}] · [{{ venta.perro.tipoComida }}]</p>
+              <span class="ps-stitle">Físico</span>
+              <div class="ps-grid2">
+                <div class="ps-pair"><span class="ps-key">Sexo</span><span class="ps-val">{{ venta.perro.sexo }}</span></div>
+                <div class="ps-pair"><span class="ps-key">Peso</span><span class="ps-val">{{ venta.perro.peso }}</span></div>
+                <div class="ps-pair"><span class="ps-key">Raza</span><span class="ps-val">{{ venta.perro.raza }}</span></div>
+                <div class="ps-pair"><span class="ps-key">Edad</span><span class="ps-val">{{ venta.perro.edad }}</span></div>
+                <div class="ps-pair"><span class="ps-key">Etapa</span><span class="ps-val">{{ venta.perro.etapa }}</span></div>
+                <div class="ps-pair"><span class="ps-key">Silueta</span><span class="ps-val">{{ venta.perro.forma }}</span></div>
+              </div>
             </div>
             <hr class="card-divider" />
             <div class="perro-section">
-              <p class="perro-line">Nivel de actividad: [{{ venta.perro.nivelActividad }}] · Esterilizado: [{{ venta.perro.esterilizado }}]</p>
-              <p class="perro-line bold">Patologías:</p>
-              <div class="patologias">
-                <InfoTooltip
-                  v-for="(p, i) in venta.perro.patologias"
-                  :key="i"
-                >
-                  <Tag
-                    :value="p.nombre"
-                    :severity="p.incompatible ? 'danger' : 'info'"
-                    :icon="p.incompatible ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"
-                  />
-                  <template v-if="p.incompatible" #content>
-                    <p class="itip-title itip-title--error">⚠ {{ p.nombre }}</p>
-                    <hr class="itip-sep" />
-                    <p class="itip-row">{{ incompatReason(p.nombre) }}</p>
-                    <p class="itip-row">La fórmula estándar no puede adaptarse a esta patología.</p>
-                    <a href="https://help.dogfydiet.com/patologias" target="_blank" rel="noopener" class="itip-link">Ver más en Help Center →</a>
-                  </template>
-                </InfoTooltip>
+              <span class="ps-stitle">Salud</span>
+              <div class="ps-grid2 ps-grid2--mb">
+                <div class="ps-pair"><span class="ps-key">Actividad</span><span class="ps-val">{{ capitalize(venta.perro.nivelActividad) }}</span></div>
+                <div class="ps-pair"><span class="ps-key">Esterilizado</span><span class="ps-val">{{ venta.perro.esterilizado }}</span></div>
               </div>
-              <div v-if="hasIncompatible" class="incompatible-banner">
-                <i class="pi pi-exclamation-triangle" />
-                <span>Incompatible con Dogfy Diet</span>
-              </div>
+              <template v-if="venta.perro.patologias.length">
+                <p class="ps-pat-label">Patologías</p>
+                <div class="patologias">
+                  <InfoTooltip
+                    v-for="(p, i) in venta.perro.patologias"
+                    :key="i"
+                  >
+                    <Tag
+                      :value="p.nombre"
+                      :severity="p.incompatible ? 'danger' : 'info'"
+                      :icon="p.incompatible ? 'pi pi-exclamation-triangle' : 'pi pi-info-circle'"
+                    />
+                    <template v-if="p.incompatible" #content>
+                      <p class="itip-title itip-title--error">⚠ {{ p.nombre }}</p>
+                      <hr class="itip-sep" />
+                      <p class="itip-row">{{ incompatReason(p.nombre) }}</p>
+                      <p class="itip-row">La fórmula estándar no puede adaptarse a esta patología.</p>
+                      <a href="https://help.dogfydiet.com/patologias" target="_blank" rel="noopener" class="itip-link">Ver más en Help Center →</a>
+                    </template>
+                  </InfoTooltip>
+                </div>
+                <div v-if="hasIncompatible" class="incompatible-banner">
+                  <i class="pi pi-exclamation-triangle" />
+                  <span>Incompatible con Dogfy Diet</span>
+                </div>
+              </template>
+              <p v-else class="ps-key" style="margin-top: 2px;">Sin patologías</p>
             </div>
           </SectionCard>
 
@@ -280,6 +310,8 @@ function addNota() {
 
 const canEditAgente = computed(() => auth.currentRole !== 'agente')
 const hasIncompatible = computed(() => venta.perro.patologias.some(p => p.incompatible))
+const isMixto = computed(() => venta.perro.plan === 'Plan mixto')
+function capitalize(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '' }
 
 // ── Modales ────────────────────────────────────────
 const showEditarPerro = ref(false)
@@ -357,18 +389,34 @@ function historialIcon(tipo: string) {
 
 /* ── Perro ── */
 .perro-section { display: flex; flex-direction: column; gap: 6px; padding: 4px 0; }
-.perro-line { font-size: 13px; color: var(--n-700, #2b2b2b); margin: 0; line-height: 1.6; }
-.perro-line.bold { font-weight: 600; margin-top: 4px; }
 .card-divider { border: none; border-top: 1px solid var(--n-150, #ebedf2); margin: 8px 0; }
-.patologias { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.patologias { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .incompatible-banner {
   display: flex; align-items: center; gap: 6px;
   background: #fff1f0; border: 1px solid #ffd0cb; color: #c8452a;
   padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
   margin-top: 10px;
 }
+.ps-stitle { font-size: 10px; font-weight: 600; color: var(--n-400); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 2px; }
+.ps-nutri-row { display: flex; align-items: center; justify-content: space-between; }
+.ps-gr-hero { display: flex; align-items: baseline; gap: 4px; }
+.ps-gr-num { font-size: 28px; font-weight: 600; color: var(--n-800); line-height: 1.1; }
+.ps-gr-unit { font-size: 13px; color: var(--n-400); }
+.ps-plan-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+.ps-plan-pill--completo { background: var(--success-bg); color: #15803d; }
+.ps-plan-pill--mixto { background: #FFF7ED; color: #C2410C; }
+.ps-inline-row { display: flex; align-items: center; gap: 8px; }
+.ps-menus-row { display: flex; align-items: flex-start; gap: 8px; }
+.ps-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.ps-chip { font-size: 12px; background: var(--n-50); color: var(--n-700); padding: 2px 9px; border-radius: 100px; border: 1px solid var(--n-150); white-space: nowrap; }
+.ps-key { font-size: 11px; color: var(--n-400); }
+.ps-val { font-size: 13px; font-weight: 500; color: var(--n-700); }
+.ps-pair { display: flex; flex-direction: column; gap: 1px; }
+.ps-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.ps-grid2--mb { margin-bottom: 8px; }
+.ps-pat-label { font-size: 10px; font-weight: 600; color: var(--n-400); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
 
-/* patologias e historial errors usan InfoTooltip (ver InfoTooltip.vue) */
+/* historial errors usan InfoTooltip (ver InfoTooltip.vue) */
 
 /* ── Lead ── */
 .lead-meta p { font-size: 13px; margin: 4px 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
